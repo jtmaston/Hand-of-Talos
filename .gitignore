@@ -5,3 +5,4 @@ venv
 xextproto-7.3.0
 xproto-7.0.31
 build.sh
+.idea

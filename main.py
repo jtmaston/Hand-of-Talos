@@ -41,6 +41,8 @@ class DashboardApp(MDApp):
         for i in range(0, 5):
             self.root.ids[f'ax{i + 1}_readout'].text = f"Axa {i + 1}: {angles[i]}°"
 
+    def learn(self):
+        self.root.ids['bottom_bar'].
 
 if __name__ == '__main__':
     DashboardApp().run()

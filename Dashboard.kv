@@ -8,12 +8,23 @@
 GridLayout:
     rows: 3
     cols: 1
+    canvas.before:
+        Color:
+            rgba: 0.2375, 0.2375, 0.2885, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    # 255 = 100
+    # x   = 25
+
 
     GridLayout:
         rows: 1
         cols: 4
         spacing: 30
         padding: 30
+
+
         size_hint_x: 1
         size_hint_y: 0.1
 
@@ -163,7 +174,9 @@ GridLayout:
                 id: ax5_readout
                 text: "Axa 5: "
 
+
+
     BoxLayout:
+        id: bottom_bar
         size_hint_x: 1
         size_hint_y: 0.3
-

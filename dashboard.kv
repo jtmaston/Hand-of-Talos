@@ -3,7 +3,7 @@
     theme_text_color: "Custom"
     text_color: 0, 0, 0, 1
     md_bg_color: utils.get_color_from_hex("FEBE0C")
-
+    
 
 GridLayout:
     rows: 3
@@ -24,14 +24,15 @@ GridLayout:
         spacing: 30
         padding: 30
 
-
         size_hint_x: 1
-        size_hint_y: 0.1
+        size_hint_y: 0.2
 
         MenuButton:
             size_hint_x: .20
             size_hint_y: 1
             text: "Mod învățare"
+            on_press: app.learn()
+
 
         MenuButton:
             size_hint_x: .20
@@ -56,7 +57,7 @@ GridLayout:
         GridLayout:
             size_hint_x: 0.3
             size_hint_y: 1
-            rows: 5
+            rows: 6
             cols: 2
             padding: 10
             MDLabel:
@@ -129,19 +130,32 @@ GridLayout:
                 hint: True
                 color: app.theme_cls.accent_color
 
+            MDLabel:
+                color: utils.get_color_from_hex("FEBE0C")
+                size_hint_x: 0.3
+                text: "Gripper"
+
+            MDSlider:
+                size_hint_x: 0.7
+                id: ax6
+                min: -90
+                max: 90
+                value: 0
+                hint: True
+                color: app.theme_cls.accent_color
+
         BoxLayout:
             size_hint_y: 1
             size_hint_x: 0.7
 
-            Camera:
+            AsyncImage:
                 size_hint_y: 1
-                padding: 0
                 id: camera
-                resolution: (1280, 720)
+                #resolution: (1280, 720)
+                resoultion: (640, 480)
                 play: True
                 allow_stretch: True
                 keep_ratio: False
-
         GridLayout:
             rows: 5
             cols: 0
@@ -176,7 +190,28 @@ GridLayout:
 
 
 
-    BoxLayout:
+    GridLayout:
         id: bottom_bar
         size_hint_x: 1
         size_hint_y: 0.3
+        rows: 1
+        cols: 3
+        padding: 75
+        spacing: 50
+
+        MenuButton:
+            size_hint_x: .20
+            size_hint_y: 1
+            text: " Pasul anterior "
+            on_press: app.learn()
+
+        MenuButton:
+            size_hint_x: .20
+            size_hint_y: 1
+            text: " 0 "
+
+        MenuButton:
+            size_hint_x: .20
+            size_hint_y: 1
+            text: "Pasul urmator"
+

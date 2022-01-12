@@ -1,48 +1,81 @@
+import cv2
+
 from math import floor
-
-from kivy.clock import Clock
-
 from kivy import Config
 
 Config.set('graphics', 'width', f'{1080}')
 Config.set('graphics', 'height', f'{720}')
 Config.set('graphics', 'maxfps', '60')
 
-import kivy
+
+
+
 from kivymd.app import MDApp
 
-kivy.require('2.0.0')
-from Arm_Lib import Arm_Device
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
 
-angles = [30, 90, 71, 24, 24]
 
+import kivy
+
+
+from robot import Robot
+from kivy.clock import Clock
+from kivy import Config
+
+from time import sleep
+
+from threading import Thread
 
 class DashboardApp(MDApp):
     def __init__(self):
+        self.running = True
         super(DashboardApp, self).__init__()
-        #self.robot = Arm_Device()
-        Clock.schedule_interval(self.spoof_axis_data, 0)
-        Clock.schedule_interval(self.poll_axis_data, 0)
+        self.robot = Robot()
+        Clock.schedule_interval(self.display_axis_data, 0)
+        #Clock.schedule_interval(self.viewfinder, 0.033)
+        self.motor_callback = Clock.schedule_interval(self.update_motors, 0)
+        self.viewfinder_thread = Thread(target = self.viewfinder, args=(self,))
+        #viewfinder_thread.start()
 
-    def build(self):
-        pass
+    def build(self, *args, **kwargs):
+        super(DashboardApp, self).build(*args, **kwargs)
+        ##self.viewfinder_thread.start()
 
-    def get_axis_data(self):
-        for i in range(0, 6):
-            self.root.ids[f'ax{i + 1}'] = self.robot.Arm_serial_servo_read(i + 1)
+    def viewfinder(self, *args, **kwargs):
+        self = args[0]
+        #camera = cv2.VideoCapture(0)
 
-    def poll_axis_data(self, *args, **kwargs):
-        global angles
-        angles.clear()
-        for i in range(0, 5):
-            angles.append(int(floor(self.root.ids[f"ax{i + 1}"].value)))
+        """while self.running:
+            print(self.running)
+            ret, frame = camera.read()
+            cv2.imshow("CV2 Image", frame)
+            buf1 = cv2.flip(frame, 0)
+            buf = buf1.tostring()
+            texture1 = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='rgba')
+            texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            self.root.ids['camera'].texture = texture1
 
-    def spoof_axis_data(self, *args, **kwargs):
+            print(self.root.ids['camera'].texture)
+
+            sleep(0.1)"""
+        self.root.ids['camera'].texture = self.robot.framebuffer()
+
+    def display_axis_data(self, *args, **kwargs):
+        print(self.root.ids['camera'].texture)
+        angles = self.robot.poll_axes()
         for i in range(0, 5):
             self.root.ids[f'ax{i + 1}_readout'].text = f"Axa {i + 1}: {angles[i]}°"
 
-    def learn(self):
-        self.root.ids['bottom_bar'].
+    def update_motors(self, *args, **kwargs):
+        self.robot.move([int(self.root.ids[f"ax{i + 1}"].value + 90) for i in range(0,6)])
+
+    def learn(self, *args, **kwargs):
+        #self.motor_callback.cancel()
+        self.robot.reset()
+
+    def on_stop(self, *args, **kwargs):
+        self.runing = False
 
 if __name__ == '__main__':
     DashboardApp().run()

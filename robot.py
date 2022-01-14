@@ -41,11 +41,10 @@ class Robot:
             if target_angles[-1] < 25:
                 target_angles[-1] = 25
             self.arm.Arm_serial_servo_write6_array(target_angles, 500)
-
+            return target_angles
     def reset(self):
         self.arm.Arm_serial_set_torque(1)
         self.arm.Arm_serial_servo_write6_array([90, 90, 90, 90, 90, 90], 500)
-        #Clock.usleep( 2000000 )
         sleep(2)
 
     def toggle_learn(self):

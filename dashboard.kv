@@ -31,7 +31,7 @@ GridLayout:
             size_hint_x: .20
             size_hint_y: 1
             text: "Mod învățare"
-            on_press: app.learn()
+            on_press: app.mde_lrn()
 
 
         MenuButton:
@@ -48,7 +48,9 @@ GridLayout:
             size_hint_x: .20
             size_hint_y: 1
             text: "STOP"
-
+            on_press: app.robot.halt()
+            md_bg_color: utils.get_color_from_hex("FF0000")
+            
     GridLayout:
         size_hint_x: 1
         size_hint_y: 0.5
@@ -151,8 +153,7 @@ GridLayout:
             AsyncImage:
                 size_hint_y: 1
                 id: camera
-                #resolution: (1280, 720)
-                resoultion: (640, 480)
+                #resolution: (1280, resoultion: (640, 480)
                 play: True
                 allow_stretch: True
                 keep_ratio: False
@@ -203,15 +204,18 @@ GridLayout:
             size_hint_x: .20
             size_hint_y: 1
             text: " Pasul anterior "
-            on_press: app.learn()
+            on_press: app.robot.remove_step()
+
 
         MenuButton:
             size_hint_x: .20
             size_hint_y: 1
             text: " 0 "
+            on_press: app.strt()
 
         MenuButton:
             size_hint_x: .20
             size_hint_y: 1
             text: "Pasul urmator"
+            on_press: app.robot.add_step()
 

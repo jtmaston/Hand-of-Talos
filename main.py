@@ -25,6 +25,22 @@ from kivy.clock import Clock
 
 from threading import Thread
 from numpy import clip
+from ctypes import *
+
+ik_lib = CDLL("ik.so")
+
+
+class Point(Structure):
+    _fields_ = [
+        ('x', c_float),
+        ('y', c_float),
+        ('z', c_float)
+    ]
+
+
+def PytoC(arr):
+    seq = c_int * len(arr)
+    return seq(*arr)
 
 
 class DashboardApp(MDApp):
@@ -74,7 +90,12 @@ class DashboardApp(MDApp):
 
     def update_motors(self, *args, **kwargs):
         self.control()
-        self.robot.move([int(self.root.ids[f"ax{i + 1}"].value + 90) for i in range(0, 6)])
+        targets = [int(self.root.ids[f"ax{i + 1}"].value + 90) for i in range(0, 6)]
+        self.robot.move(targets)
+
+        tgt = Point.from_address( ik_lib.inverse_kinematics(PytoC(targets), PytoC([1, 1, 1, 1, 1])) )
+        print(f"{tgt.x} {tgt.y} {tgt.z}")
+        ik_lib.free_point(byref(tgt))
 
     def mde_lrn(self):
         Thread(target=self.robot.toggle_learn).start()

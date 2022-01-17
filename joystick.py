@@ -13,7 +13,7 @@ class Joystick:
         self.buttons = ['up', 'down', 'left', 'right', 'start', 'A', 'B', 'X', 'Y', 'L', 'R']
         self.axes = [0, 0]
 
-    def poll_buttons(self):
+    def poll_buttons(self, caller=None):
         self.axes[0] = self.joystick.get_axis(0)
         self.axes[1] = self.joystick.get_axis(1)
 

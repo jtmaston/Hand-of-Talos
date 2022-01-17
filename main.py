@@ -22,8 +22,6 @@ from kivy import Config
 from time import sleep
 
 from threading import Thread
-import asynckivy as ak
-
 from numpy import clip
 
 class DashboardApp(MDApp):
@@ -31,10 +29,9 @@ class DashboardApp(MDApp):
         super(DashboardApp, self).__init__()
         self.robot = Robot()
 
-        #Clock.schedule_interval(self.display_axis_data, 0.1)
+        Clock.schedule_interval(self.display_axis_data, 0.1)
         Clock.schedule_interval(self.viewfinder, 0.066)
-        #Clock.schedule_interval(self.update_motors, 0.05)
-        #Clock.schedule_interval(self.upd, 0.066)
+        Clock.schedule_interval(self.update_motors, 0.05)
 
         self.control_pad = Joystick()
         #Clock.schedule_interval(self.control_pad.poll_buttons, 0.1)

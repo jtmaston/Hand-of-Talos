@@ -1,6 +1,9 @@
 import pygame
-from pygame.locals import *
-#rom math import round
+from kivy import Logger
+
+class spoof:
+    def get_axis(self, axis):
+        return 0
 
 class Joystick:
     def __init__(self):
@@ -21,4 +24,5 @@ class Joystick:
             self.joystick = joystick
             self.joystick_name = joystick.get_name()
         except Exception:
-            print("Joystick error! Skipping init...")
+            Logger.error("Joystick error! Spoofing!")
+            self.joystick = spoof()

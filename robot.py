@@ -1,29 +1,47 @@
+import random
+
 from Arm_Lib import Arm_Device
 from time import sleep
 import cv2
 from kivy.graphics.texture import Texture
-from kivy.clock import Clock
-import asynckivy as ak
+
+
+class spoof:
+    def Arm_serial_set_torque(self, tq):
+        pass
+
+    def Arm_serial_servo_read(self, id):
+        return random.randint(-90, 90)
+
+    def Arm_serial_set_torque(self, tq):
+        pass
+    def Arm_serial_servo_write6_array(self, arr, time):
+        pass
 
 class Robot:
     def __init__(self):
-        self.arm = Arm_Device()
+
+        try:
+            self.arm = Arm_Device()
+        except Exception:
+            self.arm = spoof()
+
         sleep(0.01)
         self.camera = cv2.VideoCapture(0)
         self.steps = []
         self.camera = None
         self.disable_move = False
         self.done = True
-        self.axes = None
+        self.axes = [0, 0, 0, 0, 0, 0]
         self.alive = True
 
     def halt(self):
-        self.arm.Arm_serial_set_torque( 10 )
+        self.arm.Arm_serial_set_torque(10)
         self.arm.done = True
 
     def framebuffer(self):
         ret, frame = self.camera.read()
-        cv2.imshow("CV2 Image", frame)
+        #cv2.imshow("CV2 Image", frame)
         buf1 = cv2.flip(frame, 0)
         buf = buf1.tostring()
         texture1 = Texture.create(size=(640, 480), colorfmt='rgba')
@@ -42,6 +60,7 @@ class Robot:
                 target_angles[-1] = 25
             self.arm.Arm_serial_servo_write6_array(target_angles, 500)
             return target_angles
+
     def reset(self):
         self.arm.Arm_serial_set_torque(1)
         self.arm.Arm_serial_servo_write6_array([90, 90, 90, 90, 90, 90], 500)
@@ -51,7 +70,7 @@ class Robot:
         self.disable_move = True
         self.reset()
         print("here")
-        self.arm.Arm_serial_set_torque( 10 ) # disable torque
+        self.arm.Arm_serial_set_torque(10)  # disable torque
 
     def add_step(self):
         self.steps.append(self.poll_axes())
@@ -67,4 +86,3 @@ class Robot:
                 if i is not None:
                     self.arm.Arm_serial_servo_write6_array(i, 2000)
                     sleep(2)
-

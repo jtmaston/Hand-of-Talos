@@ -26,6 +26,7 @@ from kivy.clock import Clock
 from threading import Thread
 from numpy import clip
 
+
 class DashboardApp(MDApp):
     def __init__(self):
         super(DashboardApp, self).__init__()
@@ -36,33 +37,35 @@ class DashboardApp(MDApp):
         Clock.schedule_interval(self.update_motors, 0.05)
 
         self.control_pad = Joystick()
-        #Clock.schedule_interval(self.control_pad.poll_buttons, 0.1)
+        Clock.schedule_interval(self.control_pad.poll_buttons, 0.1)
+        self.slider_cache = []
 
-        self.camera = cv2.VideoCapture(0)
-        #self.robot.arm.Arm_serial_set_torque(1)
-        self.camTex = Texture.create(size=(640, 480), colorfmt='rgba')
+        # self.camera = cv2.VideoCapture(0)
+        self.robot.arm.Arm_serial_set_torque(1)
+        # self.camTex = Texture.create(size=(640, 480), colorfmt='rgba')
 
     def build(self, *args, **kwargs):
         super(DashboardApp, self).build(*args, **kwargs)
         Thread(target=self.robot.poll_axes).start()
 
     def viewfinder(self, *args, **kwargs):
-        ret, frame = self.camera.read()
-        #cv2.imshow("CV2 Image", frame)
+        # ret, frame = self.camera.read()
+        # cv2.imshow("CV2 Image", frame)
         ##buf1 = cv2.flip(frame, 0)
-        #buf = buf1.tobytes()
-        #self.camTex.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        #self.root.ids['camera'].texture = self.camTex
+        # buf = buf1.tobytes()
+        # self.camTex.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        # self.root.ids['camera'].texture = self.camTex
+        pass
 
     def control(self):
         self.control_pad.poll_buttons()
 
         self.root.ids['ax1'].value -= round(self.control_pad.axes[0] * 100) / 0.5
         self.root.ids['ax4'].value += round(self.control_pad.axes[1] * 100) / 0.5
-        restrict = clip( [self.root.ids[f'ax{i + 1}'].value for i in range(0, 6)] , -90, 90)
+        restrict = clip([self.root.ids[f'ax{i + 1}'].value for i in range(0, 6)], -90, 90)
 
         for num, val in enumerate(restrict):
-            self.root.ids[f'ax{ num + 1}'].value = int(round(val))
+            self.root.ids[f'ax{num + 1}'].value = int(round(val))
 
     def display_axis_data(self, *args, **kwargs):
         angles = self.robot.axes
@@ -71,7 +74,7 @@ class DashboardApp(MDApp):
 
     def update_motors(self, *args, **kwargs):
         self.control()
-        self.robot.move([int(self.root.ids[f"ax{i + 1}"].value + 90) for i in range(0,6)])
+        self.robot.move([int(self.root.ids[f"ax{i + 1}"].value + 90) for i in range(0, 6)])
 
     def mde_lrn(self):
         Thread(target=self.robot.toggle_learn).start()
@@ -85,12 +88,12 @@ class DashboardApp(MDApp):
         if exit_code:
             self.root.ids['stepcount'].text = str(int(self.root.ids['stepcount'].text) - 1)
 
-
     def strt(self):
         Thread(target=self.robot.execute).start()
 
     def on_stop(self):
         self.robot.alive = False
+
 
 if __name__ == '__main__':
     DashboardApp().run()

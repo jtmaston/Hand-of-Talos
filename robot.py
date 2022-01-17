@@ -78,6 +78,7 @@ class Robot:
         return True
 
     def execute(self):
+        # self.disable_move = True
         self.done = False
         self.arm.Arm_serial_set_torque(1)
         while self.alive:

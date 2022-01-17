@@ -150,7 +150,7 @@ GridLayout:
             size_hint_y: 1
             size_hint_x: 0.7
 
-            AsyncImage:
+            Camera:
                 size_hint_y: 1
                 id: camera
                 #resolution: (1280, resoultion: (640, 480)
@@ -204,10 +204,11 @@ GridLayout:
             size_hint_x: .20
             size_hint_y: 1
             text: " Pasul anterior "
-            on_press: app.robot.remove_step()
+            on_press: app.rm()
 
 
         MenuButton:
+            id: stepcount
             size_hint_x: .20
             size_hint_y: 1
             text: " 0 "
@@ -217,5 +218,5 @@ GridLayout:
             size_hint_x: .20
             size_hint_y: 1
             text: "Pasul urmator"
-            on_press: app.robot.add_step()
+            on_press: app.add()
 

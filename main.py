@@ -1,6 +1,12 @@
 import cv2
 
-from math import floor
+from os import environ
+
+environ["KIVY_CAMERA"] = 'opencv'
+environ['KIVY_WINDOW'] = 'sdl2'
+environ['KIVY_VIDEO'] = 'ffmpeg'
+environ['KIVY_IMAGE'] = 'sdl2'
+
 from kivy import Config
 
 Config.set('graphics', 'width', f'{1080}')
@@ -9,7 +15,6 @@ Config.set('graphics', 'maxfps', '60')
 
 from kivymd.app import MDApp
 
-from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 
 import kivy
@@ -17,9 +22,6 @@ import kivy
 from robot import Robot
 from joystick import Joystick
 from kivy.clock import Clock
-from kivy import Config
-
-from time import sleep
 
 from threading import Thread
 from numpy import clip
@@ -42,16 +44,15 @@ class DashboardApp(MDApp):
 
     def build(self, *args, **kwargs):
         super(DashboardApp, self).build(*args, **kwargs)
-        #Thread(target=self.robot.poll_axes).start()
+        Thread(target=self.robot.poll_axes).start()
 
     def viewfinder(self, *args, **kwargs):
         ret, frame = self.camera.read()
-        cv2.imshow("CV2 Image", frame)
-        buf1 = cv2.flip(frame, 0)
-        buf = buf1.tobytes()
-        #texture1 = 
-        self.camTex.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        self.root.ids['camera'].texture = self.camTex
+        #cv2.imshow("CV2 Image", frame)
+        ##buf1 = cv2.flip(frame, 0)
+        #buf = buf1.tobytes()
+        #self.camTex.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+        #self.root.ids['camera'].texture = self.camTex
 
     def control(self):
         self.control_pad.poll_buttons()
@@ -62,11 +63,6 @@ class DashboardApp(MDApp):
 
         for num, val in enumerate(restrict):
             self.root.ids[f'ax{ num + 1}'].value = int(round(val))
-
-    @staticmethod
-    def blit(tgt_tex, buf):
-        #print(tgt_tex)
-        tgt_tex.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
 
     def display_axis_data(self, *args, **kwargs):
         angles = self.robot.axes
@@ -81,10 +77,14 @@ class DashboardApp(MDApp):
         Thread(target=self.robot.toggle_learn).start()
 
     def add(self):
-        self.robot.add_step()
+        Thread(target=self.robot.add_step).start()
+        self.root.ids['stepcount'].text = str(int(self.root.ids['stepcount'].text) + 1)
 
     def rm(self):
-        self.robot.remove_step()
+        exit_code = self.robot.remove_step()
+        if exit_code:
+            self.root.ids['stepcount'].text = str(int(self.root.ids['stepcount'].text) - 1)
+
 
     def strt(self):
         Thread(target=self.robot.execute).start()

@@ -1,10 +1,10 @@
 import random
 
 from Arm_Lib import Arm_Device
-from time import sleep
+from time import sleep, time
 import cv2
 from kivy.graphics.texture import Texture
-
+from kivy import Logger
 
 class spoof:
     def Arm_serial_set_torque(self, tq):
@@ -39,17 +39,12 @@ class Robot:
         self.arm.Arm_serial_set_torque(10)
         self.arm.done = True
 
-    def framebuffer(self):
-        ret, frame = self.camera.read()
-        #cv2.imshow("CV2 Image", frame)
-        buf1 = cv2.flip(frame, 0)
-        buf = buf1.tostring()
-        texture1 = Texture.create(size=(640, 480), colorfmt='rgba')
-        texture1.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-        return texture1
-
     def poll_axes(self):
+        time_started = time()
         while self.alive:
+            if time() - time_started > 0.1:
+                Logger.error("Timeout in poll, expect I2C bus fail!")
+                break
             angles = [self.arm.Arm_serial_servo_read(i + 1) for i in range(0, 6)]
             self.axes = [i if i is not None else 0 for i in angles]
             sleep(0.1)
@@ -69,14 +64,18 @@ class Robot:
     def toggle_learn(self):
         self.disable_move = True
         self.reset()
-        print("here")
         self.arm.Arm_serial_set_torque(10)  # disable torque
 
     def add_step(self):
         self.steps.append(self.poll_axes())
 
     def remove_step(self):
-        self.steps.pop()
+        try:
+            self.steps.pop()
+        except IndexError:
+            return False
+
+        return True
 
     def execute(self):
         self.done = False

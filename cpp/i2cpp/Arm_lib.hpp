@@ -1,13 +1,17 @@
-#include <iostream>
+#pragma once
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>    /* For O_RDWR */
 #include <unistd.h>   /* For open(), creat() */
 
+#include "./Arm_exc.hpp"
+
 #include <chrono>
 #include <thread>
 
+#include <cmath>
 
 extern "C"
 {
@@ -15,22 +19,23 @@ extern "C"
 #include <i2c/smbus.h>
 }
 
-
-int main()
+class ArmDevice
 {
-  int addr = 0x15;
+    public:
+        ArmDevice();
+        void buzz(uint8_t time = 10);
+        void noBuzz();
+        void servo_write(uint8_t id, uint16_t angle, uint16_t time);
+        void servo_write6(uint16_t angles[5], uint16_t time);
 
-  char filename[30];
-  snprintf(filename, 19, "/dev/i2c-%d", 1);
-  int file = open(filename, O_RDWR);
-  if (file < 0) {
-    exit(1);
-  }
+    private:
+        int addr = 0x15;
+        int bus;
+        bool send(uint8_t bytearr[100], uint16_t numbytes);
+};
 
-  if (ioctl(file, I2C_SLAVE, addr) < 0) {
-    exit(1);
-  }
-
+/*int main()
+{
 
 
   __u8 reg = 0x01;
@@ -41,7 +46,7 @@ int main()
   buf[1] = 0x01;
   //buf[2] = 0x65;
   if (write(file, buf, 2) != 2) {
-    /* ERROR HANDLING: i2c transaction failed */
+    /* ERROR HANDLING: i2c transaction failed 
     std::cout << "WRITE_FAIL";
   }
 
@@ -52,11 +57,11 @@ int main()
     std::cout << res;
   }
 
-  buf[0] = 0x06;
-  buf[1] = 0x14;
-  write(file, buf, 2);
+  
 
   return 0;
 
 
 }
+*/
+

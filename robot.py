@@ -42,9 +42,10 @@ class Robot:
     def poll_axes(self):
         time_started = time()
         while self.alive:
-            if time() - time_started > 0.1:
-                Logger.error("Timeout in poll, expect I2C bus fail!")
-                break
+            #delta = time() - time_started
+            #if  delta > 1:
+            #    Logger.error("Timeout in poll, expect I2C bus fail!")
+            #    print(delta)     FIXME!
             angles = [self.arm.Arm_serial_servo_read(i + 1) for i in range(0, 6)]
             self.axes = [i if i is not None else 0 for i in angles]
             sleep(0.1)
@@ -58,7 +59,7 @@ class Robot:
 
     def reset(self):
         self.arm.Arm_serial_set_torque(1)
-        self.arm.Arm_serial_servo_write6_array([90, 90, 90, 90, 90, 90], 500)
+        self.arm.Arm_serial_servo_write6_array([90, 90, 90, 0, 90, 90], 500)
         sleep(2)
 
     def toggle_learn(self):

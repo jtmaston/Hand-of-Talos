@@ -6,3 +6,9 @@ xextproto-7.3.0
 xproto-7.0.31
 build.sh
 .idea
+__pycache__
+*.a
+*.so
+tester.py
+*.o
+*.out

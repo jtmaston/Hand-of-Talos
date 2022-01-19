@@ -7,6 +7,8 @@ ArmDevice dev;
 
 int main()
 {
-    dev.servo_write(0, 45, 3000);
-  return 0;
+    uint16_t angles[] = {45, 45, 45, 45, 45, 45};
+    //dev.servo_write6(angles, 2000);
+    dev.servo_write(0, 90, 1000);
+    return 0;
 }

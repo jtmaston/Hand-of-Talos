@@ -13,3 +13,4 @@ tester.py
 *.o
 *.out
 build
+.vscode

@@ -7,8 +7,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -mfpu=neon -march=native -mtune=native -mcpu=native -mfloat-abi=hard")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -mfpu=neon -march=native -mtune=native -mcpu=native -mfloat-abi=hard")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -march=native -mtune=native -mcpu=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -march=native -mtune=native -mcpu=native -ftree-vectorize")
 
 cmake_minimum_required(VERSION 3.16)
 cmake_policy(SET CMP0003 NEW)
@@ -105,6 +105,7 @@ target_compile_features(libarm
 
 add_executable(DOFBot
     src/main.cpp
+    #src/neontest.cpp
 )
 
 #target_include_directories(DOFBot PRIVATE lib/imgui)

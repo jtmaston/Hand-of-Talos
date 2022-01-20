@@ -21,6 +21,8 @@ extern "C"
 }
 
 #define BLOCK_SIZE 4
+#define pi 3.14159265359
+#define rad 0.0174533
 
 class ArmDevice
 {
@@ -36,12 +38,29 @@ class ArmDevice
 
         void neon_multiply(float32_t* T1, float32_t* T2, float32_t* T);
         void c_multiply(float32_t *A, float32_t *B, float32_t *C);
+        
+        void calculate_end_effector(float32_t* target);
+
+        float angles[7] = {0, 0, 0, 0, 0, 0, 0};
+
+        void print_matrix(float32_t* M);
 
     private:
+        const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};
         uint8_t addr = 0x15;
         int8_t bus;
         bool send(uint8_t bytearr[100], uint16_t numbytes);
+
+        void rotateX(uint8_t num, float32_t* target );
+        void rotateY(uint8_t num, float32_t* target);
+        void rotateZ(uint8_t num, float32_t* target);
+
+        void translateX(uint8_t num, float32_t* target );
+        void translateY(uint8_t num, float32_t* target);
+        void translateZ(uint8_t num, float32_t* target);
+        
 };
+
 
 /*int main()
 {

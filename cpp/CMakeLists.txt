@@ -1,7 +1,14 @@
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_USE_STATIC_STD_LIBS TRUE)
 set(BUILD_SHARED_LIBS FALSE)
-set(CMAKE_BUILD_TYPE Debug)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -mfpu=neon -march=native -mtune=native -mcpu=native -mfloat-abi=hard")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -mfpu=neon -march=native -mtune=native -mcpu=native -mfloat-abi=hard")
 
 cmake_minimum_required(VERSION 3.16)
 cmake_policy(SET CMP0003 NEW)
@@ -108,4 +115,5 @@ target_include_directories(DOFBot PRIVATE lib/libRobot/include)
 #target_link_libraries(DOFBot PUBLIC imgui)
 #target_link_libraries(DOFBot PUBLIC sfml-graphics sfml-audio)
 target_link_libraries(DOFBot PUBLIC libarm)
+target_link_libraries(DOFBot PUBLIC i2c)
 #target_link_libraries(DOFBot PUBLIC imgui-sfml)

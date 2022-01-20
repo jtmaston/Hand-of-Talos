@@ -12,12 +12,15 @@
 #include <thread>
 
 #include <cmath>
+#include <arm_neon.h>
 
 extern "C"
 {
 #include<linux/i2c-dev.h>
 #include <i2c/smbus.h>
 }
+
+#define BLOCK_SIZE 4
 
 class ArmDevice
 {
@@ -27,10 +30,16 @@ class ArmDevice
         void noBuzz();
         void servo_write(uint8_t id, uint16_t angle, uint16_t time);
         void servo_write6(uint16_t angles[5], uint16_t time);
+        int16_t servo_read(uint8_t id);
+        int16_t* servo_readall();
+        void torque(bool state);
+
+        void neon_multiply(float32_t* T1, float32_t* T2, float32_t* T);
+        void c_multiply(float32_t *A, float32_t *B, float32_t *C);
 
     private:
-        int addr = 0x15;
-        int bus;
+        uint8_t addr = 0x15;
+        int8_t bus;
         bool send(uint8_t bytearr[100], uint16_t numbytes);
 };
 
@@ -46,7 +55,7 @@ class ArmDevice
   buf[1] = 0x01;
   //buf[2] = 0x65;
   if (write(file, buf, 2) != 2) {
-    /* ERROR HANDLING: i2c transaction failed 
+    ERROR HANDLING: i2c transaction failed 
     std::cout << "WRITE_FAIL";
   }
 

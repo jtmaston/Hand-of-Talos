@@ -25,3 +25,11 @@ class AngleError_C: public std::exception
         return "Angle must be 0 - 180!";
     }
 };
+
+class UnmappedError: public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "ID not mapped!";
+    }
+};

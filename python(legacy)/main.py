@@ -27,7 +27,7 @@ from threading import Thread
 from numpy import clip
 from ctypes import *
 
-ik_lib = CDLL("/home/pi/Desktop/DOFBot-easy-tool/ik.so")
+#ik_lib = CDLL("/home/pi/Desktop/DOFBot-easy-tool/ik.so")
 
 
 class Point(Structure):
@@ -75,14 +75,14 @@ class DashboardApp(MDApp):
 
     def control(self):
         #self.control_pad.poll_buttons()
-
-        self.root.ids['ax1'].value -= round(self.control_pad.axes[0] * 100) * 0.05
-        self.root.ids['ax2'].value += round(self.control_pad.axes[1] * 100) * 0.05
-        self.root.ids['ax5'].value += round(self.control_pad.axes[2] * 100) * 0.05
-        self.root.ids['ax3'].value += round(self.control_pad.axes[3] * 100) * 0.05
-        self.root.ids['ax4'].value += round(self.control_pad.axes[4] * 100) * 0.05
-        self.root.ids['ax6'].value += round(self.control_pad.axes[5] * 100) * 0.1
-        restrict = clip([self.root.ids[f'ax{i + 1}'].value for i in range(0, 6)], -90, 90)
+        if not self.robot.disable_move:
+            self.root.ids['ax1'].value -= round(self.control_pad.axes[0] * 100) * 0.05
+            self.root.ids['ax2'].value += round(self.control_pad.axes[1] * 100) * 0.05
+            self.root.ids['ax5'].value += round(self.control_pad.axes[2] * 100) * 0.05
+            self.root.ids['ax3'].value += round(self.control_pad.axes[3] * 100) * 0.05
+            self.root.ids['ax4'].value += round(self.control_pad.axes[4] * 100) * 0.05
+            self.root.ids['ax6'].value += round(self.control_pad.axes[5] * 100) * 0.1
+            restrict = clip([self.root.ids[f'ax{i + 1}'].value for i in range(0, 6)], -90, 90)
 
 
 
@@ -105,7 +105,7 @@ class DashboardApp(MDApp):
         Thread(target=self.robot.toggle_learn).start()
 
     def add(self):
-        Thread(target=self.robot.add_step).start()
+        self.robot.add_step()
         self.root.ids['stepcount'].text = str(int(self.root.ids['stepcount'].text) + 1)
 
     def rm(self):
@@ -114,9 +114,8 @@ class DashboardApp(MDApp):
             self.root.ids['stepcount'].text = str(int(self.root.ids['stepcount'].text) - 1)
 
     def strt(self):
-        print("here")
+        #print("here")
         Thread(target=self.robot.execute).start()
-        print("done")
 
     def on_stop(self):
         self.robot.alive = False

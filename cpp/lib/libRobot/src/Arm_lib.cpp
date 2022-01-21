@@ -396,3 +396,22 @@ void ArmDevice::print_matrix(float32_t *M)
     }
     printf("\n");
 }
+
+void ArmDevice::return_home()
+{
+    uint16_t target[] = {90, 90, 90, 0, 90, 90};
+    servo_write6(target, 2000);
+}
+
+void ArmDevice::dance()
+{
+    //uint16_t angles[] = {45, 45, 45, 45, 45, 45};
+    uint16_t angles[] = {45, 45, 45, 45, 45, 45};
+    servo_write6(angles, 1500);
+
+    uint16_t angles2[] = {0, 90, 0, 90, 90, 90};
+    servo_write6(angles2, 1500);
+
+    uint16_t angles3[] = {90, 180, 0, 0, 90, 90};
+    servo_write6(angles3, 1500);
+}

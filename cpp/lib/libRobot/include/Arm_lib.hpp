@@ -44,6 +44,8 @@ class ArmDevice
         float angles[7] = {0, 0, 0, 0, 0, 0, 0};
 
         void print_matrix(float32_t* M);
+        void return_home();
+        void dance();
 
     private:
         const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};

@@ -51,11 +51,11 @@ class DashboardApp(MDApp):
         self.robot = Robot()
 
         Clock.schedule_interval(self.display_axis_data, 0.1)
-        Clock.schedule_interval(self.viewfinder, 0.066)
-        Clock.schedule_interval(self.update_motors, 0.05)
+        #Clock.schedule_interval(self.viewfinder, 0.066)
+        #Clock.schedule_interval(self.update_motors, 0.05)
 
-        self.control_pad = Joystick()
-        Clock.schedule_interval(self.control_pad.poll_buttons, 0.1)
+        #self.control_pad = Joystick()
+        #Clock.schedule_interval(self.control_pad.poll_buttons, 0.1)
         self.slider_cache = []
 
         self.robot.arm.Arm_serial_set_torque(1)

@@ -23,65 +23,9 @@ project(DOFBot  VERSION "${PROJECT_VER}"
     LANGUAGES CXX C
 )
 
-#find_package(OpenGL REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets DBus Multimedia MultimediaWidgets REQUIRED)
+#find_package(Qt5Multimedia REQUIRED)
 
-# << SFML >>
-#add_subdirectory(lib/sfml)
-
-# << JSONCPP >>
-
-#add_library(jsoncpp STATIC 
-#  lib/jsoncpp/src/lib_json/json_reader.cpp lib/jsoncpp/src/lib_json/json_value.cpp lib/jsoncpp/src/lib_json/json_value.cpp lib/jsoncpp/src/lib_json/json_valueiterator.inl lib/jsoncpp/src/lib_json/json_writer.cpp
-#)
-#set_target_properties(jsoncpp PROPERTIES PUBLIC_HEADER lib/jsoncpp/include/json.h)
-#target_include_directories(jsoncpp PRIVATE lib/jsoncpp/include)
-
-#target_compile_features(jsoncpp
-##    PUBLIC
- #   cxx_attributes
-#    cxx_defaulted_functions
-#    cxx_deleted_functions
-#    cxx_final
-#)
-
-# << IMGUI >>
-#add_library(imgui STATIC 
-#  lib/imgui/imgui.cpp lib/imgui/imgui_widgets.cpp lib/imgui/imgui_tables.cpp lib/imgui/imgui_draw.cpp
-#)
-#set_target_properties(imgui PROPERTIES PUBLIC_HEADER lib/imgui/imgui.h)
-#target_include_directories(imgui PRIVATE lib/imgui)
-#target_compile_features(imgui 
-##    PUBLIC
- #   cxx_attributes
- #   cxx_defaulted_functions
- #   cxx_deleted_functions
- #   cxx_final
-#)
-# << >>
-
-# << imgui-sfml >>
-
-#add_library(imgui-sfml STATIC 
-#  lib/imgui-sfml/imgui-SFML.cpp
-#)
-#set_target_properties(imgui-sfml PROPERTIES PUBLIC_HEADER lib/imgui-sfml/imgui-SFML.h)
-#target_include_directories(imgui-sfml PRIVATE lib/imgui-sfml lib/imgui)
-
-#target_compile_features(imgui-sfml
-#    PUBLIC
-#    cxx_attributes
-##    cxx_defaulted_functions
- #   cxx_deleted_functions
-#    cxx_final
-#)
-
-#target_link_libraries(imgui-sfml
-#  PUBLIC
-#    sfml-graphics
-#    sfml-system
-#    sfml-window
-#    ${OPENGL_LIBRARIES}
-#)
 
 # << ARMLib >>
 add_library(libarm STATIC
@@ -108,6 +52,9 @@ add_executable(DOFBot
     #src/neontest.cpp
 )
 
+find_package(Qt5OpenGL REQUIRED)
+  set(plugins Qt5::OpenGL)
+
 #target_include_directories(DOFBot PRIVATE lib/imgui)
 #target_include_directories(DOFBot PRIVATE lib/imgui/backends)
 #target_include_directories(DOFBot PRIVATE lib/imgui-sfml)
@@ -115,6 +62,7 @@ target_include_directories(DOFBot PRIVATE lib/libRobot/include)
 
 #target_link_libraries(DOFBot PUBLIC imgui)
 #target_link_libraries(DOFBot PUBLIC sfml-graphics sfml-audio)
+target_link_libraries(DOFBot PUBLIC Qt5::Widgets Qt5::DBus Qt5::Multimedia Qt5::MultimediaWidgets)
 target_link_libraries(DOFBot PUBLIC libarm)
 target_link_libraries(DOFBot PUBLIC i2c)
 #target_link_libraries(DOFBot PUBLIC imgui-sfml)

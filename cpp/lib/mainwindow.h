@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "lib/libRobot/include/Arm_lib.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -27,5 +28,6 @@ private:
     bool camera_bar_state = HIDDEN;
     void set_learn_bar_visibility(bool state);
     void set_camera_bar_visibility(bool state);
+    ArmDevice robot;
 };
 #endif // MAINWINDOW_H

@@ -157,6 +157,9 @@ QPushButton:pressed {
     <layout class="QGridLayout" name="axes">
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 3: </string>
        </property>
@@ -165,8 +168,40 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
+       <property name="text">
+        <string>Gripper: </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSlider" name="a4_r">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 2:</string>
        </property>
@@ -175,8 +210,91 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
+     <item row="4" column="1">
+      <widget class="QSlider" name="a5_r">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSlider" name="grip_r">
+       <property name="styleSheet">
+        <string notr="true">QSlider::handle:horizontal {
+	color: rgb(254, 190, 12);
+}</string>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSlider" name="a2_r">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="a3_r">
+       <property name="styleSheet">
+        <string notr="true">
+</string>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
+       <property name="text">
+        <string>Axis 4: </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_5">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 5: </string>
        </property>
@@ -187,6 +305,9 @@ QPushButton:pressed {
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Base Rotation: </string>
        </property>
@@ -195,65 +316,16 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Axis 4: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Gripper: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QSlider" name="base_r">
+       <property name="singleStep">
+        <number>10</number>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSlider" name="a2_r">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSlider" name="a3_r">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSlider" name="a4_r">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QSlider" name="a5_r">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QSlider" name="grip_r">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
        </property>
       </widget>
      </item>
@@ -268,9 +340,15 @@ QPushButton:pressed {
       <height>491</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(254, 190, 12);</string>
+    </property>
     <layout class="QVBoxLayout" name="axes_readout">
      <item>
       <widget class="QLabel" name="a1_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 1: </string>
        </property>
@@ -281,6 +359,9 @@ QPushButton:pressed {
      </item>
      <item>
       <widget class="QLabel" name="a2_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 2:</string>
        </property>
@@ -291,6 +372,9 @@ QPushButton:pressed {
      </item>
      <item>
       <widget class="QLabel" name="a3_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 3:</string>
        </property>
@@ -301,6 +385,9 @@ QPushButton:pressed {
      </item>
      <item>
       <widget class="QLabel" name="a4_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 4:</string>
        </property>
@@ -311,6 +398,9 @@ QPushButton:pressed {
      </item>
      <item>
       <widget class="QLabel" name="a5_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 5:</string>
        </property>
@@ -321,6 +411,9 @@ QPushButton:pressed {
      </item>
      <item>
       <widget class="QLabel" name="a6_d">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
        <property name="text">
         <string>Axis 6:</string>
        </property>
@@ -353,7 +446,7 @@ QPushButton:pressed {
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color:black;</string>
+      <string notr="true">color: rgb(254, 190, 12);</string>
      </property>
     </widget>
    </widget>

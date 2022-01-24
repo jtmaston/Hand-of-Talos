@@ -29,93 +29,93 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="161"/>
+        <location filename="../lib/mainwindow.ui" line="164"/>
         <source>Axis 3: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="171"/>
-        <location filename="../lib/mainwindow.ui" line="285"/>
+        <location filename="../lib/mainwindow.ui" line="206"/>
+        <location filename="../lib/mainwindow.ui" line="366"/>
         <source>Axis 2:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="181"/>
+        <location filename="../lib/mainwindow.ui" line="299"/>
         <source>Axis 5: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="191"/>
+        <location filename="../lib/mainwindow.ui" line="312"/>
         <source>Base Rotation: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="201"/>
+        <location filename="../lib/mainwindow.ui" line="286"/>
         <source>Axis 4: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="211"/>
+        <location filename="../lib/mainwindow.ui" line="177"/>
         <source>Gripper: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="275"/>
+        <location filename="../lib/mainwindow.ui" line="353"/>
         <source>Axis 1: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="295"/>
+        <location filename="../lib/mainwindow.ui" line="379"/>
         <source>Axis 3:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="305"/>
+        <location filename="../lib/mainwindow.ui" line="392"/>
         <source>Axis 4:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="315"/>
+        <location filename="../lib/mainwindow.ui" line="405"/>
         <source>Axis 5:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="325"/>
+        <location filename="../lib/mainwindow.ui" line="418"/>
         <source>Axis 6:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="397"/>
+        <location filename="../lib/mainwindow.ui" line="490"/>
         <source>&lt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="426"/>
+        <location filename="../lib/mainwindow.ui" line="519"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="455"/>
+        <location filename="../lib/mainwindow.ui" line="548"/>
         <source>&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="488"/>
+        <location filename="../lib/mainwindow.ui" line="581"/>
         <source>Follow Red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="517"/>
+        <location filename="../lib/mainwindow.ui" line="610"/>
         <source>Follow Green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="546"/>
+        <location filename="../lib/mainwindow.ui" line="639"/>
         <source>Follow Blue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="575"/>
+        <location filename="../lib/mainwindow.ui" line="668"/>
         <source>Stop Following</source>
         <translation type="unfinished"></translation>
     </message>

@@ -1,68 +1,68 @@
-set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_USE_STATIC_STD_LIBS TRUE)
-set(BUILD_SHARED_LIBS FALSE)
+cmake_minimum_required(VERSION 3.5)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+project(RobotDashBoard VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
+
+set(TS_FILES extra/RobotDashBoard_en_US.ts)
+
+set(PROJECT_SOURCES
+        src/main.cpp
+        src/mainwindow.cpp
+        lib/mainwindow.h
+        lib/mainwindow.ui
+        ${TS_FILES}
+)
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(RobotDashBoard
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET RobotDashBoard APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+else()
+    if(ANDROID)
+        add_library(RobotDashBoard SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(RobotDashBoard
+            ${PROJECT_SOURCES}
+        )
+    endif()
+
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -march=native -mtune=native -mcpu=native")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -march=native -mtune=native -mcpu=native -ftree-vectorize")
+target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0003 NEW)
-set(CMAKE_CXX_STANDARD 20)
+if(APPLE)
+    set_target_properties(RobotDashBoard PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
+    )
+endif()
 
-set(CMAKE_CXX_STANDARD 17)
-
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(PROJECT_VER "0.0.1")
-
-project(DOFBot  VERSION "${PROJECT_VER}"
-    LANGUAGES CXX C
-)
-
-find_package(Qt5 COMPONENTS Core Widgets DBus Multimedia MultimediaWidgets REQUIRED)
-#find_package(Qt5Multimedia REQUIRED)
-
-
-# << ARMLib >>
-add_library(libarm STATIC
-    lib/libRobot/src/Arm_lib.cpp
-)
-set_target_properties(libarm PROPERTIES 
-    PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
-    ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
-    LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
-)
-target_include_directories(libarm PRIVATE lib/libRobot/include)
-target_compile_features(libarm 
-    PUBLIC
-    cxx_attributes
-    cxx_defaulted_functions
-    cxx_deleted_functions
-    cxx_final
-    
-    #RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-
-add_executable(DOFBot
-    src/main.cpp
-    #src/neontest.cpp
-)
-
-find_package(Qt5OpenGL REQUIRED)
-  set(plugins Qt5::OpenGL)
-
-#target_include_directories(DOFBot PRIVATE lib/imgui)
-#target_include_directories(DOFBot PRIVATE lib/imgui/backends)
-#target_include_directories(DOFBot PRIVATE lib/imgui-sfml)
-target_include_directories(DOFBot PRIVATE lib/libRobot/include)
-
-#target_link_libraries(DOFBot PUBLIC imgui)
-#target_link_libraries(DOFBot PUBLIC sfml-graphics sfml-audio)
-target_link_libraries(DOFBot PUBLIC Qt5::Widgets Qt5::DBus Qt5::Multimedia Qt5::MultimediaWidgets)
-target_link_libraries(DOFBot PUBLIC libarm)
-target_link_libraries(DOFBot PUBLIC i2c)
-#target_link_libraries(DOFBot PUBLIC imgui-sfml)
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(RobotDashBoard)
+endif()

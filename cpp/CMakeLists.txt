@@ -16,23 +16,24 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 
 set(TS_FILES extra/RobotDashBoard_en_US.ts)
 
-add_library(libarm STATIC
-    lib/libRobot/src/Arm_lib.cpp
-)
-set_target_properties(libarm PROPERTIES 
-    PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
-    ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
-    LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
-)
-target_include_directories(libarm PRIVATE lib/libRobot/include)
-target_compile_features(libarm 
-    PUBLIC
-    cxx_attributes
-    cxx_defaulted_functions
-    cxx_deleted_functions
-    cxx_final
-)
-
+if(UNIX AND NOT APPLE)
+    add_library(libarm STATIC
+        lib/libRobot/src/Arm_lib.cpp
+    )
+    set_target_properties(libarm PROPERTIES
+        PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
+        ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
+        LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
+    )
+    target_include_directories(libarm PRIVATE lib/libRobot/include)
+    target_compile_features(libarm
+        PUBLIC
+        cxx_attributes
+        cxx_defaulted_functions
+        cxx_deleted_functions
+        cxx_final
+    )
+endif()
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
@@ -69,8 +70,11 @@ else()
 endif()
 
 target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(RobotDashBoard PRIVATE libarm)
 
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(RobotDashBoard PRIVATE libarm)
+endif()
 if(APPLE)
     set_target_properties(RobotDashBoard PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

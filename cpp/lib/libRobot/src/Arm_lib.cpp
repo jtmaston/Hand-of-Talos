@@ -81,56 +81,66 @@ void ArmDevice::servo_write(uint8_t id, uint16_t angle, uint16_t time)
 
 void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time)
 {
-    uint8_t bytearr[14] = { 0 };
+    uint8_t bytearr[14] = {0};
     bytearr[0] = 0x1D;
     uint8_t timearr[3];
     timearr[0] = 0x1E;
 
-
     bool flag = 0;
-    for ( uint8_t i = 0 ; i < 6; i ++)
-        {
-        flag |= ( ( angles[i] > 180 ) || ( angles[i] < 0));
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        flag |= ((angles[i] > 180) || (angles[i] < 0));
         //std::cout << angles[i] << " ";
-        }
+    }
 
-    if ( flag )
+    if (flag)
+    {
+        AngleError_C err;
+        throw err;
+    }
+
+    for (uint8_t i = 2; i < 13; i += 2)
+    {
+        //std::cout << (int)angles[i / 2 - 1] << " ";
+        float pos = 0;
+        switch (i / 2)
         {
-            AngleError_C err;
-            throw err;
-        }
-
-    for (uint8_t i = 0 ; i < 13; i += 2)
+        case 2:
+        case 3:
+        case 4:
         {
-            std::cout << (int) angles[i / 2 - 1] << " ";
-            int pos = 0;
-            switch ( i / 2)
-                {
-                case 5:
-                    pos = int((3700 - 380) * (angles[i / 2 - 1] - 0) / ( 270 - 0 ) + 380);
-                    break;
-                default:
-                    pos = int((3100 - 900) * (angles[i / 2 - 1] - 0) / (180 - 0) + 900);
-                    break;
-                }
-            bytearr[i + 1] = ( pos >> 8 ) & 0xFF;
-            bytearr[i + 2] = pos & 0xFF;
+            //std::cout << "br1" << '\n';
+            uint16_t angle = 180 - angles[i / 2 - 1];
+            pos = ((3100.0f - 900.0f) * (float)angle / 180.0f + 900.0f);
+            break;
         }
-    std::cout << '\n';
+        case 5:
+            //std::cout << "br2"<< '\n';
+            pos = (3700.0f - 380.0f) * (float)angles[i / 2 - 1] / 270.0f  + 380.0f;
+            break;
+        default:
+            //std::cout << "br3"<< '\n';
+            pos = (3100.0f - 900.0f) * angles[i / 2 - 1]/ 180.0f + 900.0f;
+            break;
+        }
+        uint16_t p_adj = trunc(pos);
+        bytearr[i - 1] = (p_adj >> 8) & 0xFF;
+        bytearr[i] = p_adj & 0xFF;
+    }
+    //std::cout << '\n';
 
-    timearr[1] = ( time >> 8 ) & 0xFF;
+    timearr[1] = (time >> 8) & 0xFF;
     timearr[2] = time & 0xFF;
 
-    for(int i = 1 ; i < 13; i ++)
-        std::cout << (int)bytearr[i] << " ";
+    //for (int i = 1; i < 13; i++)
+        //std::cout << (int)bytearr[i] << " ";
 
-    std::cout << '\n';
+    //std::cout << '\n';
 
-    std::cout << (int)timearr[1] << " " << (int)timearr[2] << '\n';
-    
-    int t = write(this -> bus, timearr, 3);
-    t = write(this -> bus, bytearr, 12);
+    //std::cout << (int)timearr[1] << " " << (int)timearr[2] << '\n';
 
+    int t = write(this->bus, timearr, 3);
+    t = write(this->bus, bytearr, 12);
 }
 
 bool ArmDevice::send( uint8_t buffer[100], uint16_t buflen)
@@ -426,4 +436,11 @@ float32_t ArmDevice::servo_read_any(uint8_t id)
     pos = (pos >> 8 & 0xff) | (pos << 8 & 0xff00);
 
     return 180.0 * (pos - 900.0) / (3100.0 - 900.0);
+}
+
+void ArmDevice::home_position()
+{
+    this -> toggleTorque(true);
+    uint16_t angles[] = {90, 90, 90, 0, 90, 90};
+    this -> servo_write6(angles, 2000);
 }

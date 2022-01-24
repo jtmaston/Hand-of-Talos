@@ -48,6 +48,8 @@ class ArmDevice
         void neon_multiply(float32_t* T1, float32_t* T2, float32_t* T);
         void c_multiply(float32_t *A, float32_t *B, float32_t *C);
 
+        void home_position();
+
     private:
         const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};
         int addr = 0x15;

@@ -444,3 +444,19 @@ void ArmDevice::home_position()
     uint16_t angles[] = {90, 90, 90, 0, 90, 90};
     this -> servo_write6(angles, 2000);
 }
+
+void ArmDevice::servo_write_any(uint8_t id, uint16_t angle, uint16_t time)
+{
+    if ( id == 0 )
+        return;
+    
+    uint16_t pos = int((3100 - 900) * (angle - 0) / (180 - 0) + 900);
+    uint8_t buf[6]  = {0x19, id & 0xff, (pos >> 8) & 0xFF, (pos & 0xFF), ( time >> 8 ) & 0xFF, (time & 0xFF)};
+    write(this -> bus, buf, 6);
+}
+
+void ArmDevice::servo_set_id(uint8_t id)
+{
+    uint8_t buf[2] = { 0x18, id & 0xff};
+    write(this -> bus, buf, 2);
+}

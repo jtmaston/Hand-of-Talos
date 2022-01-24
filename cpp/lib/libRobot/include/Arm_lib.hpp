@@ -37,6 +37,8 @@ class ArmDevice
         bool ping_servo(uint8_t id);
         void button_mode(bool mode);
 
+        void servo_write_any(uint8_t id, uint16_t angle, uint16_t time);
+
         float32_t servo_read_any(uint8_t id);
         float32_t servo_read(uint8_t id);
         float32_t* servo_readall();
@@ -49,6 +51,8 @@ class ArmDevice
         void c_multiply(float32_t *A, float32_t *B, float32_t *C);
 
         void home_position();
+        
+        void servo_set_id(uint8_t id);
 
     private:
         const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};
@@ -65,35 +69,4 @@ class ArmDevice
         void calculate_end_effector(float32_t* target);
 
 };
-
-/*int main()
-{
-
-
-  __u8 reg = 0x01;
-  __s32 res;
-  char buf[10];
-
-  buf[0] = reg;
-  buf[1] = 0x01;
-  //buf[2] = 0x65;
-  if (write(file, buf, 2) != 2) {
-    /* ERROR HANDLING: i2c transaction failed 
-    std::cout << "WRITE_FAIL";
-  }
-
-  res = i2c_smbus_read_byte_data(file, 0x01);
-  if (res < 0) {
-    std::cout << "FAIL";
-  } else {
-    std::cout << res;
-  }
-
-  
-
-  return 0;
-
-
-}
-*/
 

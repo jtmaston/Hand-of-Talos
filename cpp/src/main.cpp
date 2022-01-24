@@ -21,8 +21,6 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();*/
     ArmDevice bot;
-    //bot.ping_servo(1);
-    //bot.home_position();
-    bot.home_position();
+
     return 0;
 }

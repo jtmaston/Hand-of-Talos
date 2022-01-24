@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    /*QApplication a(argc, argv);
     // background-color: rgba(60.5625, 60.5625, 73.5675, 1)
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -19,5 +19,9 @@ int main(int argc, char *argv[])
     }
     MainWindow w;
     w.show();
-    return a.exec();
+    return a.exec();*/
+    ArmDevice bot;
+    //bot.ping_servo(1);
+    bot.ping_servo(1);
+    return 0;
 }

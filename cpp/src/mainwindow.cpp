@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent)
     set_learn_bar_visibility(HIDDEN);
     connect(ui -> learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));
     connect(ui -> track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar()));
+
+    //robot.reset();
+
 }
 
 MainWindow::~MainWindow()

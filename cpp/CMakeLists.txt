@@ -11,6 +11,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -march=native -mtune=native -mcpu=native -Wno-narrowing")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -march=native -mtune=native -mcpu=native -ftree-vectorize -Wno-narrowing")
+
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 
@@ -73,7 +76,7 @@ target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(RobotDashBoard PRIVATE libarm)
+    target_link_libraries(RobotDashBoard PRIVATE libarm i2c)
 endif()
 if(APPLE)
     set_target_properties(RobotDashBoard PROPERTIES

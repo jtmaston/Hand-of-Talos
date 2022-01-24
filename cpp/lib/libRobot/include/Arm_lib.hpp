@@ -12,12 +12,16 @@
 #include <thread>
 
 #include <cmath>
-
+#include <arm_neon.h>
 extern "C"
 {
 #include "linux/i2c-dev.h"
 #include <i2c/smbus.h>
 }
+
+#define BLOCK_SIZE 4
+#define __PI__ 3.14159265359
+#define __RAD__ 0.0174533
 
 class ArmDevice
 {
@@ -27,11 +31,37 @@ class ArmDevice
         void noBuzz();
         void servo_write(uint8_t id, uint16_t angle, uint16_t time);
         void servo_write6(uint16_t angles[5], uint16_t time);
+        void toggleTorque( bool torque );
+        void rgb(uint8_t r, uint8_t g, uint8_t b);
+        void reset_mcu();
+        bool ping_servo(uint8_t id);
+        void button_mode(bool mode);
+
+        float32_t servo_read_any(uint8_t id);
+        float32_t servo_read(uint8_t id);
+        float32_t* servo_readall();
+
+        void print_matrix(float32_t*);
+
+        float angles[7] = {0, 0, 0, 0, 0, 0, 0};
+        
+        void neon_multiply(float32_t* T1, float32_t* T2, float32_t* T);
+        void c_multiply(float32_t *A, float32_t *B, float32_t *C);
 
     private:
+        const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};
         int addr = 0x15;
         int bus;
         bool send(uint8_t bytearr[100], uint16_t numbytes);
+        void rotateX(uint8_t num, float32_t* target );
+        void rotateY(uint8_t num, float32_t* target);
+        void rotateZ(uint8_t num, float32_t* target);
+
+        void translateX(uint8_t num, float32_t* target );
+        void translateY(uint8_t num, float32_t* target);
+        void translateZ(uint8_t num, float32_t* target);
+        void calculate_end_effector(float32_t* target);
+
 };
 
 /*int main()

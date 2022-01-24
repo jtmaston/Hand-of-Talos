@@ -1,23 +1,12 @@
-#include "mainwindow.h"
+#include <iostream>
+#include "Arm_lib.hpp"
 
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
+using namespace std;
 
-int main(int argc, char *argv[])
+ArmDevice dev;
+
+int main()
 {
-    QApplication a(argc, argv);
-    // background-color: rgba(60.5625, 60.5625, 73.5675, 1)
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "RobotDashBoard_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-    MainWindow w;
-    w.show();
-    return a.exec();
+    dev.servo_write(0, 45, 3000);
+  return 0;
 }

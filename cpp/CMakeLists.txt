@@ -11,11 +11,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -std=c++1z -march=native -mtune=native -mcpu=native -Wno-narrowing")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -march=native -mtune=native -mcpu=native -ftree-vectorize -Wno-narrowing")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -mcpu=native -Wno-narrowing")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -mtune=native -mcpu=native -ftree-vectorize -Wno-narrowing")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
+
+find_package( OpenCV REQUIRED )
+include_directories( lib/opencv/include ${OpenCV_INCLUDE_DIRS})
+
 
 set(TS_FILES extra/RobotDashBoard_en_US.ts)
 
@@ -36,6 +40,24 @@ if(UNIX AND NOT APPLE)
         cxx_deleted_functions
         cxx_final
     )
+
+    #add_library(joystick STATIC
+    #    lib/libJoystick/src/Joystick.cpp
+    #)
+    #set_target_properties(joystick PROPERTIES
+    #    PUBLIC_HEADER "lib/libJoystick/include/Joystick.hpp"
+    ##    ARCHIVE_OUTPUT_DIRECTORY "lib/libJoystick/lib"
+     #   LIBRARY_OUTPUT_DIRECTORY "lib/libJoystick/lib"
+    ##)
+    #target_include_directories(joystick PRIVATE lib/libRobot/include)
+    #target_compile_features(libarm
+    #    PUBLIC
+    #    cxx_attributes
+    #    cxx_defaulted_functions
+    #    cxx_deleted_functions
+    #    cxx_final
+    #)
+
 endif()
 set(PROJECT_SOURCES
         src/main.cpp
@@ -87,6 +109,16 @@ if(APPLE)
         WIN32_EXECUTABLE TRUE
     )
 endif()
+
+
+message(STATUS "MY_CAMERA_LIBRARY: " ${opencv_selfbuild})
+target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS})
+
+#target_link_libraries( RobotDashBoard PRIVATE  )
+
+link_directories(../build/opencv/lib)
+target_link_libraries(RobotDashBoard PUBLIC )
+
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(RobotDashBoard)

@@ -3,11 +3,12 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
-{
-    /*QApplication a(argc, argv);
-    // background-color: rgba(60.5625, 60.5625, 73.5675, 1)
+{   
+    putenv("DISPLAY=:0.0");
+    QApplication a(argc, argv);
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -19,8 +20,8 @@ int main(int argc, char *argv[])
     }
     MainWindow w;
     w.show();
-    return a.exec();*/
-    ArmDevice bot;
+    return a.exec();
 
-    return 0;
+
+    //ArmDevice bot;
 }

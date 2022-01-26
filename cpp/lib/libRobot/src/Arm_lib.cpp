@@ -79,12 +79,21 @@ void ArmDevice::servo_write(uint8_t id, uint16_t angle, uint16_t time)
     }
 }
 
-void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time)
+void ArmDevice::servo_write6(float32_t angles[6], uint16_t time)
+{
+    uint16_t* angle_t = new uint16_t[6];
+
+    for(int i = 0; i < 6; i++)
+        angle_t[i] = angles[i];
+
+    servo_write6(angle_t, time, true);
+}
+
+void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time, bool floating)
 {
     uint8_t bytearr[14] = {0};
     bytearr[0] = 0x1D;
-    uint8_t timearr[3];
-    timearr[0] = 0x1E;
+    
 
     bool flag = 0;
     for (uint8_t i = 0; i < 6; i++)
@@ -93,11 +102,11 @@ void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time)
         //std::cout << angles[i] << " ";
     }
 
-    if (flag)
+    /*if (flag)                 TODO: this needs to be reimplemented with limits
     {
         AngleError_C err;
         throw err;
-    }
+    }*/
 
     for (uint8_t i = 2; i < 13; i += 2)
     {
@@ -129,8 +138,7 @@ void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time)
     }
     //std::cout << '\n';
 
-    timearr[1] = (time >> 8) & 0xFF;
-    timearr[2] = time & 0xFF;
+    
 
     //for (int i = 1; i < 13; i++)
         //std::cout << (int)bytearr[i] << " ";
@@ -139,8 +147,11 @@ void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time)
 
     //std::cout << (int)timearr[1] << " " << (int)timearr[2] << '\n';
 
-    int t = write(this->bus, timearr, 3);
-    t = write(this->bus, bytearr, 12);
+    //int t = write(this->bus, timearr, 3);
+    bus_cleaner(bytearr, time);
+    //t = write(this->bus, bytearr, 13);
+    if (floating)
+        delete angles;
 }
 
 bool ArmDevice::send( uint8_t buffer[100], uint16_t buflen)
@@ -391,33 +402,58 @@ float32_t ArmDevice::servo_read(uint8_t id)
         UnmappedError err;
         throw err;
     }
+    
     id += 0x30;
     uint8_t buf[3] = {id, 0};
-    int pos = write(this->bus, buf, 2);
+    uint16_t pos = write(this->bus, buf, 2);
+
+    float32_t val;
+
     usleep(3000);
-    pos = i2c_smbus_read_word_data(this->bus, id); //read(this->bus, buf, 2);
+
+    pos = i2c_smbus_read_word_data(this->bus, id);
     pos = (pos >> 8 & 0xff) | (pos << 8 & 0xff00);
 
-    switch (pos)
-    {
-    case 5:
-        pos = int(270 * (pos - 380) / (3700 - 380));
-        break;
-    default:
-        pos = int(180 * (pos - 900) / (3100 - 900));
-    }
-    // TODO: verification
-    if (id == 2 || id == 3 || id == 4)
-        pos = 180 - pos;
+    id -= 0x30;
 
-    return pos;
+    switch ( (int)id )
+    {
+        case 5:
+            {
+                val = (270 - 0) * (pos - 380) / (3700 - 380);
+                break;
+            }
+        case 2:
+        case 3:
+        case 4:
+            {
+                //std::cout << "Adjusted";
+                val = 180 * (pos - 900) / (3100 - 900);
+                val = 180 - val;
+                break;
+            }
+        default:
+            {
+                //std::cout << "Def";
+                val = 180 * (pos - 900) / (3100 - 900);
+                break;
+            }
+        
+    }
+    return val;
 }
 
 float32_t *ArmDevice::servo_readall()
 {
-    static float32_t values[6];
-    for (int i = 1; i <= 6; i++)
+    float32_t* values = new float32_t[6];
+    for (uint8_t i = 1; i <= 6; i++){
+
         values[i - 1] = this->servo_read(i);
+        //std::cout << values[i - 1] << " ";
+    }
+    //std::cout << '\n';
+    
+
     return values;
 }
 
@@ -442,7 +478,9 @@ void ArmDevice::home_position()
 {
     this -> toggleTorque(true);
     uint16_t angles[] = {90, 90, 90, 0, 90, 90};
-    this -> servo_write6(angles, 2000);
+    this -> servo_write6(angles, 1000);
+    usleep(1000000);
+    //toggleTorque(0);
 }
 
 void ArmDevice::servo_write_any(uint8_t id, uint16_t angle, uint16_t time)
@@ -459,4 +497,25 @@ void ArmDevice::servo_set_id(uint8_t id)
 {
     uint8_t buf[2] = { 0x18, id & 0xff};
     write(this -> bus, buf, 2);
+}
+
+bool ArmDevice::bus_cleaner(uint8_t* dest, uint16_t time)
+{
+    std::array<uint8_t, 13> t ;
+    std::copy(dest, dest+13, t.begin());
+
+
+    if( t != target)
+    {
+        uint8_t timearr[3] { 0x1E, (time >> 8) & 0xFF, time & 0xFF};
+        write(this -> bus, timearr, 3);
+        write(this -> bus, dest, 13);
+        target = std::move(t);
+    }
+    std::cout.flush();
+}
+
+void ArmDevice::learn_mode()
+{
+
 }

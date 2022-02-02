@@ -79,7 +79,8 @@
 			"fstream": "cpp",
 			"iomanip": "cpp",
 			"shared_mutex": "cpp",
-			"typeindex": "cpp"
+			"typeindex": "cpp",
+			"numbers": "cpp"
 		}
 	}
 }

@@ -15,11 +15,12 @@ ArmDevice::ArmDevice()
     {
         throw BusError;
     }
+    target.fill(0);
 }
 
 void ArmDevice::buzz(uint8_t time)
 {
-    uint8_t buf[] = {0x06, time & 0xff};
+    uint8_t buf[] = { 0x06, time };
     send(buf, 2);
 }
 
@@ -72,8 +73,16 @@ void ArmDevice::servo_write(uint8_t id, uint16_t angle, uint16_t time)
 
             time_h = (time >> 8) & 0xFF;
             time_l = time & 0xFF;
-            uint8_t buf[] = {0x10 + id, value_h, value_l, time_h, time_l};
-            int t = write(this -> bus, buf, 5);
+            
+            uint8_t buf[] = { 
+                static_cast<uint8_t>( (0x10 + id) ) ,
+                value_h,
+                value_l,
+                time_h,
+                time_l
+            };
+
+            write(this -> bus, buf, 5);
             break;
         }
     }
@@ -91,6 +100,7 @@ void ArmDevice::servo_write6(float32_t angles[6], uint16_t time)
 
 void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time, bool floating)
 {
+    toggleTorque(true);
     uint8_t bytearr[14] = {0};
     bytearr[0] = 0x1D;
     
@@ -150,8 +160,8 @@ void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time, bool floating)
     //int t = write(this->bus, timearr, 3);
     bus_cleaner(bytearr, time);
     //t = write(this->bus, bytearr, 13);
-    if (floating)
-        delete angles;
+    //if (floating)
+        //delete angles;
 }
 
 bool ArmDevice::send( uint8_t buffer[100], uint16_t buflen)
@@ -163,14 +173,16 @@ bool ArmDevice::send( uint8_t buffer[100], uint16_t buflen)
     return 1;
 }
 
+
+
 void ArmDevice::toggleTorque(bool torque)
 {
-    uint8_t buf[4] = { 0x1A, uint8_t(torque) };
+    uint8_t buf[2] = { 0x1A, uint8_t(torque) };
     write( this -> bus, buf, 2);
 }
 void ArmDevice::rgb(uint8_t r, uint8_t g, uint8_t b)
-{
-    uint8_t buf[4] = { 0x02, r & (uint8_t) 0xff, g & (uint8_t) 0xff, b & (uint8_t) 0xff};
+{   
+    uint8_t buf[4] = { 0x02, r, g ,b};
     write( this -> bus, buf, 4);
 }
 
@@ -189,7 +201,8 @@ bool ArmDevice::ping_servo(uint8_t id)
 }
 void ArmDevice::button_mode(bool mode)                              // undocumented function
 {
-    uint8_t buf[4] { 0x03, mode & (uint8_t) 0xff};
+    //uint8_t buf[4] { 0x03, static_cast<uint8_t> ( mode ) };
+    // TODO: me
 }
 
 void ArmDevice::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
@@ -488,34 +501,42 @@ void ArmDevice::servo_write_any(uint8_t id, uint16_t angle, uint16_t time)
     if ( id == 0 )
         return;
     
-    uint16_t pos = int((3100 - 900) * (angle - 0) / (180 - 0) + 900);
-    uint8_t buf[6]  = {0x19, id & 0xff, (pos >> 8) & 0xFF, (pos & 0xFF), ( time >> 8 ) & 0xFF, (time & 0xFF)};
+    uint16_t pos = uint16_t((3100 - 900) * angle / 180 + 900);
+    uint8_t buf[6]  = 
+    {
+    static_cast<uint8_t> (0x19),
+    id,
+    static_cast<uint8_t>( (pos >> 8) ),
+    static_cast<uint8_t> (pos), 
+    static_cast<uint8_t> (( time >> 8 )), 
+    static_cast<uint8_t> (time)
+    };
     write(this -> bus, buf, 6);
 }
 
 void ArmDevice::servo_set_id(uint8_t id)
 {
-    uint8_t buf[2] = { 0x18, id & 0xff};
+    uint8_t buf[2] = { 0x18, id};
     write(this -> bus, buf, 2);
 }
 
-bool ArmDevice::bus_cleaner(uint8_t* dest, uint16_t time)
+void ArmDevice::bus_cleaner(uint8_t* dest, uint16_t time)
 {
-    std::array<uint8_t, 13> t ;
+    std::array<uint8_t, 13> t;
     std::copy(dest, dest+13, t.begin());
 
 
     if( t != target)
     {
-        uint8_t timearr[3] { 0x1E, (time >> 8) & 0xFF, time & 0xFF};
+        uint8_t timearr[3] = 
+        { 
+            0x1E, 
+            static_cast<uint8_t>((time >> 8)),
+            static_cast<uint8_t>(time)
+         };
+
         write(this -> bus, timearr, 3);
         write(this -> bus, dest, 13);
         target = std::move(t);
     }
-    std::cout.flush();
-}
-
-void ArmDevice::learn_mode()
-{
-
 }

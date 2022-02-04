@@ -10,18 +10,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     Scheduler_100ms = new QTimer(this); // timer called every 100ms
     Scheduler_16ms = new QTimer(this);  // timer called every  20ms
-    Scheduler_1s = new QTimer(this);
+    Scheduler_500ms = new QTimer(this);
 
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes())); // axis readout is updated every 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));     // control from the axis is also updated ever 100ms
-    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));      // camera is updated every 20ms
+    //connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));      // camera is updated every 20ms
+    
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));  // when the learn button is clicked, toggle the bar
     connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar())); // when the track button is clicked, toggle the bar
 
-    connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));    //  <<
-    connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step())); //  buttons for the learn mode
-    connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));  //  >>
+    connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));               //  <<
+    connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step()));            //  buttons for the learn mode
+    connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));         //  >>
 
     connect(ui->follow_red, SIGNAL(clicked()), SLOT(start_follow_red()));
     connect(ui->follow_green, SIGNAL(clicked()), SLOT(start_follow_green()));
@@ -31,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     Scheduler_100ms->start(100);
     Scheduler_16ms->start(16);
-    Scheduler_1s->start(500);
+    Scheduler_500ms->start(500);
 
     dev.home_position(); // reset the robot to the home position
 
@@ -43,15 +44,17 @@ MainWindow::MainWindow(QWidget *parent)
     camera->set(cv::CAP_PROP_BRIGHTNESS, 25);
 
     ui->a4_r->setValue(-90);
-
-    // robot.reset();
+    running = true;
+    cam_thread = QtConcurrent::run(this, &MainWindow::capture);
 }
 
 MainWindow::~MainWindow()
 {
+    running = false;
+    cam_thread.cancel();
     delete ui;
 }
-void MainWindow::toggle_learn_bar() // toggle the learning bar,
+void MainWindow::toggle_learn_bar()            // toggle the learning bar,
 {
     set_camera_bar_visibility(HIDDEN);         // hide the camera bar
     learn_bar_state = !learn_bar_state;        // << set if the learning bar is visible or not
@@ -59,7 +62,7 @@ void MainWindow::toggle_learn_bar() // toggle the learning bar,
     learn();                                   // and go into the learn mode
 }
 
-void MainWindow::toggle_camera_bar() // ditto for the camera bar
+void MainWindow::toggle_camera_bar()           // ditto for the camera bar
 {
     set_learn_bar_visibility(HIDDEN);
     camera_bar_state = !camera_bar_state;
@@ -105,7 +108,6 @@ void MainWindow::command() // get the values from the sliders, then write them o
     angles[3] = ui->a4_r->value() + 90;
     angles[4] = ui->a5_r->value() + 90;
     angles[5] = ui->grip_r->value() + 90;
-    // std::cout << angles[0] << '\n';
 
     dev.servo_write6(angles, 1000); // move the axes
 }
@@ -119,22 +121,22 @@ void MainWindow::learn() // starts the learn mode
 
 void MainWindow::add_step() // add a step
 {
-    float32_t *angle = dev.servo_readall(); // read all the servo values
-    std::vector<float32_t> t(6);            // make them into a vector
+    float32_t *angle = dev.servo_readall();                                 // read all the servo values
+    std::vector<float32_t> t(6);                                            // make them into a vector
     memmove(&t[0], &angle[0], 6 * sizeof(float32_t));
-    dev.learned_angles.push_back(std::move(t)); // and add it onto the command queue
+    dev.learned_angles.push_back(std::move(t));                             // and add it onto the command queue
     delete angle;
 
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() + 1).c_str())); // then update the label
 }
 
-void MainWindow::remove_step() // remove a step from the queue
+void MainWindow::remove_step()      // remove a step from the queue
 {
     dev.learned_angles.pop_back();
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 
-void MainWindow::follow_path() // start to run
+void MainWindow::follow_path()      // start running
 {   
     dev.toggleTorque(true);
     std::cout << dev.executing;
@@ -151,181 +153,99 @@ void MainWindow::follow_path() // start to run
 
 void MainWindow::capture() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
-    *camera >> frame;
 
-    Mat imgHSV;
-    //Mat clear = frame.clone();
-    //cv::medianBlur(frame, frame, 5);
+    std::cout << "here";
+    while( running )
+    {
+        *camera >> frame;
 
+        Mat imgHSV;
 
-    cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
+        cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
+        line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1);  // draw the crosshair
+        line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
+                                                                            // to hue saturation values, for easier processing
+        Mat imgTreshRed;
+        Mat imgTreshRed1;
+        inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed);     // we treshold the image, removing every color but red
+        inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
+        imgTreshRed += imgTreshRed1;
 
-    std::vector<uint16_t> red_lower = {0, 50, 50}; // set the tresholds for colors, red green and blue
-    std::vector<uint16_t> red_upper = {10, 255, 255};
-    std::vector<uint16_t> red_lower_mask1 = {170, 50, 50};
-    std::vector<uint16_t> red_upper_mask1 = {180, 255, 255};
+        Mat imgTreshGreen;
+        inRange(imgHSV, Scalar(45, 72, 92), Scalar(102, 255, 255), imgTreshGreen);
 
-    Point center_line_top;
-    Point center_line_btm;
+        Mat imgTreshBlue;
+        inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
 
-    center_line_top.x = 320;
-    center_line_top.y = 0;
+        Mat res_red;                                                        // by doing bitwise and with the treshold. anything that isn't
+        bitwise_and(frame, frame, res_red, imgTreshRed);                    // red, green or blue automatically gets turned to 0 ( as a pixel )
+                                                                            // with bitwise and, they get destroyed
+        Mat res_green;
+        bitwise_and(frame, frame, res_green, imgTreshGreen);
 
-    center_line_btm.x = 320;
-    center_line_btm.y = 480;
+        Mat res_blue;
+        bitwise_and(frame, frame, res_blue, imgTreshBlue);
 
-    line(frame, center_line_top, center_line_btm, CV_RGB(255, 0, 0), 1);
+        std::vector<std::vector<Point>> contours;
+        findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-    center_line_top.x = 0;
-    center_line_top.y = 240;
+        int max = 0;
+        int ind = 0;
 
-    center_line_btm.x = 640;
-    center_line_btm.y = 240;
+        for (auto& contour: contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
 
-    line(frame, center_line_top, center_line_btm, CV_RGB(255, 0, 0), 1);
-
-    Mat inverted = ~frame;
-    cvtColor(inverted, inverted, COLOR_BGR2HSV);
-
-    Mat imgTreshRed;
-    Mat imgTreshRed1;
-    inRange(imgHSV, red_lower, red_upper, imgTreshRed);
-    inRange(imgHSV, red_lower_mask1, red_upper_mask1, imgTreshRed1);
-
-    imgTreshRed += imgTreshRed1;
-    // cvtColor();
-
-    // inRange(frame, Scalar(90 - 10, 70, 50), Scalar(90 + 10, 255, 255), imgTreshRed);
-
-    std::vector<uint16_t> green_lower = {45, 72, 92};
-    std::vector<uint16_t> green_upper = {102, 255, 255};
-
-    Mat imgTreshGreen;
-    inRange(imgHSV, green_lower, green_upper, imgTreshGreen);
-
-    std::vector<uint16_t> blue_lower = {112, 60, 63};
-    std::vector<uint16_t> blue_upper = {124, 255, 255};
-
-    Mat imgTreshBlue;
-    inRange(imgHSV, blue_lower, blue_upper, imgTreshBlue);
-
-    Mat kernel;
-    kernel.ones(5, 5, CV_8U);
-
-    dilate(imgTreshRed, imgTreshRed, kernel);
-    Mat res_red;
-    bitwise_and(frame, frame, res_red, imgTreshRed);
-
-    dilate(imgTreshGreen, imgTreshGreen, kernel);
-    Mat res_green;
-    bitwise_and(frame, frame, res_green, imgTreshGreen);
-
-    dilate(imgTreshBlue, imgTreshBlue, kernel);
-    Mat res_blue;
-    bitwise_and(frame, frame, res_blue, imgTreshBlue);
-
-    std::vector<std::vector<Point>> contours;
-    findContours(imgTreshRed, contours, RETR_TREE, CHAIN_APPROX_TC89_KCOS);
-    int num = contours.size();
-
-    int max = 0;
-    int ind = 0;
-
-    for (int i = 0; i < num; i++)
-        if (contourArea(contours[i]) > max)
+        if (max > 50)
         {
-            ind = i;
-            max = contourArea(contours[i]);
+            red = boundingRect(contours[ind]);
+            rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
+            putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
         }
 
-    // for( int i = 0 ; i < num; i++)
-    //{
-    // if ( contourArea(contours[i]) > 0)
-    //{
-    if (max > 0)
-    {
-        red = boundingRect(contours[ind]);
-        Point pt1, pt2;
-        pt1.x = red.x;
-        pt1.y = red.y;
-        pt2.x = red.x + red.width;
-        pt2.y = red.y + red.height;
-        // Draws the rect in the original image and show it
-        rectangle(frame, pt1, pt2, CV_RGB(255, 0, 0), 3);
-        putText(frame, "Red", pt1, FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
-    }
-    //}
+        contours.clear();
+        findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-    //}
-    contours.clear();
-    findContours(imgTreshGreen, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    num = contours.size();
-    max = 0;
-    for (int i = 0; i < num; i++)
-        if (contourArea(contours[i]) > max)
+        max = 0;
+        for (auto& contour: contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
+
+        if (max > 50)
         {
-            ind = i;
-            max = contourArea(contours[i]);
+            green = boundingRect(contours[ind]);
+            rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
+            putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
         }
 
-    // for( int i = 0 ; i < num; i++)
-    //{
-    // if ( contourArea(contours[i]) > 300)
-    //{
-    if (max > 0)
-    {
-        green = boundingRect(contours[ind]);
-        Point pt1, pt2;
-        pt1.x = green.x;
-        pt1.y = green.y;
-        pt2.x = green.x + green.width;
-        pt2.y = green.y + green.height;
-        // Draws the rect in the original image and show it
-        rectangle(frame, pt1, pt2, CV_RGB(0, 255, 0), 3);
-        putText(frame, "Green", pt1, FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
-    }
-    //}
+        contours.clear();
+        findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-    //}
-    contours.clear();
-    findContours(imgTreshBlue, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    num = contours.size();
+        max = 0;
+        for (auto& contour: contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
 
-    max = 0;
-    for (int i = 0; i < num; i++)
-        if (contourArea(contours[i]) > max)
+        if (max > 50)
         {
-            ind = i;
-            max = contourArea(contours[i]);
+            blue = boundingRect(contours[ind]);
+            rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
+            putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
         }
 
-    if (max > 0)
-    {
-        blue = boundingRect(contours[ind]);
-        Point pt1, pt2;
-        pt1.x = blue.x;
-        pt1.y = blue.y;
-        pt2.x = blue.x + blue.width;
-        pt2.y = blue.y + blue.height;
-        // Draws the rect in the original image and show it
-
-        rectangle(frame, pt1, pt2, CV_RGB(0, 0, 255), 3);
-        putText(frame, "Blue", pt1, FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
-
-        pt1.x = blue.x + blue.width / 2;
-        pt2.x = blue.x + blue.width / 2;
-        line(frame, pt1, pt2, CV_RGB(0, 0, 255), 1);
+        qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        qt_image = qt_image.scaled(751, 481);
+        ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     }
-    //}
-
-    //}
-
-    // cvtColor(frame, frame,  COLOR_HSV2BGR);
-    //frame = clear;
-    qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
-    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
-
-    // ui->viewfinder->resize(1260);
 }
 
 void MainWindow::halt()
@@ -350,38 +270,8 @@ void MainWindow::start_follow_green()
 void MainWindow::start_follow_blue()
 {
     dir = 3;
-    connect(Scheduler_1s, SIGNAL(timeout()), SLOT(follow()));
+    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
-    //follow();
-    /*
-    dir = 3;
-    float32_t lCam = 4.8 * pixMod;
-
-    int Ox_deviation = abs(320 - blue.x);
-
-    std::cout << lCam << " " << Ox_deviation << '\n';
-
-    float32_t angle = acos( Ox_deviation / lCam ) * (180.0/3.141592653589793238463) ;
-    std::cout << angle << '\n';*/
-
-    // x_center = red.x + red.width / 2;
-    // y_center = red.y + red.y / 2;
-    /*connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(follow()));
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));*/
-
-    /*float32_t lCam = 4.8 * pixMod;
-    int deviation = blue.x - 320;
-    float32_t alpha = asin( deviation / lCam ) * degRad;
-    std::cout << alpha;
-
-    std::cout << "here";
-    std::cout.flush();
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
-    const float64_t modifier = 110.0 / 640.0;
-    // int deviation = int(floor(dev.servo_read(1))) + (((blue.x + ( blue.width / 2.0 )) - 320) * modifier);
-
-    dev.toggleTorque(true);
-    dev.servo_write(1, 90 + 55, 3000);*/
 }
 
 void MainWindow::follow()
@@ -410,26 +300,6 @@ void MainWindow::follow()
             break;
         }
     }
-
-    /*if (x_center < 300)
-    {
-        ui->base_r->setValue(ui->base_r->value() + 1);
-    }
-    else if (x_center > 340)
-    {
-        ui->base_r->setValue(ui->base_r->value() - 1);
-    }
-
-    if (y_center < 210)
-    {
-        ui->a4_r->setValue(ui->a4_r->value() + 1);
-    }
-    else if (y_center > 270)
-    {
-        ui->a4_r->setValue(ui->a4_r->value() - 1);
-    }*/
-    
-
     float32_t alpha = ( asin( ( 320 - x_center ) / ((22) * pixMod) ) * 180 ) / __PI__;
     float32_t beta = ( asin( ( 240 - y_center ) / ((36) * pixMod) ) * 180 ) / __PI__;
 

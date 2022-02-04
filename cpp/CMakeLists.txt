@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -mcpu=native -Wno-narr
 set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -mcpu=native -Wall -Wpedantic")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent REQUIRED)
 
 find_package( OpenCV REQUIRED )
 include_directories( lib/opencv/include ${OpenCV_INCLUDE_DIRS})
@@ -95,7 +95,7 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
 
 
 if(UNIX AND NOT APPLE)
@@ -111,8 +111,6 @@ if(APPLE)
     )
 endif()
 
-
-message(STATUS "MY_CAMERA_LIBRARY: " ${opencv_selfbuild})
 target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS})
 
 #target_link_libraries( RobotDashBoard PRIVATE  )

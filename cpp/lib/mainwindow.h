@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QThread>
 #include <cmath>
+#include <QtConcurrent>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -67,6 +68,7 @@ class MainWindow : public QMainWindow
         Rect red;
         Rect green;
         Rect blue;
+        bool running;
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -99,7 +101,7 @@ class MainWindow : public QMainWindow
 
         QTimer *Scheduler_100ms = nullptr;                        // timers for different actions
         QTimer *Scheduler_16ms = nullptr;
-        QTimer *Scheduler_1s = nullptr;
+        QTimer *Scheduler_500ms = nullptr;
 
         ArmDevice dev;
 
@@ -109,6 +111,9 @@ class MainWindow : public QMainWindow
         Mat frame;
         QImage qt_image;
         VideoCapture* camera = nullptr;
+
+        QFuture<void> cam_thread;
+        QFuture<void> learn_thread;
         
 
 };

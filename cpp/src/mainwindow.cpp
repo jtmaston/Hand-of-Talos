@@ -322,8 +322,8 @@ void MainWindow::capture() // this is 2am code.
 
     // cvtColor(frame, frame,  COLOR_HSV2BGR);
     //frame = clear;
-    qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_BGR888);
-    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image));
+    qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
 
     // ui->viewfinder->resize(1260);
 }

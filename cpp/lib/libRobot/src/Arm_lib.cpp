@@ -8,12 +8,12 @@ ArmDevice::ArmDevice()
     this -> addr = 0x15;
     if (this->bus < 0)
     {
-        throw BusError;
+        //throw BusError;
     }
 
     if (ioctl(this -> bus, I2C_SLAVE, this -> addr) < 0)
     {
-        throw BusError;
+        //throw BusError;
     }
     target.fill(0);
 }

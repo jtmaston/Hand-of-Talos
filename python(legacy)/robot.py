@@ -34,10 +34,13 @@ class Robot:
         self.done = True
         self.axes = [0, 0, 0, 0, 0, 0]
         self.alive = True
+        self.executing = False
 
     def halt(self):
         self.arm.Arm_serial_set_torque(10)
-        self.arm.done = True
+        self.done = True
+        self.alive = False
+        self.steps.clear()
 
     def poll_axes(self):
         time_started = time()
@@ -68,7 +71,7 @@ class Robot:
         self.arm.Arm_serial_set_torque(10)  # disable torque
 
     def add_step(self):
-        self.steps.append(self.poll_axes())
+        self.steps.append(self.axes)
 
     def remove_step(self):
         try:
@@ -80,10 +83,17 @@ class Robot:
 
     def execute(self):
         # self.disable_move = True
-        self.done = False
-        self.arm.Arm_serial_set_torque(1)
-        while self.alive:
-            for i in self.steps:
-                if i is not None:
-                    self.arm.Arm_serial_servo_write6_array(i, 2000)
-                    sleep(2)
+        if self.done:
+            self.done = False
+            self.arm.Arm_serial_set_torque(1)
+            self.arm.Arm_serial_set_torque(1)
+            self.arm.Arm_serial_set_torque(1)
+
+            sleep(0.5)
+
+            while self.alive:
+                for i in self.steps:
+                    #print(i)
+                    if i is not None:
+                        self.arm.Arm_serial_servo_write6_array(i, 1000)
+                        sleep(2)

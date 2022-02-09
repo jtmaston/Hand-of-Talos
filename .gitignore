@@ -13,3 +13,6 @@ tester.py
 *.o
 *.out
 build
+.vscode
+build-cpp-*
+*workspace

@@ -1,12 +1,30 @@
-#include <iostream>
-#include "Arm_lib.hpp"
+#include "lib/mainwindow.h"
 
-using namespace std;
+#include <QApplication>
+#include <QLocale>
+#include <QTranslator>
+#include <stdlib.h>
 
-ArmDevice dev;
+int main(int argc, char *argv[])
+{   
+    char arg[] = "DISPLAY=:0.0";
+    putenv(arg);
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    
+    QApplication a(argc, argv);
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale : uiLanguages) {
+        const QString baseName = "RobotDashBoard_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName)) {
+            a.installTranslator(&translator);
+            break;
+        }
+    }
+    MainWindow w;
+    w.show();
+    return a.exec();
 
-int main()
-{
-    dev.servo_write(0, 45, 3000);
-  return 0;
+
+    //ArmDevice bot;
 }

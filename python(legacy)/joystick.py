@@ -4,6 +4,10 @@ from kivy import Logger
 class spoof:
     def get_axis(self, axis):
         return 0
+    def get_button(self, *args, **kwargs):
+        return 0;
+    def get_numbuttons(self, *args, **kwargs):
+        return 0;
 
 class Joystick:
     def __init__(self):

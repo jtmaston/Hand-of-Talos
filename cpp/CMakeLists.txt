@@ -1,110 +1,123 @@
-set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_USE_STATIC_STD_LIBS TRUE)
-set(BUILD_SHARED_LIBS FALSE)
+cmake_minimum_required(VERSION 3.5)
 
-cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0003 NEW)
+project(RobotDashBoard VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_BUILD_TYPE, Release)
+set_property(SOURCE lib/libjoystick/joystick.hh PROPERTY SKIP_AUTOGEN ON)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 set(CMAKE_CXX_STANDARD 20)
-
-set(CMAKE_CXX_STANDARD 17)
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(PROJECT_VER "0.0.1")
 
-project(DOFBot  VERSION "${PROJECT_VER}"
-    LANGUAGES CXX C
+set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -mcpu=native -Wno-narrowing")
+set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -mcpu=native -Wall -Wpedantic")
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent REQUIRED)
+
+find_package( OpenCV REQUIRED )
+include_directories( lib/opencv/include ${OpenCV_INCLUDE_DIRS})
+
+
+set(TS_FILES extra/RobotDashBoard_en_US.ts)
+
+if(UNIX AND NOT APPLE)
+    add_library(libarm STATIC
+        lib/libRobot/src/Arm_lib.cpp
+    )
+    set_target_properties(libarm PROPERTIES
+        PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
+        ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
+        LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
+    )
+    target_include_directories(libarm PRIVATE lib/libRobot/include)
+    target_compile_features(libarm
+        PUBLIC
+        cxx_attributes
+        cxx_defaulted_functions
+        cxx_deleted_functions
+        cxx_final
+    )
+
+    add_library(joystick STATIC
+        lib/libjoystick/joystick.cc
+    )
+    set_target_properties(joystick PROPERTIES
+        PUBLIC_HEADER "lib/libjoystick/joystick.hh"
+    )
+    target_include_directories(joystick PRIVATE lib/libRobot/include)
+    target_compile_features(libarm
+        PUBLIC
+        cxx_attributes
+        cxx_defaulted_functions
+        cxx_deleted_functions
+        cxx_final
+    )
+
+endif()
+set(PROJECT_SOURCES
+        src/main.cpp
+        src/mainwindow.cpp
+        lib/mainwindow.h
+        lib/mainwindow.ui
+        ${TS_FILES}
 )
 
-#find_package(OpenGL REQUIRED)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(RobotDashBoard
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET RobotDashBoard APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
-# << SFML >>
-#add_subdirectory(lib/sfml)
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+else()
+    if(ANDROID)
+        add_library(RobotDashBoard SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(RobotDashBoard
+            ${PROJECT_SOURCES}
+        )
+    endif()
 
-# << JSONCPP >>
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+endif()
 
-#add_library(jsoncpp STATIC 
-#  lib/jsoncpp/src/lib_json/json_reader.cpp lib/jsoncpp/src/lib_json/json_value.cpp lib/jsoncpp/src/lib_json/json_value.cpp lib/jsoncpp/src/lib_json/json_valueiterator.inl lib/jsoncpp/src/lib_json/json_writer.cpp
-#)
-#set_target_properties(jsoncpp PROPERTIES PUBLIC_HEADER lib/jsoncpp/include/json.h)
-#target_include_directories(jsoncpp PRIVATE lib/jsoncpp/include)
+target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
 
-#target_compile_features(jsoncpp
-##    PUBLIC
- #   cxx_attributes
-#    cxx_defaulted_functions
-#    cxx_deleted_functions
-#    cxx_final
-#)
 
-# << IMGUI >>
-#add_library(imgui STATIC 
-#  lib/imgui/imgui.cpp lib/imgui/imgui_widgets.cpp lib/imgui/imgui_tables.cpp lib/imgui/imgui_draw.cpp
-#)
-#set_target_properties(imgui PROPERTIES PUBLIC_HEADER lib/imgui/imgui.h)
-#target_include_directories(imgui PRIVATE lib/imgui)
-#target_compile_features(imgui 
-##    PUBLIC
- #   cxx_attributes
- #   cxx_defaulted_functions
- #   cxx_deleted_functions
- #   cxx_final
-#)
-# << >>
+if(UNIX AND NOT APPLE)
+    target_link_libraries(RobotDashBoard PRIVATE libarm i2c)
+endif()
+if(APPLE)
+    set_target_properties(RobotDashBoard PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
+    )
+endif()
 
-# << imgui-sfml >>
+target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS} joystick)
 
-#add_library(imgui-sfml STATIC 
-#  lib/imgui-sfml/imgui-SFML.cpp
-#)
-#set_target_properties(imgui-sfml PROPERTIES PUBLIC_HEADER lib/imgui-sfml/imgui-SFML.h)
-#target_include_directories(imgui-sfml PRIVATE lib/imgui-sfml lib/imgui)
+#target_link_libraries( RobotDashBoard PRIVATE  )
 
-#target_compile_features(imgui-sfml
-#    PUBLIC
-#    cxx_attributes
-##    cxx_defaulted_functions
- #   cxx_deleted_functions
-#    cxx_final
-#)
+#link_directories(../build/opencv/lib)
+#target_link_libraries(RobotDashBoard PUBLIC )
 
-#target_link_libraries(imgui-sfml
-#  PUBLIC
-#    sfml-graphics
-#    sfml-system
-#    sfml-window
-#    ${OPENGL_LIBRARIES}
-#)
 
-# << ARMLib >>
-add_library(libarm STATIC
-    lib/libRobot/src/Arm_lib.cpp
-)
-set_target_properties(libarm PROPERTIES 
-    PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
-    ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
-    LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
-)
-target_include_directories(libarm PRIVATE lib/libRobot/include)
-target_compile_features(libarm 
-    PUBLIC
-    cxx_attributes
-    cxx_defaulted_functions
-    cxx_deleted_functions
-    cxx_final
-    
-    #RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
-
-add_executable(DOFBot
-    src/main.cpp
-)
-
-#target_include_directories(DOFBot PRIVATE lib/imgui)
-#target_include_directories(DOFBot PRIVATE lib/imgui/backends)
-#target_include_directories(DOFBot PRIVATE lib/imgui-sfml)
-target_include_directories(DOFBot PRIVATE lib/libRobot/include)
-
-#target_link_libraries(DOFBot PUBLIC imgui)
-#target_link_libraries(DOFBot PUBLIC sfml-graphics sfml-audio)
-target_link_libraries(DOFBot PUBLIC libarm)
-#target_link_libraries(DOFBot PUBLIC imgui-sfml)
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(RobotDashBoard)
+endif()

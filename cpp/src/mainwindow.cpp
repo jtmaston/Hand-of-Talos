@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));               //  <<
     connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step()));            //  buttons for the learn mode
     connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));         //  >>
+    connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stop_follow()));         //  >>
 
     connect(ui->follow_red, SIGNAL(clicked()), SLOT(start_follow_red()));
     connect(ui->follow_green, SIGNAL(clicked()), SLOT(start_follow_green()));
@@ -36,12 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     dev.home_position(); // reset the robot to the home position
 
-    camera = new VideoCapture(0, CAP_V4L);
-
-    camera->set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    camera->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    camera->set(cv::CAP_PROP_FPS, 60);
-    camera->set(cv::CAP_PROP_BRIGHTNESS, 25);
+    
 
     ui->a4_r->setValue(-90);
     running = true;
@@ -139,7 +135,6 @@ void MainWindow::remove_step()      // remove a step from the queue
 void MainWindow::follow_path()      // start running
 {   
     dev.toggleTorque(true);
-    std::cout << dev.executing;
     dev.executing = !dev.executing; // set executing in order to stop
 
     if (dev.executing)
@@ -154,97 +149,112 @@ void MainWindow::follow_path()      // start running
 void MainWindow::capture() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
 
-    std::cout << "here";
+    Mat frame;
+    QImage qt_image;
+    VideoCapture* camera = nullptr;
+
+    camera = new VideoCapture(0, CAP_V4L);
+
+    camera->set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    camera->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    camera->set(cv::CAP_PROP_FPS, 60);
+    camera->set(cv::CAP_PROP_BRIGHTNESS, 25);
+
+    
     while( running )
     {
-        *camera >> frame;
+        try{
+            *camera >> frame;
 
-        Mat imgHSV;
+            Mat imgHSV;
 
-        cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
-        line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1);  // draw the crosshair
-        line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
-                                                                            // to hue saturation values, for easier processing
-        Mat imgTreshRed;
-        Mat imgTreshRed1;
-        inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed);     // we treshold the image, removing every color but red
-        inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
-        imgTreshRed += imgTreshRed1;
+            cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
+            line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1);  // draw the crosshair
+            line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
+                                                                                // to hue saturation values, for easier processing
+            Mat imgTreshRed;
+            Mat imgTreshRed1;
+            inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed);     // we treshold the image, removing every color but red
+            inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
+            imgTreshRed += imgTreshRed1;
 
-        Mat imgTreshGreen;
-        inRange(imgHSV, Scalar(45, 72, 92), Scalar(102, 255, 255), imgTreshGreen);
+            Mat imgTreshGreen;
+            inRange(imgHSV, Scalar(45, 72, 92), Scalar(102, 255, 255), imgTreshGreen);
 
-        Mat imgTreshBlue;
-        inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
+            Mat imgTreshBlue;
+            inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
 
-        Mat res_red;                                                        // by doing bitwise and with the treshold. anything that isn't
-        bitwise_and(frame, frame, res_red, imgTreshRed);                    // red, green or blue automatically gets turned to 0 ( as a pixel )
-                                                                            // with bitwise and, they get destroyed
-        Mat res_green;
-        bitwise_and(frame, frame, res_green, imgTreshGreen);
+            Mat res_red;                                                        // by doing bitwise and with the treshold. anything that isn't
+            bitwise_and(frame, frame, res_red, imgTreshRed);                    // red, green or blue automatically gets turned to 0 ( as a pixel )
+                                                                                // with bitwise and, they get destroyed
+            Mat res_green;
+            bitwise_and(frame, frame, res_green, imgTreshGreen);
 
-        Mat res_blue;
-        bitwise_and(frame, frame, res_blue, imgTreshBlue);
+            Mat res_blue;
+            bitwise_and(frame, frame, res_blue, imgTreshBlue);
 
-        std::vector<std::vector<Point>> contours;
-        findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+            std::vector<std::vector<Point>> contours;
+            findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-        int max = 0;
-        int ind = 0;
+            int max = 0;
+            int ind = 0;
 
-        for (auto& contour: contours)
-            if (contourArea(contour) > max)
+            for (auto& contour: contours)
+                if (contourArea(contour) > max)
+                {
+                    ind = &contour - &contours[0];
+                    max = contourArea(contour);
+                }
+
+            if (max > 0)
             {
-                ind = &contour - &contours[0];
-                max = contourArea(contour);
+                red = boundingRect(contours[ind]);
+                rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
+                putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
             }
 
-        if (max > 50)
-        {
-            red = boundingRect(contours[ind]);
-            rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
-            putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
-        }
+            contours.clear();
+            findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-        contours.clear();
-        findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+            max = 0;
+            for (auto& contour: contours)
+                if (contourArea(contour) > max)
+                {
+                    ind = &contour - &contours[0];
+                    max = contourArea(contour);
+                }
 
-        max = 0;
-        for (auto& contour: contours)
-            if (contourArea(contour) > max)
+            if (max > 50)
             {
-                ind = &contour - &contours[0];
-                max = contourArea(contour);
+                green = boundingRect(contours[ind]);
+                rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
+                putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
             }
 
-        if (max > 50)
-        {
-            green = boundingRect(contours[ind]);
-            rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
-            putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
-        }
+            contours.clear();
+            findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
-        contours.clear();
-        findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+            max = 0;
+            for (auto& contour: contours)
+                if (contourArea(contour) > max)
+                {
+                    ind = &contour - &contours[0];
+                    max = contourArea(contour);
+                }
 
-        max = 0;
-        for (auto& contour: contours)
-            if (contourArea(contour) > max)
+            if (max > 50)
             {
-                ind = &contour - &contours[0];
-                max = contourArea(contour);
+                blue = boundingRect(contours[ind]);
+                rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
+                putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
             }
-
-        if (max > 50)
+            qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+            qt_image = qt_image.scaled(751, 481);
+            ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
+        }catch(const std::exception& ex)
         {
-            blue = boundingRect(contours[ind]);
-            rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
-            putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
+            
         }
-
-        qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
-        qt_image = qt_image.scaled(751, 481);
-        ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     }
 }
 
@@ -256,14 +266,14 @@ void MainWindow::halt()
 void MainWindow::start_follow_red()
 {
     dir = 1;
-    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(follow()));
+    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
 }
 
 void MainWindow::start_follow_green()
 {
     dir = 2;
-    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(follow()));
+    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
 }
 
@@ -272,6 +282,12 @@ void MainWindow::start_follow_blue()
     dir = 3;
     connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+}
+
+void MainWindow::stop_follow()
+{
+    disconnect(Scheduler_500ms, SIGNAL(timeout()), this, SLOT(follow()));
+    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));
 }
 
 void MainWindow::follow()

@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow
         void start_follow_red();
         void start_follow_blue();
         void start_follow_green();
+        void stop_follow();
 
         
 
@@ -108,9 +109,6 @@ class MainWindow : public QMainWindow
         friend class WorkerThread;
         WorkerThread learnModeThread;
 
-        Mat frame;
-        QImage qt_image;
-        VideoCapture* camera = nullptr;
 
         QFuture<void> cam_thread;
         QFuture<void> learn_thread;

@@ -100,7 +100,7 @@ void ArmDevice::servo_write6(float32_t angles[6], uint16_t time)
 
 void ArmDevice::servo_write6(uint16_t angles[6], uint16_t time, bool floating)
 {
-    toggleTorque(true);
+    //toggleTorque(true);
     uint8_t bytearr[14] = {0};
     bytearr[0] = 0x1D;
     
@@ -490,7 +490,7 @@ float32_t ArmDevice::servo_read_any(uint8_t id)
 void ArmDevice::home_position()
 {
     this -> toggleTorque(true);
-    uint16_t angles[] = {90, 90, 90, 0, 90, 90};
+    uint16_t angles[] = {90, 135, 45, 0, 90, 90};
     this -> servo_write6(angles, 1000);
     usleep(1000000);
     //toggleTorque(0);

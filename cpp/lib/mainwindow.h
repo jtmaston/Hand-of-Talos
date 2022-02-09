@@ -12,6 +12,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
+
+#include "lib/libjoystick/joystick.hh"
+
 using namespace cv;
 
 #define pixMod 45.0847
@@ -63,7 +66,7 @@ class MainWindow : public QMainWindow
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
 
-        int dir;
+        int dir = 0;
 
         Rect red;
         Rect green;
@@ -90,7 +93,10 @@ class MainWindow : public QMainWindow
         void start_follow_blue();
         void start_follow_green();
         void stop_follow();
-
+        void jog();
+        void update_stick();
+        
+        void poll_joystick();
         
 
     private:
@@ -99,12 +105,18 @@ class MainWindow : public QMainWindow
         bool camera_bar_state = HIDDEN;
         void set_learn_bar_visibility(bool state);
         void set_camera_bar_visibility(bool state);
+        bool jogging = false;
+        bool learning = false;
+
+        float32_t axes[6] = { 0 };
+        uint16_t time_mod = 1000;
 
         QTimer *Scheduler_100ms = nullptr;                        // timers for different actions
         QTimer *Scheduler_16ms = nullptr;
         QTimer *Scheduler_500ms = nullptr;
 
         ArmDevice dev;
+        Joystick* joystick;
 
         friend class WorkerThread;
         WorkerThread learnModeThread;
@@ -112,6 +124,10 @@ class MainWindow : public QMainWindow
 
         QFuture<void> cam_thread;
         QFuture<void> learn_thread;
+        QFuture<void> joy_thread;
+
+        void disable_sliders();
+        void enable_sliders();
         
 
 };

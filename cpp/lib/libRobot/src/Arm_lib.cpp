@@ -15,6 +15,19 @@ ArmDevice::ArmDevice()
     {
         //throw BusError;
     }
+
+    this -> led_bus = open("/dev/i2c-1", O_RDWR);
+    this -> led_addr = 0x0d;
+    if (this->led_bus < 0)
+    {
+        throw BusError;
+    }
+
+    if (ioctl(this -> led_bus, I2C_SLAVE, this -> led_addr) < 0)
+    {
+        throw BusError;
+    }
+
     target.fill(0);
 }
 

@@ -74,6 +74,9 @@ class ArmDevice
         const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};         // used in direct kinematics
         int addr = 0x15;                                            // address of the microcontroller
         int bus = -1;                                             // I2C bus
+        int led_bus = -1;
+        int led_addr = 0x0d;
+
         bool send(uint8_t bytearr[100], uint16_t numbytes);         // send onto the bus ( DEPRECATED )
 
         void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
@@ -84,7 +87,13 @@ class ArmDevice
         void translateY(uint8_t num, float32_t* target);            // apply translation matrix on the Y axis
         void translateZ(uint8_t num, float32_t* target);            // apply translation matrix on the Z axis
 
-        
+        void setRGBColor(uint8_t color);
+        void setRGBSpeed(uint8_t speed);
+        void setRGBEffect(uint8_t effect);
+        void closeRGB();
+        void setRGB(uint led, uint8_t r, uint8_t g, uint8_t b);
+
+        friend class MainWindow;
 
 };
 

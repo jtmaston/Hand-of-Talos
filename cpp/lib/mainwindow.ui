@@ -31,7 +31,7 @@
       <widget class="QPushButton" name="learn_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -60,7 +60,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="track_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -86,10 +86,10 @@ QPushButton:pressed {
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="phto_btn">
+      <widget class="QPushButton" name="jog_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -110,7 +110,7 @@ QPushButton:pressed {
 }</string>
        </property>
        <property name="text">
-        <string>Take Photo</string>
+        <string>Jog Mode</string>
        </property>
       </widget>
      </item>
@@ -118,7 +118,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="halt_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -478,7 +478,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="prev">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -507,7 +507,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="execute">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -536,7 +536,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="next">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -569,7 +569,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_red">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -598,7 +598,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_green">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -627,7 +627,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_blue">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -656,7 +656,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_stop">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>

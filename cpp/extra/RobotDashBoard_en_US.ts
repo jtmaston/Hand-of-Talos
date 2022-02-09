@@ -20,7 +20,7 @@
     </message>
     <message>
         <location filename="../lib/mainwindow.ui" line="113"/>
-        <source>Take Photo</source>
+        <source>Jog Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -4,6 +4,7 @@ project(RobotDashBoard VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_BUILD_TYPE, Release)
+set_property(SOURCE lib/libjoystick/joystick.hh PROPERTY SKIP_AUTOGEN ON)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -42,22 +43,20 @@ if(UNIX AND NOT APPLE)
         cxx_final
     )
 
-    #add_library(joystick STATIC
-    #    lib/libJoystick/src/Joystick.cpp
-    #)
-    #set_target_properties(joystick PROPERTIES
-    #    PUBLIC_HEADER "lib/libJoystick/include/Joystick.hpp"
-    ##    ARCHIVE_OUTPUT_DIRECTORY "lib/libJoystick/lib"
-     #   LIBRARY_OUTPUT_DIRECTORY "lib/libJoystick/lib"
-    ##)
-    #target_include_directories(joystick PRIVATE lib/libRobot/include)
-    #target_compile_features(libarm
-    #    PUBLIC
-    #    cxx_attributes
-    #    cxx_defaulted_functions
-    #    cxx_deleted_functions
-    #    cxx_final
-    #)
+    add_library(joystick STATIC
+        lib/libjoystick/joystick.cc
+    )
+    set_target_properties(joystick PROPERTIES
+        PUBLIC_HEADER "lib/libjoystick/joystick.hh"
+    )
+    target_include_directories(joystick PRIVATE lib/libRobot/include)
+    target_compile_features(libarm
+        PUBLIC
+        cxx_attributes
+        cxx_defaulted_functions
+        cxx_deleted_functions
+        cxx_final
+    )
 
 endif()
 set(PROJECT_SOURCES
@@ -111,12 +110,12 @@ if(APPLE)
     )
 endif()
 
-target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS})
+target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS} joystick)
 
 #target_link_libraries( RobotDashBoard PRIVATE  )
 
-link_directories(../build/opencv/lib)
-target_link_libraries(RobotDashBoard PUBLIC )
+#link_directories(../build/opencv/lib)
+#target_link_libraries(RobotDashBoard PUBLIC )
 
 
 if(QT_VERSION_MAJOR EQUAL 6)

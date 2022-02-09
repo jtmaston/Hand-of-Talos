@@ -14,22 +14,22 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes())); // axis readout is updated every 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));     // control from the axis is also updated ever 100ms
-    //connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));      // camera is updated every 20ms
-    
+    // connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));      // camera is updated every 20ms
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));  // when the learn button is clicked, toggle the bar
     connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar())); // when the track button is clicked, toggle the bar
 
-    connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));               //  <<
-    connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step()));            //  buttons for the learn mode
-    connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));         //  >>
-    connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stop_follow()));         //  >>
+    connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));           //  <<
+    connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step()));        //  buttons for the learn mode
+    connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));     //  >>
+    connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stop_follow())); //  >>
 
     connect(ui->follow_red, SIGNAL(clicked()), SLOT(start_follow_red()));
     connect(ui->follow_green, SIGNAL(clicked()), SLOT(start_follow_green()));
     connect(ui->follow_blue, SIGNAL(clicked()), SLOT(start_follow_blue()));
 
     connect(ui->halt_btn, SIGNAL(clicked()), SLOT(halt()));
+    connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));
 
     Scheduler_100ms->start(100);
     Scheduler_16ms->start(16);
@@ -37,20 +37,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     dev.home_position(); // reset the robot to the home position
 
-    
-
     ui->a4_r->setValue(-90);
     running = true;
     cam_thread = QtConcurrent::run(this, &MainWindow::capture);
+    joystick = new Joystick("/dev/input/js0");
+    joy_thread = QtConcurrent::run(this, &MainWindow::poll_joystick);
 }
 
 MainWindow::~MainWindow()
 {
     running = false;
     cam_thread.cancel();
+    uint8_t cmd[] = {0x07, 0};
+    write(dev.led_bus, cmd, 2);
+    delete joystick;
     delete ui;
 }
-void MainWindow::toggle_learn_bar()            // toggle the learning bar,
+void MainWindow::toggle_learn_bar() // toggle the learning bar,
 {
     set_camera_bar_visibility(HIDDEN);         // hide the camera bar
     learn_bar_state = !learn_bar_state;        // << set if the learning bar is visible or not
@@ -58,7 +61,7 @@ void MainWindow::toggle_learn_bar()            // toggle the learning bar,
     learn();                                   // and go into the learn mode
 }
 
-void MainWindow::toggle_camera_bar()           // ditto for the camera bar
+void MainWindow::toggle_camera_bar() // ditto for the camera bar
 {
     set_learn_bar_visibility(HIDDEN);
     camera_bar_state = !camera_bar_state;
@@ -105,37 +108,41 @@ void MainWindow::command() // get the values from the sliders, then write them o
     angles[4] = ui->a5_r->value() + 90;
     angles[5] = ui->grip_r->value() + 90;
 
-    dev.servo_write6(angles, 1000); // move the axes
+    dev.servo_write6(angles, time_mod); // move the axes
 }
 
 void MainWindow::learn() // starts the learn mode
 {
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
     dev.home_position();                                                   // move back to home
-    dev.toggleTorque(false);                                               // and disable the torque
+    dev.toggleTorque(false);                                             // and disable the torque
+    learning = true;
 }
 
 void MainWindow::add_step() // add a step
 {
-    float32_t *angle = dev.servo_readall();                                 // read all the servo values
-    std::vector<float32_t> t(6);                                            // make them into a vector
+    float32_t *angle = dev.servo_readall(); // read all the servo values
+    std::vector<float32_t> t(6);            // make them into a vector
     memmove(&t[0], &angle[0], 6 * sizeof(float32_t));
-    dev.learned_angles.push_back(std::move(t));                             // and add it onto the command queue
+    dev.learned_angles.push_back(std::move(t)); // and add it onto the command queue
     delete angle;
 
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() + 1).c_str())); // then update the label
 }
 
-void MainWindow::remove_step()      // remove a step from the queue
+void MainWindow::remove_step() // remove a step from the queue
 {
     dev.learned_angles.pop_back();
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 
-void MainWindow::follow_path()      // start running
+void MainWindow::follow_path() // start running
 {   
+    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
     dev.toggleTorque(true);
     dev.executing = !dev.executing; // set executing in order to stop
+
+    time_mod = 1000;
 
     if (dev.executing)
     {
@@ -150,8 +157,8 @@ void MainWindow::capture() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
 
     Mat frame;
-    QImage qt_image;
-    VideoCapture* camera = nullptr;
+    // QImage qt_image;
+    VideoCapture *camera = nullptr;
 
     camera = new VideoCapture(0, CAP_V4L);
 
@@ -160,21 +167,21 @@ void MainWindow::capture() // this is 2am code.
     camera->set(cv::CAP_PROP_FPS, 60);
     camera->set(cv::CAP_PROP_BRIGHTNESS, 25);
 
-    
-    while( running )
+    while (running)
     {
-        try{
+        try
+        {
             *camera >> frame;
 
             Mat imgHSV;
 
-            cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
-            line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1);  // draw the crosshair
+            cvtColor(frame, imgHSV, COLOR_BGR2HSV);                            // convert the image to HSV, or Hue Saturation Value
+            line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1); // draw the crosshair
             line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
-                                                                                // to hue saturation values, for easier processing
+            // to hue saturation values, for easier processing
             Mat imgTreshRed;
             Mat imgTreshRed1;
-            inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed);     // we treshold the image, removing every color but red
+            inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed); // we treshold the image, removing every color but red
             inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
             imgTreshRed += imgTreshRed1;
 
@@ -184,9 +191,9 @@ void MainWindow::capture() // this is 2am code.
             Mat imgTreshBlue;
             inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
 
-            Mat res_red;                                                        // by doing bitwise and with the treshold. anything that isn't
-            bitwise_and(frame, frame, res_red, imgTreshRed);                    // red, green or blue automatically gets turned to 0 ( as a pixel )
-                                                                                // with bitwise and, they get destroyed
+            Mat res_red;                                     // by doing bitwise and with the treshold. anything that isn't
+            bitwise_and(frame, frame, res_red, imgTreshRed); // red, green or blue automatically gets turned to 0 ( as a pixel )
+                                                             // with bitwise and, they get destroyed
             Mat res_green;
             bitwise_and(frame, frame, res_green, imgTreshGreen);
 
@@ -199,7 +206,7 @@ void MainWindow::capture() // this is 2am code.
             int max = 0;
             int ind = 0;
 
-            for (auto& contour: contours)
+            for (auto &contour : contours)
                 if (contourArea(contour) > max)
                 {
                     ind = &contour - &contours[0];
@@ -217,7 +224,7 @@ void MainWindow::capture() // this is 2am code.
             findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
             max = 0;
-            for (auto& contour: contours)
+            for (auto &contour : contours)
                 if (contourArea(contour) > max)
                 {
                     ind = &contour - &contours[0];
@@ -235,7 +242,7 @@ void MainWindow::capture() // this is 2am code.
             findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
             max = 0;
-            for (auto& contour: contours)
+            for (auto &contour : contours)
                 if (contourArea(contour) > max)
                 {
                     ind = &contour - &contours[0];
@@ -248,12 +255,14 @@ void MainWindow::capture() // this is 2am code.
                 rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
                 putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
             }
-            qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+            QImage qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
             qt_image = qt_image.scaled(751, 481);
             ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
-        }catch(const std::exception& ex)
+            ui->viewfinder->updateGeometry();
+
+        }
+        catch (const std::exception &ex)
         {
-            
         }
     }
 }
@@ -265,29 +274,78 @@ void MainWindow::halt()
 
 void MainWindow::start_follow_red()
 {
+    switch(dir)
+    {
+        case 0:
+        {
+            dir = 1;
+            connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
+            disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+            break;
+        }
+    }
     dir = 1;
-    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+    
+    uint8_t mode[] = {0x04, 1};
+    uint8_t speed[] = {0x05, 3};
+    uint8_t color[] = {0x06, 0};
+
+    write(dev.led_bus, mode, 2);
+    write(dev.led_bus, speed, 2);
+    write(dev.led_bus, color, 2);
+
 }
 
 void MainWindow::start_follow_green()
 {
+    switch(dir)
+    {
+        case 0:
+        {
+            dir = 2;
+            connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
+            disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+            break;
+        }
+    }
     dir = 2;
-    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+    uint8_t mode[] = {0x04, 1};
+    uint8_t speed[] = {0x05, 3};
+    uint8_t color[] = {0x06, 1};
+
+    write(dev.led_bus, mode, 2);
+    write(dev.led_bus, speed, 2);
+    write(dev.led_bus, color, 2);
 }
 
 void MainWindow::start_follow_blue()
 {
+    switch(dir)
+    {
+        case 0:
+        {
+            dir = 3;
+            connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
+            disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+            break;
+        }
+    }
     dir = 3;
-    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(follow()));
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
+    uint8_t mode[] = {0x04, 1};
+    uint8_t speed[] = {0x05, 3};
+    uint8_t color[] = {0x06, 2};
+
+    write(dev.led_bus, mode, 2);
+    write(dev.led_bus, speed, 2);
+    write(dev.led_bus, color, 2);
 }
 
 void MainWindow::stop_follow()
 {
     disconnect(Scheduler_500ms, SIGNAL(timeout()), this, SLOT(follow()));
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));
+    uint8_t cmd[] = {0x07, 0};
+    write(dev.led_bus, cmd, 2);
 }
 
 void MainWindow::follow()
@@ -297,27 +355,27 @@ void MainWindow::follow()
 
     switch (dir)
     {
-        case 1:
-        {
-            x_center = red.x + red.width / 2;
-            y_center = red.y + red.y / 2;
-            break;
-        }
-        case 2:
-        {
-            x_center = green.x + green.width / 2;
-            y_center = green.y + green.y / 2;
-            break;
-        }
-        case 3:
-        {
-            x_center = blue.x + blue.width / 2;
-            y_center = blue.y + blue.y / 2;
-            break;
-        }
+    case 1:
+    {
+        x_center = red.x + red.width / 2;
+        y_center = red.y + red.y / 2;
+        break;
     }
-    float32_t alpha = ( asin( ( 320 - x_center ) / ((22) * pixMod) ) * 180 ) / __PI__;
-    float32_t beta = ( asin( ( 240 - y_center ) / ((36) * pixMod) ) * 180 ) / __PI__;
+    case 2:
+    {
+        x_center = green.x + green.width / 2;
+        y_center = green.y + green.y / 2;
+        break;
+    }
+    case 3:
+    {
+        x_center = blue.x + blue.width / 2;
+        y_center = blue.y + blue.y / 2;
+        break;
+    }
+    }
+    float32_t alpha = (asin((320 - x_center) / ((22) * pixMod)) * 180) / __PI__;
+    float32_t beta = (asin((240 - y_center) / ((36) * pixMod)) * 180) / __PI__;
 
     ui->base_r->setValue(ui->base_r->value() + round(alpha));
     ui->a4_r->setValue(ui->a4_r->value() + round(beta));
@@ -331,4 +389,77 @@ void MainWindow::follow()
     angles[5] = ui->grip_r->value() + 90;
 
     dev.servo_write6(angles, 450);
+}
+
+void MainWindow::jog()
+{
+    switch (jogging)
+    {
+    case 0:
+        connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_stick()));
+        time_mod = 100;
+        disable_sliders();
+        dev.toggleTorque(true);
+        if (learning)
+            connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));     // control from the axis is also updated ever 100ms
+
+        break;
+    case 1:
+        disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(update_stick()));
+        time_mod = 1000;
+        enable_sliders();
+        break;
+    }
+    jogging != jogging;
+}
+void MainWindow::update_stick()
+{
+
+    ui -> base_r   -> setValue( ui -> base_r -> value() - round(axes[0] * 100) * 0.05 );
+    ui -> a2_r     -> setValue(ui -> a2_r -> value() - round(axes[1] * 100) * 0.05 );
+    ui -> a3_r     -> setValue(ui -> a3_r -> value() - round(axes[2] * 100) * 0.05 );
+    ui -> a4_r     -> setValue(ui -> a4_r -> value() - round(axes[3] * 100) * 0.05 );
+    ui -> a5_r     -> setValue(ui -> a5_r -> value() - round(axes[4] * 100) * 0.05 );
+    ui -> grip_r   -> setValue(ui -> grip_r -> value() - round(axes[5] * 100) * 0.1 );
+    // ui -> base_r -> setValue()
+}
+
+void MainWindow::poll_joystick()
+{
+    while (true)
+    {
+        // Restrict rate
+        usleep(1000);
+
+        // Attempt to sample an event from the joystick
+        JoystickEvent event;
+        if (joystick -> sample(&event)){
+        if (event.isAxis())
+            {
+                //std::cout << "Axis " << (int) event.number << " is at " << event.value / 32767.0f<< '\n';
+                std::cout.flush();
+                axes[event.number] = event.value / 32767.0f;
+            }
+        }
+    }
+}
+
+void MainWindow::disable_sliders()
+{
+    ui->base_r->hide();
+    ui->a2_r->hide();
+    ui->a3_r->hide();
+    ui->a4_r->hide();
+    ui->a5_r->hide();
+    ui->grip_r->hide();
+}
+
+void MainWindow::enable_sliders()
+{
+    ui->base_r->show();// need to adjust with 90
+    ui->a2_r->show();
+    ui->a3_r->show();
+    ui->a4_r->show();
+    ui->a5_r->show();
+    ui->grip_r->show();
 }

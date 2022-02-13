@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "lib/libRobot/include/Arm_lib.hpp"
+#include "lib/RobotArm.hpp"
 #include <iostream>
 #include <QTimer>
 #include <QThread>
@@ -54,7 +54,7 @@ class WorkerThread : public QThread
     }
 
     public:
-        ArmDevice *dev = nullptr;
+        RobotArm *dev = nullptr;
     signals:
         void resultReady(const QString &s);
 };
@@ -118,7 +118,7 @@ class MainWindow : public QMainWindow
         QTimer *Scheduler_16ms = nullptr;
         QTimer *Scheduler_500ms = nullptr;
 
-        ArmDevice dev;
+        RobotArm dev;
         Joystick* joystick;
 
         friend class WorkerThread;

@@ -21,12 +21,12 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent R
 
 find_package( OpenCV REQUIRED )
 
-include(lib/libRobot/CMakeLists.txt)
 
 set(TS_FILES extra/RobotDashBoard_en_US.ts extra/RobotDashBoard_ro_ro.ts)
 
 qt5_create_translation(TS_FILES)
 
+add_subdirectory(lib/libRobot)
 
 add_library(joystick STATIC
     lib/libjoystick/joystick.cc
@@ -48,6 +48,8 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         lib/mainwindow.h
         lib/mainwindow.ui
+        lib/RobotArm.hpp
+        src/RobotArm.cpp
         ${TS_FILES}
 )
 
@@ -82,7 +84,7 @@ target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${
 
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(RobotDashBoard PRIVATE libarm i2c)
+    target_link_libraries(RobotDashBoard PRIVATE 5DOF i2c)
 endif()
 if(APPLE)
     set_target_properties(RobotDashBoard PROPERTIES

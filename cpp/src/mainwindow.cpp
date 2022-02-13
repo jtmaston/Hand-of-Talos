@@ -1,6 +1,8 @@
 #include "../lib/mainwindow.h"
 #include "../lib/ui_mainwindow.h"
 
+#include <chrono>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -30,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->halt_btn, SIGNAL(clicked()), SLOT(halt()));
     connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));
+    connect(ui->load_btn, SIGNAL(clicked()), SLOT(program()));
 
     Scheduler_100ms->start(100);
     Scheduler_16ms->start(16);
@@ -42,12 +45,28 @@ MainWindow::MainWindow(QWidget *parent)
     cam_thread = QtConcurrent::run(this, &MainWindow::capture);
     joystick = new Joystick("/dev/input/js0");
     joy_thread = QtConcurrent::run(this, &MainWindow::poll_joystick);
+
+    connect(ui->base_r, &QSlider::valueChanged, ui->increment_1, &QSpinBox::setValue);
+    connect(ui->a2_r, &QSlider::valueChanged, ui->increment_2, &QSpinBox::setValue);
+    connect(ui->a3_r, &QSlider::valueChanged, ui->increment_3, &QSpinBox::setValue);
+    connect(ui->a4_r, &QSlider::valueChanged, ui->increment_4, &QSpinBox::setValue);
+    connect(ui->a5_r, &QSlider::valueChanged, ui->increment_5, &QSpinBox::setValue);
+    connect(ui->grip_r, &QSlider::valueChanged, ui->increment_6, &QSpinBox::setValue);
+
+    connect(ui->increment_1, QOverload<int>::of(&QSpinBox::valueChanged), ui->base_r, &QSlider::setValue);
+    connect(ui->increment_2, QOverload<int>::of(&QSpinBox::valueChanged), ui->a2_r, &QSlider::setValue);
+    connect(ui->increment_3, QOverload<int>::of(&QSpinBox::valueChanged), ui->a3_r, &QSlider::setValue);
+    connect(ui->increment_4, QOverload<int>::of(&QSpinBox::valueChanged), ui->a4_r, &QSlider::setValue);
+    connect(ui->increment_5, QOverload<int>::of(&QSpinBox::valueChanged), ui->a5_r, &QSlider::setValue);
+    connect(ui->increment_6, QOverload<int>::of(&QSpinBox::valueChanged), ui->grip_r, &QSlider::setValue);
 }
 
 MainWindow::~MainWindow()
 {
     running = false;
-    cam_thread.cancel();
+    cam_thread.waitForFinished();
+    joy_thread.waitForFinished();
+
     uint8_t cmd[] = {0x07, 0};
     write(dev.led_bus, cmd, 2);
     delete joystick;
@@ -115,7 +134,7 @@ void MainWindow::learn() // starts the learn mode
 {
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
     dev.home_position();                                                   // move back to home
-    dev.toggleTorque(false);                                             // and disable the torque
+    dev.toggleTorque(false);                                               // and disable the torque
     learning = true;
 }
 
@@ -167,11 +186,12 @@ void MainWindow::capture() // this is 2am code.
     camera->set(cv::CAP_PROP_FPS, 60);
     camera->set(cv::CAP_PROP_BRIGHTNESS, 25);
 
-    while (running)
+    while (this -> running)
     {
+        //auto start = std::chrono::high_resolution_clock::now();
         try
         {
-            *camera >> frame;
+            *camera >> frame;           // note: this line is blocking, restricting the loop to run at most at the speed of the camera
 
             Mat imgHSV;
 
@@ -265,6 +285,7 @@ void MainWindow::capture() // this is 2am code.
         {
         }
     }
+    return;
 }
 
 void MainWindow::halt()
@@ -393,12 +414,11 @@ void MainWindow::follow()
 
 void MainWindow::jog()
 {
-    switch (jogging)
+    switch (following_program)
     {
     case 0:
         connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_stick()));
         time_mod = 100;
-        disable_sliders();
         dev.toggleTorque(true);
         if (learning)
             connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));     // control from the axis is also updated ever 100ms
@@ -407,10 +427,10 @@ void MainWindow::jog()
     case 1:
         disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(update_stick()));
         time_mod = 1000;
-        enable_sliders();
         break;
     }
-    jogging != jogging;
+    following_program =! following_program;
+    toggle_jog();
 }
 void MainWindow::update_stick()
 {
@@ -421,12 +441,12 @@ void MainWindow::update_stick()
     ui -> a4_r     -> setValue(ui -> a4_r -> value() - round(axes[3] * 100) * 0.05 );
     ui -> a5_r     -> setValue(ui -> a5_r -> value() - round(axes[4] * 100) * 0.05 );
     ui -> grip_r   -> setValue(ui -> grip_r -> value() - round(axes[5] * 100) * 0.1 );
-    // ui -> base_r -> setValue()
+
 }
 
 void MainWindow::poll_joystick()
 {
-    while (true)
+    while (running)
     {
         // Restrict rate
         usleep(1000);
@@ -439,27 +459,22 @@ void MainWindow::poll_joystick()
                 //std::cout << "Axis " << (int) event.number << " is at " << event.value / 32767.0f<< '\n';
                 std::cout.flush();
                 axes[event.number] = event.value / 32767.0f;
-            }
-        }
+            }        }
     }
+    return;
 }
 
-void MainWindow::disable_sliders()
+void MainWindow::toggle_jog()
 {
-    ui->base_r->hide();
-    ui->a2_r->hide();
-    ui->a3_r->hide();
-    ui->a4_r->hide();
-    ui->a5_r->hide();
-    ui->grip_r->hide();
+    ui->base_r->setDisabled(following_program); ui->increment_1->setDisabled(following_program);
+    ui->a2_r->setDisabled(following_program); ui->a2_r->setDisabled(following_program);
+    ui->a3_r->setDisabled(following_program); ui->a3_r->setDisabled(following_program);
+    ui->a4_r->setDisabled(following_program); ui->a4_r->setDisabled(following_program);
+    ui->a5_r->setDisabled(following_program); ui->a5_r->setDisabled(following_program);
+    ui->grip_r->setDisabled(following_program); ui->grip_r->setDisabled(following_program);
 }
-
-void MainWindow::enable_sliders()
+void MainWindow::program()
 {
-    ui->base_r->show();// need to adjust with 90
-    ui->a2_r->show();
-    ui->a3_r->show();
-    ui->a4_r->show();
-    ui->a5_r->show();
-    ui->grip_r->show();
+    auto filename = QFileDialog::getOpenFileName(this,
+    "Pick the program file: ", "./", "Robot Assembly Files (*.rasm)");
 }

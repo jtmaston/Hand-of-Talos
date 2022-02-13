@@ -8,6 +8,7 @@
 #include <QThread>
 #include <cmath>
 #include <QtConcurrent>
+#include <QFileDialog>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -94,8 +95,10 @@ class MainWindow : public QMainWindow
         void start_follow_green();
         void stop_follow();
         void jog();
+
+        void program();
+
         void update_stick();
-        
         void poll_joystick();
         
 
@@ -105,7 +108,7 @@ class MainWindow : public QMainWindow
         bool camera_bar_state = HIDDEN;
         void set_learn_bar_visibility(bool state);
         void set_camera_bar_visibility(bool state);
-        bool jogging = false;
+        bool following_program = false;
         bool learning = false;
 
         float32_t axes[6] = { 0 };
@@ -126,8 +129,7 @@ class MainWindow : public QMainWindow
         QFuture<void> learn_thread;
         QFuture<void> joy_thread;
 
-        void disable_sliders();
-        void enable_sliders();
+        void toggle_jog();
         
 
 };

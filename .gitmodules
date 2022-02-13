@@ -4,3 +4,6 @@
 [submodule "cpp/lib/libRobot"]
 	path = cpp/lib/libRobot
 	url = git@github.com:jtmaston/ArmLibCpp.git
+[submodule "cpp/lib/libRASM"]
+	path = cpp/lib/libRASM
+	url = https://github.com/jtmaston/RASM.git

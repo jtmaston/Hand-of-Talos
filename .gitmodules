@@ -1,6 +1,6 @@
-[submodule "cpp/lib/opencv"]
-	path = cpp/lib/opencv
-	url = git@github.com:opencv/opencv.git
 [submodule "cpp/lib/libjoystick"]
 	path = cpp/lib/libjoystick
 	url = git@github.com:drewnoakes/joystick.git
+[submodule "cpp/lib/libRobot"]
+	path = cpp/lib/libRobot
+	url = git@github.com:jtmaston/ArmLibCpp.git

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(RobotDashBoard VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_BUILD_TYPE, Release)
+set(CMAKE_BUILD_TYPEextra/RobotDashBoard_en_US.ts, Release)
 set_property(SOURCE lib/libjoystick/joystick.hh PROPERTY SKIP_AUTOGEN ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -20,50 +20,36 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent REQUIRED)
 
 find_package( OpenCV REQUIRED )
-include_directories( lib/opencv/include ${OpenCV_INCLUDE_DIRS})
 
 
-set(TS_FILES extra/RobotDashBoard_en_US.ts)
+set(TS_FILES extra/RobotDashBoard_en_US.ts extra/RobotDashBoard_ro_ro.ts)
 
-if(UNIX AND NOT APPLE)
-    add_library(libarm STATIC
-        lib/libRobot/src/Arm_lib.cpp
-    )
-    set_target_properties(libarm PROPERTIES
-        PUBLIC_HEADER "lib/libRobot/include/Arm_lib.hpp"
-        ARCHIVE_OUTPUT_DIRECTORY "lib/libRobot/lib"
-        LIBRARY_OUTPUT_DIRECTORY "lib/libRobot/lib"
-    )
-    target_include_directories(libarm PRIVATE lib/libRobot/include)
-    target_compile_features(libarm
-        PUBLIC
-        cxx_attributes
-        cxx_defaulted_functions
-        cxx_deleted_functions
-        cxx_final
-    )
+qt5_create_translation(TS_FILES)
 
-    add_library(joystick STATIC
-        lib/libjoystick/joystick.cc
-    )
-    set_target_properties(joystick PROPERTIES
-        PUBLIC_HEADER "lib/libjoystick/joystick.hh"
-    )
-    target_include_directories(joystick PRIVATE lib/libRobot/include)
-    target_compile_features(libarm
-        PUBLIC
-        cxx_attributes
-        cxx_defaulted_functions
-        cxx_deleted_functions
-        cxx_final
-    )
+add_subdirectory(lib/libRobot)
 
-endif()
+add_library(joystick STATIC
+    lib/libjoystick/joystick.cc
+)
+set_target_properties(joystick PROPERTIES
+    PUBLIC_HEADER "lib/libjoystick/joystick.hh"
+)
+target_include_directories(joystick PRIVATE /include)
+target_compile_features(joystick
+    PUBLIC
+    cxx_attributes
+    cxx_defaulted_functions
+    cxx_deleted_functions
+    cxx_final
+)
+
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
         lib/mainwindow.h
         lib/mainwindow.ui
+        lib/RobotArm.hpp
+        src/RobotArm.cpp
         ${TS_FILES}
 )
 
@@ -98,7 +84,7 @@ target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${
 
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(RobotDashBoard PRIVATE libarm i2c)
+    target_link_libraries(RobotDashBoard PRIVATE 5DOF i2c)
 endif()
 if(APPLE)
     set_target_properties(RobotDashBoard PROPERTIES
@@ -111,11 +97,6 @@ if(APPLE)
 endif()
 
 target_link_libraries(RobotDashBoard PRIVATE ${OpenCV_LIBS} joystick)
-
-#target_link_libraries( RobotDashBoard PRIVATE  )
-
-#link_directories(../build/opencv/lib)
-#target_link_libraries(RobotDashBoard PUBLIC )
 
 
 if(QT_VERSION_MAJOR EQUAL 6)

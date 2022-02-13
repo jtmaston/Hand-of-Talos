@@ -31,7 +31,7 @@
       <widget class="QPushButton" name="learn_btn">
        <property name="minimumSize">
         <size>
-         <width>206</width>
+         <width>186</width>
          <height>50</height>
         </size>
        </property>
@@ -60,7 +60,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="track_btn">
        <property name="minimumSize">
         <size>
-         <width>206</width>
+         <width>186</width>
          <height>50</height>
         </size>
        </property>
@@ -89,7 +89,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="jog_btn">
        <property name="minimumSize">
         <size>
-         <width>206</width>
+         <width>186</width>
          <height>50</height>
         </size>
        </property>
@@ -115,10 +115,39 @@ QPushButton:pressed {
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="load_btn">
+       <property name="minimumSize">
+        <size>
+         <width>186</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: rgb(254, 190, 12);
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+	color:  rgba(60.5625, 60.5625, 73.5675, 1);
+}
+QPushButton:pressed {
+    background-color: rgb(242, 178, 0);
+    border-style: inset;
+}</string>
+       </property>
+       <property name="text">
+        <string>Load Program</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="halt_btn">
        <property name="minimumSize">
         <size>
-         <width>206</width>
+         <width>186</width>
          <height>50</height>
         </size>
        </property>
@@ -155,32 +184,6 @@ QPushButton:pressed {
      </rect>
     </property>
     <layout class="QGridLayout" name="axes">
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="styleSheet">
-        <string notr="true">color: rgb(254, 190, 12);</string>
-       </property>
-       <property name="text">
-        <string>Axis 3: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="styleSheet">
-        <string notr="true">color: rgb(254, 190, 12);</string>
-       </property>
-       <property name="text">
-        <string>Gripper: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="1">
       <widget class="QSlider" name="a4_r">
        <property name="styleSheet">
@@ -206,13 +209,26 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
        <property name="styleSheet">
         <string notr="true">color: rgb(254, 190, 12);</string>
        </property>
        <property name="text">
-        <string>Axis 2:</string>
+        <string>Axis 4: </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
+       <property name="text">
+        <string>Gripper: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -265,6 +281,51 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QSlider" name="base_r">
+       <property name="minimum">
+        <number>-90</number>
+       </property>
+       <property name="maximum">
+        <number>90</number>
+       </property>
+       <property name="singleStep">
+        <number>10</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
+       <property name="text">
+        <string>Axis 3: </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(254, 190, 12);</string>
+       </property>
+       <property name="text">
+        <string>Axis 2:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <widget class="QSlider" name="a2_r">
        <property name="styleSheet">
@@ -309,13 +370,13 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
        <property name="styleSheet">
         <string notr="true">color: rgb(254, 190, 12);</string>
        </property>
        <property name="text">
-        <string>Axis 4: </string>
+        <string>Base Rotation: </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -335,35 +396,63 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="styleSheet">
-        <string notr="true">color: rgb(254, 190, 12);</string>
-       </property>
-       <property name="text">
-        <string>Base Rotation: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSlider" name="base_r">
+     <item row="0" column="2">
+      <widget class="QSpinBox" name="increment_1">
        <property name="minimum">
         <number>-90</number>
        </property>
        <property name="maximum">
         <number>90</number>
        </property>
-       <property name="singleStep">
-        <number>10</number>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QSpinBox" name="increment_2">
+       <property name="minimum">
+        <number>-90</number>
        </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="maximum">
+        <number>90</number>
        </property>
-       <property name="tickPosition">
-        <enum>QSlider::TicksAbove</enum>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QSpinBox" name="increment_3">
+       <property name="minimum">
+        <number>-90</number>
+       </property>
+       <property name="maximum">
+        <number>90</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QSpinBox" name="increment_4">
+       <property name="minimum">
+        <number>-90</number>
+       </property>
+       <property name="maximum">
+        <number>90</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QSpinBox" name="increment_5">
+       <property name="minimum">
+        <number>-90</number>
+       </property>
+       <property name="maximum">
+        <number>90</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QSpinBox" name="increment_6">
+       <property name="minimum">
+        <number>-90</number>
+       </property>
+       <property name="maximum">
+        <number>90</number>
        </property>
       </widget>
      </item>
@@ -478,7 +567,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="prev">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -507,7 +596,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="execute">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -536,7 +625,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="next">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -569,7 +658,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_red">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -598,7 +687,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_green">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -627,7 +716,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_blue">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>
@@ -656,7 +745,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_stop">
          <property name="minimumSize">
           <size>
-           <width>206</width>
+           <width>186</width>
            <height>50</height>
           </size>
          </property>

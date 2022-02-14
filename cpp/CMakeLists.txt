@@ -50,6 +50,9 @@ set(PROJECT_SOURCES
         lib/mainwindow.ui
         lib/RobotArm.hpp
         src/RobotArm.cpp
+        src/RASM_Interpreter.cpp
+        lib/libRASM/Assembler/inc/Instruction.hpp
+        lib/libRASM/Assembler/inc/isa.hpp
         ${TS_FILES}
 )
 

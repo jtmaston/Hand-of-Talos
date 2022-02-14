@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     Scheduler_16ms = new QTimer(this);  // timer called every  20ms
     Scheduler_500ms = new QTimer(this);
 
-    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes())); // axis readout is updated every 100ms
-    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));     // control from the axis is also updated ever 100ms
-    // connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));      // camera is updated every 20ms
+    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes()));         // axis readout is updated every 100ms
+    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
+    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(check_if_filedialog())); // camera is updated every 20ms
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));  // when the learn button is clicked, toggle the bar
     connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar())); // when the track button is clicked, toggle the bar
@@ -473,8 +473,17 @@ void MainWindow::toggle_jog()
     ui->a5_r->setDisabled(following_program); ui->a5_r->setDisabled(following_program);
     ui->grip_r->setDisabled(following_program); ui->grip_r->setDisabled(following_program);
 }
+
 void MainWindow::program()
+{   
+    following_program =! following_program;
+    toggle_jog();
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter);
+}
+
+void MainWindow::check_if_filedialog()
 {
-    auto filename = QFileDialog::getOpenFileName(this,
-    "Pick the program file: ", "./", "Robot Assembly Files (*.rasm)");
+    if( fileopen )
+        filename = QFileDialog::getOpenFileName(this,
+            "Pick the program file: ", "./", "Robot Assembly Files (*.rasm ; *.bin)");
 }

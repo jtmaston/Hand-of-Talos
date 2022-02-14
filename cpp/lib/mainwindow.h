@@ -15,6 +15,12 @@
 #include <opencv2/videoio.hpp>
 
 #include "lib/libjoystick/joystick.hh"
+#include "lib/libRASM/Assembler/inc/Instruction.hpp"
+#include "lib/libRASM/Assembler/inc/isa.hpp"
+#include "lib/libRASM/Assembler/inc/Variable.hpp"
+
+#include <fstream>
+
 
 using namespace cv;
 
@@ -73,6 +79,7 @@ class MainWindow : public QMainWindow
         Rect green;
         Rect blue;
         bool running;
+        QString filename;
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -95,11 +102,13 @@ class MainWindow : public QMainWindow
         void start_follow_green();
         void stop_follow();
         void jog();
-
         void program();
+        void check_if_filedialog();
 
         void update_stick();
         void poll_joystick();
+        
+        void RASM_Interpreter();
         
 
     private:
@@ -110,6 +119,7 @@ class MainWindow : public QMainWindow
         void set_camera_bar_visibility(bool state);
         bool following_program = false;
         bool learning = false;
+        bool fileopen = false;
 
         float32_t axes[6] = { 0 };
         uint16_t time_mod = 1000;
@@ -128,9 +138,10 @@ class MainWindow : public QMainWindow
         QFuture<void> cam_thread;
         QFuture<void> learn_thread;
         QFuture<void> joy_thread;
+        QFuture<void> prog_thread;
 
         void toggle_jog();
-        
+
 
 };
 

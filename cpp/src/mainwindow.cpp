@@ -38,8 +38,6 @@ MainWindow::MainWindow(QWidget *parent)
     Scheduler_16ms->start(16);
     Scheduler_500ms->start(500);
 
-    dev.home_position(); // reset the robot to the home position
-
     ui->a4_r->setValue(-90);
     running = true;
     cam_thread = QtConcurrent::run(this, &MainWindow::capture);
@@ -59,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->increment_4, QOverload<int>::of(&QSpinBox::valueChanged), ui->a4_r, &QSlider::setValue);
     connect(ui->increment_5, QOverload<int>::of(&QSpinBox::valueChanged), ui->a5_r, &QSlider::setValue);
     connect(ui->increment_6, QOverload<int>::of(&QSpinBox::valueChanged), ui->grip_r, &QSlider::setValue);
+
+    go_home(); // reset the robot to the home position
 }
 
 MainWindow::~MainWindow()
@@ -133,7 +133,7 @@ void MainWindow::command() // get the values from the sliders, then write them o
 void MainWindow::learn() // starts the learn mode
 {
     disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
-    dev.home_position();                                                   // move back to home
+    go_home();                                                   // move back to home
     dev.toggleTorque(false);                                               // and disable the torque
     learning = true;
 }
@@ -486,4 +486,22 @@ void MainWindow::check_if_filedialog()
     if( fileopen )
         filename = QFileDialog::getOpenFileName(this,
             "Pick the program file: ", "./", "Robot Assembly Files (*.rasm ; *.bin)");
+    
+    //if( filename.size() == 0)
+    //{
+    //    following_program = false;
+    //    fileopen = false;
+    //}
+    
+}
+
+void MainWindow::go_home()
+{
+    ui->base_r->setValue( dev.home_position[0] - 90);
+    ui->a2_r->setValue(dev.home_position[1] - 90);
+    ui->a3_r->setValue(dev.home_position[2] - 90);
+    ui->a4_r->setValue(dev.home_position[3] - 180);
+    ui->a5_r->setValue(dev.home_position[4]);
+    ui->grip_r->setValue(dev.home_position[5] - 90);
+    dev.go_home();
 }

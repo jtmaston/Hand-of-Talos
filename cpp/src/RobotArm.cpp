@@ -1,5 +1,11 @@
 #include <lib/RobotArm.hpp>
 
+RobotArm::RobotArm() : ArmDevice()
+{
+    home_position.reserve(6);
+    home_position = { 90, 135, 45, 0, 90, 90 };
+}
+
 void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
 
         // these are the columns A
@@ -201,4 +207,12 @@ void RobotArm::print_matrix(float32_t *M)
         printf("\n");
     }
     printf("\n");
+}
+
+void RobotArm::go_home()
+{
+    this -> toggleTorque(true);
+    this -> servo_write6(home_position.data(), 1000);
+    usleep(1000000);
+    //toggleTorque(0);
 }

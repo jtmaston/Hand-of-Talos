@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -mcpu=native -Wno-narrowing")
-set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -mcpu=native -Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -mcpu=native -Wall -Wpedantic -O3")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent REQUIRED)

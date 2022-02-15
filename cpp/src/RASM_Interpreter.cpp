@@ -5,20 +5,21 @@ void MainWindow::RASM_Interpreter()
 {
     fileopen = true;
 
-    while ( filename.length() == 0 ){}
-    
-    fileopen = false;
+    //while ( filename.length() == 0 && following_program){}
 
+    fileopen = false;
+    
     std::vector<Instruction> program;
     std::vector<variable::Numeric> numeric_variables;
-    std::fstream input_file ( filename.toStdString() , std::ios::in  | std::ios::binary);
-    //std::fstream input_file("/home/parallels/RASM/RASM Examples/variable.bin", std::ios::in | std::ios::binary);
+    //std::fstream input_file ( filename.toStdString() , std::ios::in  | std::ios::binary);
+    std::fstream input_file("/home/parallels/RASM/RASM Examples/if.bin", std::ios::in | std::ios::binary);
 
     std::string progname;
     std::string progsize_s;
     std::string numsize_s;
     std::string strsize_s;
 
+    auto start = std::chrono::high_resolution_clock::now();
     input_file >> progname;
     input_file >> progsize_s;   size_t progsize = std::stoi(progsize_s);
     input_file >> numsize_s;    size_t numsize = std::stoi(numsize_s);
@@ -51,7 +52,7 @@ void MainWindow::RASM_Interpreter()
     int program_counter = 0;
     int program_size = program.size();
 
-    while (( program_counter ) < program_size && following_program)
+    while (( program_counter  < program_size ) && following_program)
     {
         Instruction instruction = program[program_counter];
 
@@ -105,12 +106,15 @@ void MainWindow::RASM_Interpreter()
             break;
 
         case GHME:
-            dev.home_position();
+            this -> go_home();
             usleep(time_mod * 1000);
             break;
 
         case SHME: // TODO
             break;
+
+        case DEC:
+            instruction.params[1] = -1 * instruction.params[1];
 
         case INC:
             switch (instruction.params[0])
@@ -154,18 +158,42 @@ void MainWindow::RASM_Interpreter()
             }
             usleep(time_mod * 1000);
             break;
-        case DEC:
-            break;
+            
         case RPP:
             break;
         case IPP:
             break;
         case END:
             break;
-        case 13:
-            program_counter = instruction.params[0] - 2;
+        case GOTO:
+            program_counter = instruction.params[0] - 1;
         case IF:
-            break; // PRIORITY!
+            {
+                switch(instruction.params[1])
+                {
+                    case LE:
+                        if ( numeric_variables[instruction.params[0]].value <= numeric_variables[instruction.params[2]].value )
+                            program_counter = instruction.params[ 3 ] - 3;
+                        break;
+                    case L:
+                        if ( numeric_variables[instruction.params[0]].value < numeric_variables[instruction.params[2]].value  )
+                            program_counter = instruction.params[ 3 ] - 3;
+                        break;
+                    case GE:
+                        if ( numeric_variables[instruction.params[0]].value >= numeric_variables[instruction.params[2]].value  )
+                            program_counter = instruction.params[ 3 ] - 3;
+                        break;
+                    case G:
+                        if ( numeric_variables[instruction.params[0]].value > numeric_variables[instruction.params[2]].value  )
+                            program_counter = instruction.params[ 3 ] - 3;
+                        break;
+                    case EQ:
+                        if ( numeric_variables[instruction.params[0]].value == numeric_variables[instruction.params[2]].value )
+                            program_counter = instruction.params[ 3 ] - 3;
+                        break;
+                }
+            }
+            break;
         case ABR:
             break;
         case NUMERIC:
@@ -225,4 +253,8 @@ void MainWindow::RASM_Interpreter()
         }
         program_counter++;
     }
+
+    std::cout << '\n';
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << '\n';
 }

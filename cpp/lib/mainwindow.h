@@ -81,6 +81,8 @@ class MainWindow : public QMainWindow
         bool running;
         QString filename;
 
+        void go_home();
+
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
         void toggle_camera_bar();                       // hides or shows the camera bar

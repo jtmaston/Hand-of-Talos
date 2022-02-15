@@ -7,6 +7,8 @@
 class RobotArm : public ArmDevice
 {
     public:
+
+        RobotArm();
         const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};         // used in direct kinematics
 
         void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
@@ -23,6 +25,9 @@ class RobotArm : public ArmDevice
         void print_matrix(float32_t*);                                                  // print a matrix
 
         void calculate_end_effector(float32_t* target);                                 // calculate the end effector using direct kinematics
-    
+        void go_home();                                                           // move to the home position
+
+        std::vector<uint16_t> home_position;
+        
     friend class MainWindow;
 };

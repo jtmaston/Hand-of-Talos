@@ -13,6 +13,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
+#include <linux/videodev.h>
 
 #include "lib/libjoystick/joystick.hh"
 #include "lib/libRASM/Assembler/inc/Instruction.hpp"
@@ -82,6 +83,8 @@ class MainWindow : public QMainWindow
         QString filename;
 
         void go_home();
+        uint8_t detect_camera();
+        VideoCapture *camera = nullptr;
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -111,6 +114,8 @@ class MainWindow : public QMainWindow
         void poll_joystick();
         
         void RASM_Interpreter();
+        void calculate_coords();
+        
         
 
     private:

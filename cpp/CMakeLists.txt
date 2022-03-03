@@ -27,6 +27,7 @@ set(TS_FILES extra/RobotDashBoard_en_US.ts extra/RobotDashBoard_ro_ro.ts)
 qt5_create_translation(TS_FILES)
 
 add_subdirectory(lib/libRobot)
+add_subdirectory(lib/libRASM)
 
 add_library(joystick STATIC
     lib/libjoystick/joystick.cc

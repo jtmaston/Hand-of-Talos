@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>720</height>
+    <width>1271</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
       <widget class="QPushButton" name="learn_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -60,7 +60,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="track_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -89,7 +89,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="jog_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -118,7 +118,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="load_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -147,7 +147,7 @@ QPushButton:pressed {
       <widget class="QPushButton" name="halt_btn">
        <property name="minimumSize">
         <size>
-         <width>186</width>
+         <width>206</width>
          <height>50</height>
         </size>
        </property>
@@ -463,7 +463,7 @@ QPushButton:pressed {
      <rect>
       <x>1100</x>
       <y>100</y>
-      <width>160</width>
+      <width>161</width>
       <height>491</height>
      </rect>
     </property>
@@ -549,6 +549,73 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>X</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="DK_X">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Y</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="DK_Y">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Z</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="DK_Z">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_2">
@@ -567,7 +634,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="prev">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -596,7 +663,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="execute">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -625,7 +692,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="next">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -658,7 +725,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_red">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -687,7 +754,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_green">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -716,7 +783,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_blue">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>
@@ -745,7 +812,7 @@ QPushButton:pressed {
         <widget class="QPushButton" name="follow_stop">
          <property name="minimumSize">
           <size>
-           <width>186</width>
+           <width>206</width>
            <height>50</height>
           </size>
          </property>

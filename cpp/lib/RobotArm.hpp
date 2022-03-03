@@ -9,8 +9,12 @@ class RobotArm : public ArmDevice
     public:
 
         RobotArm();
-        const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};         // used in direct kinematics
-
+        //const float translations[13] = {104.5,  70, 65, 247.5,  -130, 360,  238.5, 65,  141.5, 39.5, 25.5};         // used in direct kinematics
+        //const float translations[] = {  }
+        //const float translations[] = 
+        //const float translations[5] = { 77, 28, 90, 90, 73 };
+        const float translations[5] = { 86.18, 34.75, 83.4, 83.4, 83.4};
+        float* angles;
         void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
         void rotateY(uint8_t num, float32_t* target);               // apply rotation matrix on the Y axis
         void rotateZ(uint8_t num, float32_t* target);               // apply rotation matrix on the Z axis

@@ -5,14 +5,14 @@ void MainWindow::RASM_Interpreter()
 {
     fileopen = true;
 
-    //while ( filename.length() == 0 && following_program){}
+    while ( filename.length() == 0 && following_program){}
 
     fileopen = false;
     
     std::vector<Instruction> program;
     std::vector<variable::Numeric> numeric_variables;
-    //std::fstream input_file ( filename.toStdString() , std::ios::in  | std::ios::binary);
-    std::fstream input_file("/home/parallels/RASM/RASM Examples/if.bin", std::ios::in | std::ios::binary);
+    std::fstream input_file ( filename.toStdString() , std::ios::in  | std::ios::binary);
+    //std::fstream input_file("/home/parallels/RASM/RASM Examples/if.bin", std::ios::in | std::ios::binary);
 
     std::string progname;
     std::string progsize_s;
@@ -82,6 +82,7 @@ void MainWindow::RASM_Interpreter()
                 break;
             }
             usleep(time_mod * 1000);
+            std::cout << "angle\n";
             break;
 
         case ANGS:

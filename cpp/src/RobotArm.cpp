@@ -3,7 +3,7 @@
 RobotArm::RobotArm() : ArmDevice()
 {
     home_position.reserve(6);
-    home_position = { 90, 135, 45, 0, 90, 90 };
+    home_position = { 90, 90, 90, 0, 90, 0 };
 }
 
 void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
@@ -86,7 +86,7 @@ void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
 
 void RobotArm::rotateX(uint8_t num, float32_t* target)
 {
-    float32_t phi = this -> angles[ num - 1] * __RAD__;
+    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1]) * __RAD__;
     target[0] = 1; target[4] = 0; target[8] = 0;
     target[1] = 0; target[5] = cos ( phi ); target[9] = -sin ( phi );
     target[2] = 0; target[6] = sin ( phi ); target[10] = cos ( phi );
@@ -94,7 +94,7 @@ void RobotArm::rotateX(uint8_t num, float32_t* target)
 
 void RobotArm::rotateY(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1] ) * __RAD__;
     target[0] = cos ( phi ); target[4] = 0; target[8] = sin ( phi );
     target[1] = 0; target[5] = 1; target[9] = 0;
     target[2] =-sin ( phi ); target[6] = 0; target[10] = cos ( phi );
@@ -102,7 +102,7 @@ void RobotArm::rotateY(uint8_t num, float32_t* target)
 
 void RobotArm::rotateZ(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__ ;
+    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1] ) * __RAD__ ;
     target[0] = cos ( phi ); target[4] = -sin ( phi ); target[8] = 0;
     target[1] = sin ( phi ); target[5] = cos ( phi ); target[9] = 0;
     target[2] = 0; target[6] = 0; target[10] = 1;
@@ -125,7 +125,7 @@ void RobotArm::translateZ(uint8_t num, float32_t* target)
 
 void RobotArm::calculate_end_effector(float32_t* target)
 {   
-    float32_t T1 [ 16 ] = { 0 };
+    /*float32_t T1 [ 16 ] = { 0 };
     T1[15] = 1;
     translateZ(1, T1);
     rotateZ(1, T1);
@@ -192,7 +192,40 @@ void RobotArm::calculate_end_effector(float32_t* target)
     //float32_t step6[16];
     neon_multiply(step5, T7, target);
 
-    //neon_multiply(step6, T7, target);
+    //neon_multiply(step6, T7, target);*/
+    float32_t T1 [ 16 ] = { 0 };
+    T1[15] = 1;
+    translateZ(1, T1);
+    rotateZ(1, T1);
+
+    float32_t T2 [ 16 ] = { 0 };
+    T2[15] = 1;
+    translateZ(2, T2);
+    rotateY(2, T2);
+
+    float32_t T3 [ 16 ] = { 0 };
+    T3[15] = 1;
+    translateZ(3, T3);
+    rotateY(3, T3);
+
+    float32_t T4 [ 16 ] = { 0 };
+    T4[15] = 1;
+    translateZ(4, T4);
+    rotateY(3, T4);
+
+    float32_t step1[16];
+    neon_multiply(T1, T2, step1);
+    //print_matrix(step1);
+
+    float32_t step2[16];
+    neon_multiply(step1, T3, step2);
+    //print_matrix(step2);
+
+    float32_t step3[16];
+    neon_multiply(step2, T4, step3);
+    //print_matrix(step3);
+    neon_multiply(step3, T4, target);
+
 }
 
 

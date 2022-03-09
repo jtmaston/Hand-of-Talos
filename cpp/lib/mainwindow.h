@@ -95,7 +95,7 @@ class MainWindow : public QMainWindow
         void learn();                                   // go to learn mode
         void add_step();                                // memorize coordinates for direct learning
         void remove_step();                             // remove coordinate from direct learning
-        void follow_path();                                 // execute the memorized coordinates
+        void follow_path();                             // execute the memorized coordinates
         void capture();
 
         void follow();
@@ -114,7 +114,6 @@ class MainWindow : public QMainWindow
         void poll_joystick();
         
         void RASM_Interpreter();
-        void calculate_coords();
         
         
 

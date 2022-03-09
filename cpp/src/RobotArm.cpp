@@ -125,53 +125,55 @@ void RobotArm::translateZ(uint8_t num, float32_t* target)
 
 void RobotArm::calculate_end_effector(float32_t* target)
 {   
-    /*float32_t T1 [ 16 ] = { 0 };
-    T1[15] = 1;
-    translateZ(1, T1);
-    rotateZ(1, T1);
+    float32_t Transformation_Matrices[][16] =
+    {
+        {0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1},
+        {0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1},
+        {0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1},
+        {0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1},
+        {0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1},
+    };
 
-    float32_t T2 [ 16 ] = { 0 };
-    T2[15] = 1;
-    translateX(2, T2);
-    translateY(3, T2);
-    translateZ(4, T2);
-    rotateY(2, T2);
-    //print_matrix(T2);
+    float32_t steps[5][16] = { 0 };
 
-    //print_matrix(T2);
+    translateZ(1, Transformation_Matrices[0]);
+    rotateZ(1, Transformation_Matrices[0]);
 
-    float32_t T3 [ 16 ] = { 0 };
-    T3[15] = 1;
-    //translateX()
-    translateY(5, T3);
-    translateZ(6, T3);
-    rotateY(3, T3);
-    //print_matrix(T3);
+    translateZ(2, Transformation_Matrices[1]);
+    rotateY(2, Transformation_Matrices[1]);
 
-    float32_t T4 [ 16 ] = { 0 };
-    T4[15] = 1;
-    translateX(7, T4);
-    translateY(8, T4);
-    rotateX(4, T4);
+    translateZ(3, Transformation_Matrices[2]);
+    rotateY(3, Transformation_Matrices[2]);
 
-    float32_t T5 [ 16 ] = { 0 };
-    T5[15] = 1;
-    translateX(9, T5);
-    rotateY(5, T5);
+    translateZ(4, Transformation_Matrices[3]);
+    rotateY(4, Transformation_Matrices[3]);
 
-    float32_t T6 [ 16 ] = { 0 };
-    T6[15] = 1;
-    translateX(10, T6);
-    rotateX(6, T6);
+    translateX(5, Transformation_Matrices[4]);
+    rotateX(5, Transformation_Matrices[4]);
 
-    float32_t T7 [ 16 ] = { 0 };
-    T7[15] = 1;
-    translateX(11, T7);
-    rotateX(7, T7);
+    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], target);
 
-    //print_matrix(T7);
+    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], steps[0]);
+    neon_multiply(steps[0], Transformation_Matrices[2], steps[1]);
+    neon_multiply(steps[1], Transformation_Matrices[3], steps[2]);
+    neon_multiply(steps[2], Transformation_Matrices[4], target);
 
-    float32_t step1[16];
+    /*float32_t step1[16];
     neon_multiply(T1, T2, step1);
     //print_matrix(step1);
 
@@ -182,49 +184,7 @@ void RobotArm::calculate_end_effector(float32_t* target)
     float32_t step3[16];
     neon_multiply(step2, T4, step3);
     //print_matrix(step3);
-
-    float32_t step4[16];
-    neon_multiply(step3, T5, step4);
-    //print_matrix(step4);
-    float32_t step5[16];
-    neon_multiply(step4, T6, step5);
-    //print_matrix(step5);
-    //float32_t step6[16];
-    neon_multiply(step5, T7, target);
-
-    //neon_multiply(step6, T7, target);*/
-    float32_t T1 [ 16 ] = { 0 };
-    T1[15] = 1;
-    translateZ(1, T1);
-    rotateZ(1, T1);
-
-    float32_t T2 [ 16 ] = { 0 };
-    T2[15] = 1;
-    translateZ(2, T2);
-    rotateY(2, T2);
-
-    float32_t T3 [ 16 ] = { 0 };
-    T3[15] = 1;
-    translateZ(3, T3);
-    rotateY(3, T3);
-
-    float32_t T4 [ 16 ] = { 0 };
-    T4[15] = 1;
-    translateZ(4, T4);
-    rotateY(3, T4);
-
-    float32_t step1[16];
-    neon_multiply(T1, T2, step1);
-    //print_matrix(step1);
-
-    float32_t step2[16];
-    neon_multiply(step1, T3, step2);
-    //print_matrix(step2);
-
-    float32_t step3[16];
-    neon_multiply(step2, T4, step3);
-    //print_matrix(step3);
-    neon_multiply(step3, T4, target);
+    neon_multiply(step3, T4, target);*/
 
 }
 

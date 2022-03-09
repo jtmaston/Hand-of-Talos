@@ -116,12 +116,12 @@ void MainWindow::update_axes() // this updates the axes display
     float32_t *data = dev.servo_readall(); // read the values from all of the servos
     dev.angles = data;
 
-    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(data[0])).c_str()); // and set the strings for
-    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(data[1])).c_str()); // the labels
-    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(data[2])).c_str());
-    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string(data[3])).c_str());
-    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(data[4])).c_str());
-    ui->a6_d->setText(std::string(std::string("Axis 6: ") + std::to_string(data[5])).c_str());
+    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(int(data[0] - dev.home_position[0])) + "°").c_str()); // and set the strings for
+    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(int(data[1] - dev.home_position[1])) + "°").c_str()); // the labels
+    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(int(data[2] - dev.home_position[2])) + "°").c_str());
+    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string(int(data[3] - dev.home_position[3])) + "°").c_str());
+    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(int(data[4] - dev.home_position[4])) + "°").c_str());
+    ui->a6_d->setText(std::string(std::string("Axis 6: ") + std::to_string(int(data[5] - dev.home_position[5])) + "°").c_str());
 
     float32_t end_effector [ 16 ];
     dev.calculate_end_effector(end_effector);
@@ -565,12 +565,4 @@ void MainWindow::go_home()
     ui->a4_r->setValue(dev.home_position[3] - 90);
     ui->a5_r->setValue(dev.home_position[4] - 90);
     ui->grip_r->setValue(dev.home_position[5]);
-    calculate_coords();
-}
-
-void MainWindow::calculate_coords()
-{
-    
-
-    delete dev.angles;
 }

@@ -19,8 +19,8 @@
 #define IFN 15
 #define ABR 16
 
-#define NUMERIC 17
-#define STRING  18
+#define NMRIC 17
+#define STRNG  18
 #define ADD     19
 #define PRT     20
 #define SUB     21

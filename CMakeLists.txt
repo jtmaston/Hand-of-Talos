@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing")
 set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3")
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(QT NAMES Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad REQUIRED)
 
 find_package( OpenCV REQUIRED )
@@ -48,9 +48,8 @@ set(CLIENT_SOURCES
     ${PROJECT_SOURCE_DIR}/src/client/mainwindow.cpp
     ${PROJECT_SOURCE_DIR}/lib/mainwindow.h
     ${PROJECT_SOURCE_DIR}/lib/mainwindow.ui
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
-    ${PROJECT_SOURCE_DIR}/src/server/RASM_Interpreter.cpp
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Instruction.hpp
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/isa.hpp
 )
 
 set(INCLUDES
@@ -124,6 +123,7 @@ if(APPLE)
 endif()
 
 target_link_libraries(RobotDashboard PUBLIC ${OpenCV_LIBS})
+target_link_libraries(RobotServer PUBLIC ${OpenCV_LIBS})
 
 
 if(QT_VERSION_MAJOR EQUAL 6)

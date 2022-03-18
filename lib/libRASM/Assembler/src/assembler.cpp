@@ -169,7 +169,7 @@ int main(int argc, char **argv)
                 break;
             }
 
-            case NUMERIC:
+            case NMRIC:
             {
                 variable::Numeric v;
                 if (numeric_hashtable.find(loc_args[1]) == numeric_hashtable.end())

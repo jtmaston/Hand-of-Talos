@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "RobotArm.hpp"
+//#include "RobotArm.hpp"
 #include <iostream>
 #include <QTimer>
 #include <QThread>
@@ -10,17 +10,16 @@
 #include <QtConcurrent>
 #include <QFileDialog>
 #include <QtGamepad/QGamepad>
+#include <QTcpSocket>
 
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-
-
+#include <Instruction.hpp>
+#include <isa.hpp>
 
 #ifdef __ARM_NEON
 #include <linux/videodev.h>
 #else
 #include <libv4l1-videodev.h>
+typedef float float32_t;
 #endif
 
 //#include "lib/libjoystick/joystick.hh"
@@ -30,11 +29,6 @@
 
 #include <fstream>
 
-
-using namespace cv;
-
-#define pixMod 45.0847
-#define degRad 57.29577951308
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -46,14 +40,14 @@ QT_END_NAMESPACE
 #define HIDDEN false
 #define VISIBLE true;
 
-class WorkerThread : public QThread
+/*class WorkerThread : public QThread       TODO: move to server
 {
     Q_OBJECT
 
     void run()
     {
         QString result;
-        uint16_t stepcount = dev->learned_angles.size();
+        //uint16_t stepcount = dev->learned_angles.size();
        // std::cout << stepcount << '\n';
         //std::cout.flush();
         while ( dev -> executing )
@@ -69,11 +63,19 @@ class WorkerThread : public QThread
     }
 
     public:
-        RobotArm *dev = nullptr;
+        //RobotArm *dev = nullptr;
     signals:
         void resultReady(const QString &s);
-};
+};*/            
 
+struct packet
+{
+    uint8_t command;
+    uint16_t data1;
+    uint16_t data2;
+    uint16_t data3;
+
+};
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -83,16 +85,11 @@ class MainWindow : public QMainWindow
         ~MainWindow();
 
         int dir = 0;
-
-        Rect red;
-        Rect green;
-        Rect blue;
-        bool running;
         QString filename;
 
         void go_home();
-        uint8_t detect_camera();
-        VideoCapture *camera = nullptr;
+        QTimer *Scheduler_100ms = nullptr;                        // timers for different actions
+        QTimer *Scheduler_16ms = nullptr;
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -104,26 +101,21 @@ class MainWindow : public QMainWindow
         void add_step();                                // memorize coordinates for direct learning
         void remove_step();                             // remove coordinate from direct learning
         void follow_path();                             // execute the memorized coordinates
-        void capture();
 
-        void follow();
         //void start_follow();
         void halt();
+        void check_if_filedialog();
+        void program();
+        void update_stick();
+        void jog();        
 
         void start_follow_red();
-        void start_follow_blue();
         void start_follow_green();
+        void start_follow_blue();
         void stop_follow();
-        void jog();
-        void program();
-        void check_if_filedialog();
 
-        void update_stick();
-        //void poll_joystick();
-        
-        void RASM_Interpreter();
-        
-        
+        void onReadyRead();
+
 
     private:
         Ui::MainWindow *ui = nullptr;                             // user interface
@@ -138,15 +130,12 @@ class MainWindow : public QMainWindow
         float32_t axes[6] = { 0 };
         uint16_t time_mod = 1000;
 
-        QTimer *Scheduler_100ms = nullptr;                        // timers for different actions
-        QTimer *Scheduler_16ms = nullptr;
-        QTimer *Scheduler_500ms = nullptr;
 
-        RobotArm dev;
+        //RobotArm dev;
         QGamepad* joystick;
 
-        friend class WorkerThread;
-        WorkerThread learnModeThread;
+        //friend class WorkerThread;
+        //WorkerThread learnModeThread;
 
 
         QFuture<void> cam_thread;
@@ -155,6 +144,8 @@ class MainWindow : public QMainWindow
         QFuture<void> prog_thread;
 
         void toggle_jog();
+        std::vector<int> home_position;
+        QTcpSocket sock;
 
 
 };

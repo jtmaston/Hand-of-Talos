@@ -1,9 +1,8 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include <server.hpp>
 
-void MainWindow::RASM_Interpreter()
+void Server::RASM_Interpreter()
 {
-    fileopen = true;
+    /*fileopen = true;
 
     while ( filename.length() == 0 && following_program){}
 
@@ -257,5 +256,5 @@ void MainWindow::RASM_Interpreter()
 
     std::cout << '\n';
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << '\n';
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << '\n';*/ // TODO
 }

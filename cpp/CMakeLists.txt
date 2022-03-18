@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -mcpu=native -Wno-narr
 set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -mcpu=native -Wall -Wpedantic -O3")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network REQUIRED)
 
 find_package( OpenCV REQUIRED )
 
@@ -57,6 +57,17 @@ set(PROJECT_SOURCES
         ${TS_FILES}
 )
 
+set(SERVER_SOURCES
+        src/networking/server/main.cpp;
+        src/networking/server/server.cpp;
+        lib/server.hpp;
+)
+set(CLIENT_SOURCES
+        src/networking/client/main.cpp;
+        src/networking/client/client.cpp;
+        lib/client.hpp;
+)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(RobotDashBoard
         MANUAL_FINALIZATION
@@ -79,16 +90,26 @@ else()
         add_executable(RobotDashBoard
             ${PROJECT_SOURCES}
         )
+        add_executable(RobotServer
+            ${SERVER_SOURCES}
+        )
+        add_executable(RobotClient
+            ${CLIENT_SOURCES}
+        )
     endif()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
 target_link_libraries(RobotDashBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
+target_link_libraries(RobotServer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent  Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(RobotClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent  Qt${QT_VERSION_MAJOR}::Network)
+
 
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(RobotDashBoard PRIVATE 5DOF i2c)
+    target_link_libraries(RobotServer PRIVATE 5DOF)
 endif()
 if(APPLE)
     set_target_properties(RobotDashBoard PROPERTIES

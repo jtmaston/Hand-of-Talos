@@ -1,9 +1,9 @@
-[submodule "cpp/lib/libjoystick"]
-	path = cpp/lib/libjoystick
+[submodule "lib/libjoystick"]
+	path = lib/libjoystick
 	url = git@github.com:drewnoakes/joystick.git
-[submodule "cpp/lib/libRobot"]
-	path = cpp/lib/libRobot
+[submodule "lib/libRobot"]
+	path = lib/libRobot
 	url = git@github.com:jtmaston/ArmLibCpp.git
-[submodule "cpp/lib/libRASM"]
-	path = cpp/lib/libRASM
+[submodule "lib/libRASM"]
+	path = lib/libRASM
 	url = https://github.com/jtmaston/RASM.git

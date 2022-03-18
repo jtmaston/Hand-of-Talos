@@ -17,3 +17,4 @@ build
 build-cpp-*
 *workspace
 cpp/src/networking
+.DS_Store

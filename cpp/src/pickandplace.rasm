@@ -1,0 +1,27 @@
+NME PICKNPLACE          // set name of the program
+GHME                    // return to home pose
+ANG 6 0                 // open the gripper
+
+ANGS 0 29 33 28 0 0     // head to target 1
+ANG 6 60                // close the gripper
+
+ANGS 0 32 24 34 0 60    // move to target 2
+ANGS 50 32 24 34 0 60   // move to target 3
+ANGS 50 22 66 3 0 60    // move to target 4
+ANG 6 0                 // open the gripper
+
+ANGS 50 32 24 34 0 0    // move to target 3
+ANGS 0 32 24 33 0 0     // move to target 2
+ANGS 0 22 66 3 0 0      // move to target 5
+ANG 6 60                // close the gripper
+
+ANGS 0 32 24 33 0 60    // move to target 2
+ANGS 50 29 34 28 0 60   // move to target 3 
+ANG 6 0                 // open the gripper
+
+ANGS 50 32 24 34 0 0    // move to target 6
+SPD 2000                // set speed factor
+ANG 2 50
+
+GHME                    // go home
+END                     // end program

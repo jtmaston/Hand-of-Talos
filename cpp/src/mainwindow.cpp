@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes()));         // axis readout is updated every 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(check_if_filedialog())); // camera is updated every 20ms
-    //connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(calculate_coords()));
     connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));  // when the learn button is clicked, toggle the bar
@@ -126,9 +125,13 @@ void MainWindow::update_axes() // this updates the axes display
     float32_t end_effector [ 16 ];
     dev.calculate_end_effector(end_effector);
     
-    ui -> DK_X -> setText( QString ( std::to_string(end_effector[12]).c_str()));
-    ui -> DK_Y -> setText( QString ( std::to_string(end_effector[13]).c_str()));
-    ui -> DK_Z -> setText( QString ( std::to_string(end_effector[14]).c_str()));
+    std::string text_1 = std::to_string(int(trunc(end_effector[12]))) + std::string(".") + std::to_string(int(trunc((end_effector[12] - floor(end_effector[12])) * 100)));
+    std::string text_2 = std::to_string(int(trunc(end_effector[13]))) + std::string(".") + std::to_string(int(trunc((end_effector[13] - floor(end_effector[13])) * 100)));
+    std::string text_3 = std::to_string(int(trunc(end_effector[14]))) + std::string(".") + std::to_string(int(trunc((end_effector[14] - floor(end_effector[14])) * 100)));
+    
+    ui -> DK_X -> setText( QString (text_1.c_str()));
+    ui -> DK_Y -> setText( QString (text_2.c_str()));
+    ui -> DK_Z -> setText( QString (text_3.c_str()));
 
     delete data; // readall returns a dynamic pointer, so it must be deleted to prevent memory leaks
 }

@@ -29,35 +29,47 @@
         <translation>STOP</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="309"/>
+        <location filename="../lib/mainwindow.ui" line="247"/>
+        <location filename="../lib/mainwindow.ui" line="322"/>
+        <location filename="../lib/mainwindow.ui" line="399"/>
+        <location filename="../lib/mainwindow.ui" line="435"/>
+        <location filename="../lib/mainwindow.ui" line="448"/>
+        <source>°</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lib/mainwindow.ui" line="260"/>
+        <source>Axis 2: </source>
+        <translation type="unfinished">Axa 1:  {2:?}</translation>
+    </message>
+    <message>
+        <location filename="../lib/mainwindow.ui" line="296"/>
         <source>Axis 3: </source>
         <translation>Axa 3: </translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="231"/>
+        <location filename="../lib/mainwindow.ui" line="283"/>
         <source>Gripper: </source>
         <translation>Gripper: </translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="322"/>
-        <location filename="../lib/mainwindow.ui" line="493"/>
+        <location filename="../lib/mainwindow.ui" line="580"/>
         <source>Axis 2:</source>
         <translation>Axa 2:</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="218"/>
+        <location filename="../lib/mainwindow.ui" line="386"/>
         <source>Axis 4: </source>
         <translation>Axa 4: </translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="392"/>
+        <location filename="../lib/mainwindow.ui" line="412"/>
         <source>Axis 5: </source>
         <translation>Axa 5: </translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="379"/>
         <source>Base Rotation: </source>
-        <translation>Rotația bazei: </translation>
+        <translation type="vanished">Rotația bazei: </translation>
     </message>
     <message>
         <location filename="../lib/mainwindow.ui" line="142"/>
@@ -65,77 +77,87 @@
         <translation>Încarcă Program</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="480"/>
+        <location filename="../lib/mainwindow.ui" line="360"/>
+        <source>%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lib/mainwindow.ui" line="373"/>
+        <location filename="../lib/mainwindow.ui" line="567"/>
         <source>Axis 1: </source>
         <translation>Axa 1: </translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="506"/>
+        <location filename="../lib/mainwindow.ui" line="593"/>
         <source>Axis 3:</source>
         <translation>Axa 3:</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="519"/>
+        <location filename="../lib/mainwindow.ui" line="606"/>
         <source>Axis 4:</source>
         <translation>Axa 4:</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="532"/>
+        <location filename="../lib/mainwindow.ui" line="619"/>
         <source>Axis 5:</source>
         <translation>Axa 5:</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="545"/>
         <source>Axis 6:</source>
-        <translation>Axa 6:</translation>
+        <translation type="vanished">Axa 6:</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="559"/>
+        <location filename="../lib/mainwindow.ui" line="632"/>
+        <source>Gripper:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../lib/mainwindow.ui" line="646"/>
         <source>X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="580"/>
+        <location filename="../lib/mainwindow.ui" line="667"/>
         <source>Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="601"/>
+        <location filename="../lib/mainwindow.ui" line="688"/>
         <source>Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="658"/>
+        <location filename="../lib/mainwindow.ui" line="745"/>
         <source>&lt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="687"/>
+        <location filename="../lib/mainwindow.ui" line="774"/>
         <source>0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="716"/>
+        <location filename="../lib/mainwindow.ui" line="803"/>
         <source>&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="749"/>
+        <location filename="../lib/mainwindow.ui" line="836"/>
         <source>Follow Red</source>
         <translation>Urmărește roșu</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="778"/>
+        <location filename="../lib/mainwindow.ui" line="865"/>
         <source>Follow Green</source>
         <translation>Urmărește Verde</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="807"/>
+        <location filename="../lib/mainwindow.ui" line="894"/>
         <source>Follow Blue</source>
         <translation>Urmărește Albastru</translation>
     </message>
     <message>
-        <location filename="../lib/mainwindow.ui" line="836"/>
+        <location filename="../lib/mainwindow.ui" line="923"/>
         <source>Stop Following</source>
         <translation>Oprește urmărirea</translation>
     </message>

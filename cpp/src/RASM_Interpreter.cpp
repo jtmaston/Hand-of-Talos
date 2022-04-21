@@ -86,12 +86,12 @@ void MainWindow::RASM_Interpreter()
             break;
 
         case ANGS:
-            ui->base_r->setValue(instruction.params[0] - 90);
-            ui->a2_r->setValue(instruction.params[1] - 90);
-            ui->a3_r->setValue(instruction.params[2] - 90);
-            ui->a4_r->setValue(instruction.params[3] - 180);
-            ui->a5_r->setValue(instruction.params[4] - 90);
-            ui->grip_r->setValue(instruction.params[5] - 90);
+            ui->base_r->setValue(-1 * instruction.params[0]);
+            ui->a2_r->setValue(-1 * instruction.params[1]);
+            ui->a3_r->setValue(-1 * instruction.params[2]);
+            ui->a4_r->setValue(-1 * instruction.params[3] - 90);
+            ui->a5_r->setValue(instruction.params[4]);
+            ui->grip_r->setValue(instruction.params[5]);
             usleep(time_mod * 1000);
             break;
 

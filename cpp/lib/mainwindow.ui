@@ -303,7 +303,7 @@ QPushButton:pressed {
      <item row="3" column="2">
       <widget class="QSpinBox" name="increment_4">
        <property name="minimum">
-        <number>-90</number>
+        <number>-160</number>
        </property>
        <property name="maximum">
         <number>90</number>
@@ -332,10 +332,10 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-180</number>
+        <number>-160</number>
        </property>
        <property name="maximum">
-        <number>180</number>
+        <number>90</number>
        </property>
        <property name="singleStep">
         <number>10</number>

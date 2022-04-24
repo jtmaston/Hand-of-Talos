@@ -139,8 +139,8 @@ void MainWindow::command() // get the values from the sliders, then write them o
     angles[0] = ui->base_r->value() + 90; // need to adjust with 90
     angles[1] = ui->a2_r->value() + 90;
     angles[2] = ui->a3_r->value() + 90;
-    angles[3] = ui->a4_r->value() + 90;
-    angles[4] = ui->a5_r->value() + 90;
+    angles[3] = ui->a4_r->value() + 90 + 5;
+    angles[4] = ui->a5_r->value() + 90 + 5;
     angles[5] = ui->grip_r->value() + 90;
 
     dev.servo_write6(angles, time_mod); // move the axes
@@ -240,8 +240,13 @@ void MainWindow::capture() // this is 2am code.
           //  break;
 
         Mat imgHSV;
-
-        cvtColor(frame, imgHSV, COLOR_BGR2HSV);                            // convert the image to HSV, or Hue Saturation Value
+        try{
+            cvtColor(frame, imgHSV, COLOR_BGR2HSV);                            // convert the image to HSV, or Hue Saturation Value
+        }catch(cv::Exception e)
+        {
+            return;
+        }
+        
         line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1); // draw the crosshair
         line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
         // to hue saturation values, for easier processing

@@ -35,6 +35,8 @@ class RobotArm : public ArmDevice
         void calculate_end_effector(float32_t* target);                                 // calculate the end effector using direct kinematics
         void go_home();                                                           // move to the home position
 
+        //void servo_write6(float angles[6], uint16_t time);
+
         std::vector<uint16_t> home_position;
         
     friend class MainWindow;

@@ -25,6 +25,14 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 
+    //ArmDevice bot;
+    //bot.servo_write(1, (float) 10, 10000);
 
+    // axis 0 servo: 25  -> 335
+    // axis 1 servo: 100 -> 300
+
+    //bot.servo_write(0, (float)90.0, 1000);
+
+    // 1 : seems ok | 2 : seems ok | 3 : 94 | 4 : 95 | 5 : seems ok
     //ArmDevice bot;
 }

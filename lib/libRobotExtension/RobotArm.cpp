@@ -214,3 +214,13 @@ void RobotArm::go_home()
     usleep(1000000);
     //toggleTorque(0);
 }
+
+/*void RobotArm::servo_write6(float angles[6], uint16_t time)
+{
+    uint16_t* angle_t = new uint16_t[6];
+
+    for(int i = 0; i < 6; i++)
+        angle_t[i] = angles[i];
+
+    //servo_write6(angle_t, time);
+}*/

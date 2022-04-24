@@ -27,11 +27,15 @@ qt5_create_translation(TS_FILES)
 add_subdirectory(lib/libRobot)
 add_subdirectory(lib/libRASM)
 
-set(SERVER_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/server/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/server/RASM_Interpreter.cpp
-    ${PROJECT_SOURCE_DIR}/src/server/server.cpp
-    ${PROJECT_SOURCE_DIR}/lib/server.hpp
+set(SOURCES
+    ${PROJECT_SOURCE_DIR}/src/main.cpp
+    ${PROJECT_SOURCE_DIR}/src/RASM_Interpreter.cpp
+    ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp
+)
+
+set(HEADERS
+    ${PROJECT_SOURCE_DIR}/lib/mainwindow.h
+    ${PROJECT_SOURCE_DIR}/lib/mainwindow.ui
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
@@ -41,28 +45,16 @@ set(SERVER_SOURCES
     ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Variable.hpp
 )
 
-message(${PROJECT_SOURCE_DIR})
-
-set(CLIENT_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/client/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/client/mainwindow.cpp
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.h
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.ui
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
-    ${PROJECT_SOURCE_DIR}/src/server/RASM_Interpreter.cpp
-)
-
-set(INCLUDES
+set(INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension
     ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include
     ${PROJECT_SOURCE_DIR}/lib
 )
 
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${INCLUDES})
-set(CMAKE_AUTOMOC_SEARCH_PATHS ${INCLUDES})
-set(CMAKE_AUTORCC_SEARCH_PATHS ${INCLUDES})
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${INCLUDE_DIRS})
+set(CMAKE_AUTOMOC_SEARCH_PATHS ${INCLUDE_DIRS})
+set(CMAKE_AUTORCC_SEARCH_PATHS ${INCLUDE_DIRS})
 
 #include_directories(
 #    ${INCLUDES}
@@ -85,32 +77,23 @@ else()
 
     else()
         add_executable(RobotDashboard
-            ${CLIENT_SOURCES}
+            ${SOURCES} ${HEADERS}
         )
 
         target_include_directories( RobotDashboard
             PUBLIC
-            ${INCLUDES} ${OpenCV_INCLUDE_DIRS}
+            ${INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS}
         )
 
-        add_executable(RobotServer
-            ${SERVER_SOURCES}
-        )
-        target_include_directories( RobotServer
-            PUBLIC
-            ${INCLUDES} ${OpenCV_INCLUDE_DIRS}
-        )
     endif()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
 
-target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Network)
-target_link_libraries(RobotServer PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent  Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad)
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(RobotServer PUBLIC 5DOF i2c)
     target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
 endif()
 if(APPLE)

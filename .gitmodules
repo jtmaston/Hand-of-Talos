@@ -1,6 +1,3 @@
-[submodule "lib/libjoystick"]
-	path = lib/libjoystick
-	url = git@github.com:drewnoakes/joystick.git
 [submodule "lib/libRobot"]
 	path = lib/libRobot
 	url = git@github.com:jtmaston/ArmLibCpp.git

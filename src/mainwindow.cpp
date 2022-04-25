@@ -544,7 +544,7 @@ void MainWindow::program()
 {
     following_program = !following_program;
     toggle_jog();
-    //prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter);
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter);
 }
 
 void MainWindow::check_if_filedialog()

@@ -160,9 +160,9 @@ void MainWindow::RASM_Interpreter()
             usleep(time_mod * 1000);
             break;
             
-        case RPP:
+        case MOVJ:
             break;
-        case IPP:
+        case MOVL:
             break;
         case END:
             break;
@@ -174,23 +174,23 @@ void MainWindow::RASM_Interpreter()
                 {
                     case LE:
                         if ( numeric_variables[instruction.params[0]].value <= numeric_variables[instruction.params[2]].value )
-                            program_counter = instruction.params[ 3 ] - 3;
+                            program_counter = instruction.params[ 3 ] - 1;
                         break;
                     case L:
                         if ( numeric_variables[instruction.params[0]].value < numeric_variables[instruction.params[2]].value  )
-                            program_counter = instruction.params[ 3 ] - 3;
+                            program_counter = instruction.params[ 3 ] - 1;
                         break;
                     case GE:
                         if ( numeric_variables[instruction.params[0]].value >= numeric_variables[instruction.params[2]].value  )
-                            program_counter = instruction.params[ 3 ] - 3;
+                            program_counter = instruction.params[ 3 ] - 1;
                         break;
                     case G:
                         if ( numeric_variables[instruction.params[0]].value > numeric_variables[instruction.params[2]].value  )
-                            program_counter = instruction.params[ 3 ] - 3;
+                            program_counter = instruction.params[ 3 ] - 1;
                         break;
                     case EQ:
                         if ( numeric_variables[instruction.params[0]].value == numeric_variables[instruction.params[2]].value )
-                            program_counter = instruction.params[ 3 ] - 3;
+                            program_counter = instruction.params[ 3 ] - 1;
                         break;
                 }
             }
@@ -211,7 +211,7 @@ void MainWindow::RASM_Interpreter()
         }
         case PRT:
         {
-            std::cout << numeric_variables[instruction.params[1]].value << '\n';
+            std::cout << numeric_variables[instruction.params[0]].value << '\n';
             std::cout.flush();
             break;
         }
@@ -254,8 +254,4 @@ void MainWindow::RASM_Interpreter()
         }
         program_counter++;
     }
-
-    std::cout << '\n';
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << '\n';
 }

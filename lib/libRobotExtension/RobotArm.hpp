@@ -37,7 +37,7 @@ class RobotArm : public ArmDevice
 
         //void servo_write6(float angles[6], uint16_t time);
 
-        std::vector<uint16_t> home_position;
+        std::vector<float32_t> home_position;
         
     friend class MainWindow;
 };

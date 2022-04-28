@@ -26,6 +26,9 @@ int main(int argc, char *argv[])
     return a.exec();
 
     //ArmDevice bot;
+   // bot.servo_write(2, (float)180, 2000);
+
+    //ArmDevice bot;
     //bot.servo_write(1, (float) 10, 10000);
 
     // axis 0 servo: 25  -> 335

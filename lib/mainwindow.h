@@ -121,7 +121,7 @@ class MainWindow : public QMainWindow
         void update_stick();
         //void poll_joystick();
         
-        void RASM_Interpreter();
+        void RASM_Interpreter(const std::vector <float> home_position);
         
         
 

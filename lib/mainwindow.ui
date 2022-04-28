@@ -184,26 +184,16 @@ QPushButton:pressed {
      </rect>
     </property>
     <layout class="QGridLayout" name="axes">
-     <item row="5" column="2">
-      <widget class="QSpinBox" name="increment_6">
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-      </widget>
-     </item>
      <item row="4" column="1">
       <widget class="QSlider" name="a5_r">
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-90</number>
+        <number>-50</number>
        </property>
        <property name="maximum">
-        <number>90</number>
+        <number>180</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -222,10 +212,10 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-90</number>
+        <number>-140</number>
        </property>
        <property name="maximum">
-        <number>90</number>
+        <number>140</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -264,16 +254,6 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QSpinBox" name="increment_5">
-       <property name="minimum">
-        <number>-90</number>
-       </property>
-       <property name="maximum">
-        <number>90</number>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_6">
        <property name="styleSheet">
@@ -300,19 +280,6 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QSpinBox" name="increment_4">
-       <property name="minimum">
-        <number>-90</number>
-       </property>
-       <property name="maximum">
-        <number>90</number>
-       </property>
-       <property name="value">
-        <number>-90</number>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="3">
       <widget class="QLabel" name="label_13">
        <property name="styleSheet">
@@ -332,7 +299,7 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-180</number>
+        <number>-45</number>
        </property>
        <property name="maximum">
         <number>180</number>
@@ -341,7 +308,7 @@ QPushButton:pressed {
         <number>10</number>
        </property>
        <property name="value">
-        <number>-90</number>
+        <number>0</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -416,16 +383,6 @@ QPushButton:pressed {
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QSpinBox" name="increment_3">
-       <property name="minimum">
-        <number>-90</number>
-       </property>
-       <property name="maximum">
-        <number>90</number>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="3">
       <widget class="QLabel" name="label_12">
        <property name="styleSheet">
@@ -458,7 +415,7 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-90</number>
+        <number>-110</number>
        </property>
        <property name="maximum">
         <number>90</number>
@@ -477,10 +434,10 @@ QPushButton:pressed {
      <item row="0" column="1">
       <widget class="QSlider" name="base_r">
        <property name="minimum">
-        <number>-90</number>
+        <number>-120</number>
        </property>
        <property name="maximum">
-        <number>90</number>
+        <number>120</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -490,26 +447,6 @@ QPushButton:pressed {
        </property>
        <property name="tickPosition">
         <enum>QSlider::TicksAbove</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QSpinBox" name="increment_1">
-       <property name="minimum">
-        <number>-90</number>
-       </property>
-       <property name="maximum">
-        <number>90</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QSpinBox" name="increment_2">
-       <property name="minimum">
-        <number>-90</number>
-       </property>
-       <property name="maximum">
-        <number>90</number>
        </property>
       </widget>
      </item>
@@ -540,6 +477,72 @@ QPushButton:pressed {
        </property>
        <property name="tickPosition">
         <enum>QSlider::TicksAbove</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QDoubleSpinBox" name="increment_1">
+       <property name="minimum">
+        <double>-120.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>120.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="increment_6">
+       <property name="minimum">
+        <double>-180.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>180.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QDoubleSpinBox" name="increment_5">
+       <property name="minimum">
+        <double>-180.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>180.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QDoubleSpinBox" name="increment_4">
+       <property name="minimum">
+        <double>-180.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>180.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QDoubleSpinBox" name="increment_3">
+       <property name="minimum">
+        <double>-140.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>140.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QDoubleSpinBox" name="increment_2">
+       <property name="minimum">
+        <double>-110.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>90.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>10.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.000000000000000</double>
        </property>
       </widget>
      </item>

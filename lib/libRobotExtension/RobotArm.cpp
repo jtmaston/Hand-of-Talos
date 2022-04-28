@@ -3,7 +3,8 @@
 RobotArm::RobotArm() : ArmDevice()
 {
     home_position.reserve(6);
-    home_position = { 90, 90, 90, 0, 90, 0 };
+    //home_position = { 90, 90, 90, 0, 90, 0 };
+    home_position = {90, 90, 90, 0, 90, 0};
 }
 #ifdef __ARM_NEON
 void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
@@ -210,17 +211,7 @@ void RobotArm::print_matrix(float32_t *M)
 void RobotArm::go_home()
 {
     this -> toggleTorque(true);
-    this -> servo_write6(home_position.data(), 1000);
-    usleep(1000000);
+    this -> servo_write6(home_position.data(), 10000);
+    usleep(10000000);
     //toggleTorque(0);
 }
-
-/*void RobotArm::servo_write6(float angles[6], uint16_t time)
-{
-    uint16_t* angle_t = new uint16_t[6];
-
-    for(int i = 0; i < 6; i++)
-        angle_t[i] = angles[i];
-
-    //servo_write6(angle_t, time);
-}*/

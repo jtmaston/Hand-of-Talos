@@ -18,7 +18,7 @@ class RobotArm : public ArmDevice
         const float translations[5] = { 74, 29.5, 82.85, 82.85, 71.5 };
 
 
-        float* angles;
+        std::vector<float32_t> angles;
         void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
         void rotateY(uint8_t num, float32_t* target);               // apply rotation matrix on the Y axis
         void rotateZ(uint8_t num, float32_t* target);               // apply rotation matrix on the Z axis

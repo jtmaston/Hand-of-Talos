@@ -299,10 +299,10 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-45</number>
+        <number>-180</number>
        </property>
        <property name="maximum">
-        <number>180</number>
+        <number>45</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -415,10 +415,10 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <property name="minimum">
-        <number>-110</number>
+        <number>-90</number>
        </property>
        <property name="maximum">
-        <number>90</number>
+        <number>110</number>
        </property>
        <property name="singleStep">
         <number>10</number>
@@ -493,17 +493,17 @@ QPushButton:pressed {
      <item row="5" column="2">
       <widget class="QDoubleSpinBox" name="increment_6">
        <property name="minimum">
-        <double>-180.000000000000000</double>
+        <double>0.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>180.000000000000000</double>
+        <double>100.000000000000000</double>
        </property>
       </widget>
      </item>
      <item row="4" column="2">
       <widget class="QDoubleSpinBox" name="increment_5">
        <property name="minimum">
-        <double>-180.000000000000000</double>
+        <double>-50.000000000000000</double>
        </property>
        <property name="maximum">
         <double>180.000000000000000</double>
@@ -516,7 +516,7 @@ QPushButton:pressed {
         <double>-180.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>180.000000000000000</double>
+        <double>45.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -533,10 +533,10 @@ QPushButton:pressed {
      <item row="1" column="2">
       <widget class="QDoubleSpinBox" name="increment_2">
        <property name="minimum">
-        <double>-110.000000000000000</double>
+        <double>-90.000000000000000</double>
        </property>
        <property name="maximum">
-        <double>90.000000000000000</double>
+        <double>110.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>10.000000000000000</double>

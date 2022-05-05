@@ -1,76 +1,52 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-void MainWindow::RASM_Interpreter(const std::vector<float> home_position) // TODO: memory optimizations
+void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const std::vector<Instruction> instructions) // TODO: memory optimizations
 {
-    
-    fileopen = true;
-
-    while (filename.length() == 0 && following_program){}
-
-    fileopen = false;
-
     std::vector<Instruction> program;
     std::vector<variable::Numeric> numeric_variables;
     std::vector<variable::Target> target_variables;
-
-    std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
-
-    std::string progname;
-    std::string progsize_s;
-    /*std::string numsize_s;
-    std::string strsize_s;
-    std::string tgtsize_s;*/
-
-    input_file >> progname;
-    size_t progsize;
-    input_file >> progsize;
-    /*int numsize, tgtsize;
-    input_file >> numsize >> tgtsize;
-    std::cout << numsize << " " << tgtsize << '\n';
-
-    numeric_variables.reserve(numsize + 1);
-    target_variables.reserve(tgtsize + 1);*/
-
-    input_file.get(); // remove trailing \n
-    uint16_t read_size = 0;
-    while (read_size < progsize)
+    dev.toggleTorque(true);
+    switch (instructions.size())
     {
-        char *chunk = new char[sizeof(Instruction)];
-        input_file.read(chunk, sizeof(Instruction));
-        program.push_back(std::move(*(Instruction *)chunk));
-        delete[] chunk;
-        read_size += sizeof(Instruction);
+    case 0:
+    {
+        fileopen = true;
+
+        while (filename.length() == 0 && following_program)
+        {
+        }
+
+        fileopen = false;
+
+        std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
+
+        std::string progname;
+        std::string progsize_s;
+
+        input_file >> progname;
+        size_t progsize;
+        input_file >> progsize;
+
+        input_file.get(); // remove trailing \n
+        uint16_t read_size = 0;
+        while (read_size < progsize)
+        {
+            char *chunk = new char[sizeof(Instruction)];
+            input_file.read(chunk, sizeof(Instruction));
+            program.push_back(std::move(*(Instruction *)chunk));
+            delete[] chunk;
+            read_size += sizeof(Instruction);
+        }
+        break;
     }
-
-    /*input_file >> numsize_s;
-    size_t numsize = std::stoi(numsize_s);
-    input_file >> strsize_s;
-    size_t strsize = std::stoi(strsize_s);
-    input_file >> tgtsize_s;
-    size_t tgtsize = std::stoi(tgtsize_s);
-    
-    read_size = 0;
-    /*while (read_size < numsize)
+    default:
     {
-        char *chunk = new char[sizeof(variable::Numeric)];
-        input_file.read(chunk, sizeof(variable::Numeric));
-        numeric_variables.push_back(std::move(*(variable::Numeric *)chunk));
-        delete[] chunk;
-        read_size += sizeof(variable::Numeric);
+        program = instructions;
+        break;
     }
-
-    read_size = 0;
-    while (read_size < tgtsize)
-    {
-        char *chunk = new char[sizeof(variable::Target)];
-        input_file.read(chunk, sizeof(variable::Target));
-        target_variables.push_back(std::move(*(variable::Target *)chunk));
-        delete[] chunk;
-        read_size += sizeof(variable::Target);
-    }*/
-    // TODO: deprecate this
-
+    }
+    std::cout << "In interpreter\n";
     int program_counter = 0;
     int program_size = program.size();
 
@@ -294,5 +270,4 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position) // TOD
     program.clear();
     numeric_variables.clear();
     target_variables.clear();
-
 }

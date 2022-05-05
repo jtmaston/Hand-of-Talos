@@ -4,7 +4,7 @@ RobotArm::RobotArm() : ArmDevice()
 {
     home_position.reserve(6);
     //home_position = { 90, 90, 90, 0, 90, 0 };
-    home_position = {90, 90, 90, 0, 90, 0};
+    home_position = {90, 90, 90, 180 - 5, 90, 90};
 }
 #ifdef __ARM_NEON
 void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {

@@ -60,7 +60,7 @@ class WorkerThread : public QThread
         {
             for (int i = 0; i < stepcount && dev -> executing; i++)
             {
-                dev->servo_write6(&dev->learned_angles[i][0], 1000);
+                dev->servo_write6(&dev->learned_angles[i][0], 3000);
                 usleep(1000000);
             }
         }
@@ -117,11 +117,12 @@ class MainWindow : public QMainWindow
         void jog();
         void program();
         void check_if_filedialog();
+        void run_learnprog();
 
         void update_stick();
         //void poll_joystick();
         
-        void RASM_Interpreter(const std::vector <float> home_position);
+        void RASM_Interpreter(const std::vector <float> home_position, const std::vector<Instruction> program = std::vector<Instruction>());
         
         
 
@@ -153,6 +154,7 @@ class MainWindow : public QMainWindow
         QFuture<void> learn_thread;
         QFuture<void> joy_thread;
         QFuture<void> prog_thread;
+        std::vector<Instruction> manual_program;
 
         void toggle_jog();
 

@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent)
     camera->set(cv::CAP_PROP_FPS, 60);
 
     dev.toggleTorque(true);
-    go_home(); // reset the robot to the home position
 }
 
 MainWindow::~MainWindow()
@@ -104,14 +103,16 @@ void MainWindow::set_learn_bar_visibility(bool state) // hide the learn bar, by 
 void MainWindow::update_axes() // this updates the axes display
 {
     float32_t *data = dev.servo_readall(); // read the values from all of the servos
-    dev.angles = data;
+    //dev.angles = data;
+    dev.angles.reserve(7);                                  // TODO: prevent this preallocation from happening on each call
+    memcpy(dev.angles.data(), data, 6 * sizeof(float32_t));
 
-    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(int(data[0] - dev.home_position[0])) + "°").c_str()); // and set the strings for
-    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(int(data[1] - dev.home_position[1])) + "°").c_str()); // the labels
-    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(int(data[2] - dev.home_position[2])) + "°").c_str());
-    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string(int(data[3] - dev.home_position[3])) + "°").c_str());
-    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(int(data[4] - dev.home_position[4])) + "°").c_str());
-    ui->a6_d->setText(std::string(std::string("Axis 6: ") + std::to_string(int(data[5] - dev.home_position[5])) + "°").c_str());
+    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(-(data[0] - dev.home_position[0])) + "°").c_str()); // and set the strings for
+    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(-(data[1] - dev.home_position[1])) + "°").c_str()); // the labels
+    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(-(data[2] - dev.home_position[2])) + "°").c_str());
+    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string((data[3] - dev.home_position[3] + 170)) + "°").c_str());
+    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(data[4] - dev.home_position[4]) + "°").c_str());
+    ui->a6_d->setText(std::string("Axis 6: " + std::to_string(data[5] - dev.home_position[5]) + "°").c_str());
 
     float32_t end_effector[16];
     dev.calculate_end_effector(end_effector);
@@ -126,12 +127,12 @@ void MainWindow::update_axes() // this updates the axes display
 void MainWindow::command() // get the values from the sliders, then write them on the bus
 {
     float32_t angles[6];
-    angles[0] = ui->increment_1->value() + 90; // need to adjust with 90
-    angles[1] = ui->increment_2->value() + 90;
-    angles[2] = ui->increment_3->value() + 90;
-    angles[3] = ui->increment_4->value() + 180 - 5;
-    angles[4] = ui->increment_5->value() + 90 + 5;
-    angles[5] = ui->increment_6->value() + 90;
+    angles[0] = ui->increment_1->value() + dev.home_position[0]; // need to adjust with 90
+    angles[1] = ui->increment_2->value() + dev.home_position[1];
+    angles[2] = ui->increment_3->value() + dev.home_position[2];
+    angles[3] = ui->increment_4->value() + dev.home_position[3];
+    angles[4] = ui->increment_5->value() + dev.home_position[4];
+    angles[5] = ui->increment_6->value() + dev.home_position[5];
 
     ui->base_r->setValue(static_cast<int>(ui->increment_1->value()));
     ui->a2_r->setValue(static_cast<int>(ui->increment_2->value()));
@@ -145,21 +146,38 @@ void MainWindow::command() // get the values from the sliders, then write them o
 
 void MainWindow::learn() // starts the learn mode
 {
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
-    go_home();                                                             // move back to home
+    //disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
+    //go_home();                                                             // move back to home
     dev.toggleTorque(false);                                               // and disable the torque
     learning = true;
 }
 
 void MainWindow::add_step() // add a step
 {
-    float32_t *angle = dev.servo_readall(); // read all the servo values
+    //float32_t *angle = dev.servo_readall(); // read all the servo values
     std::vector<float32_t> t(6);            // make them into a vector
-    memmove(&t[0], &angle[0], 6 * sizeof(float32_t));
-    dev.learned_angles.push_back(std::move(t)); // and add it onto the command queue
-    delete angle;
 
+
+    t [0] = -(dev.angles[0] - dev.home_position[0]);
+    t [1] = -(dev.angles[1] - dev.home_position[1]);
+    t [2] = -(dev.angles[2] - dev.home_position[2]);
+    t [3] = (dev.angles[3] - dev.home_position[3]) + 170;
+    t [4] = (dev.angles[4] - dev.home_position[4]);
+    t [5] = (dev.angles[5] - dev.home_position[5]);
+
+    
+
+    Instruction local;
+    local.opcode = TGT;
+    local.params[0] = manual_program.size();
+    memmove(local.params + 1, t.data(), 5 * sizeof(float32_t));
+    manual_program.push_back(local);
+
+    local.opcode = ANGS;
+    local.params[0] = local.params[0];
+    manual_program.push_back(local);
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() + 1).c_str())); // then update the label
+    //delete angle;
 }
 
 void MainWindow::remove_step() // remove a step from the queue
@@ -168,21 +186,36 @@ void MainWindow::remove_step() // remove a step from the queue
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 
+void MainWindow::run_learnprog()
+{
+    std::cout << dev.executing << '\n';
+    following_program = true;
+    toggle_jog();
+    uint16_t stepcount = dev.learned_angles.size();
+    // std::cout << stepcount << '\n';
+    //std::cout.flush();
+    while ( dev.executing )
+    {
+        for (int i = 0; i < stepcount && dev.executing; i++)
+        {
+            std::cout << "here";
+            ui->increment_1->setValue(dev.learned_angles[i][1]);
+            ui->increment_1->setValue(dev.learned_angles[i][2]);
+            ui->increment_1->setValue(dev.learned_angles[i][3]);
+            ui->increment_1->setValue(dev.learned_angles[i][4]);
+            ui->increment_1->setValue(dev.learned_angles[i][5]);
+            ui->increment_1->setValue(dev.learned_angles[i][6]);
+
+            usleep(1000000);
+        }
+    }
+}
+
 void MainWindow::follow_path() // start running
 {
-    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
-    dev.toggleTorque(true);
-    dev.executing = !dev.executing; // set executing in order to stop
+    following_program = !following_program;
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
 
-    time_mod = 1000;
-
-    if (dev.executing)
-    {
-        dev.toggleTorque(true);
-        learnModeThread.dev = &dev;
-        learnModeThread.start();
-    }
-    std::cout.flush();
 }
 
 void MainWindow::capture() // this is 2am code.
@@ -400,15 +433,22 @@ void MainWindow::follow()
     float32_t beta = (asin((240 - y_center) / ((36) * pixMod)) * 180) / __PI__;
 
     ui->base_r->setValue(ui->base_r->value() + round(alpha));
-    ui->a4_r->setValue(ui->a4_r->value() + round(beta));
+    ui->a4_r->setValue(ui->a4_r->value() - round(beta));
 
     float32_t angles[6];
-    angles[0] = ui->base_r->value() + 90; // need to adjust with 90
-    angles[1] = ui->a2_r->value() + 90;
-    angles[2] = ui->a3_r->value() + 90;
-    angles[3] = ui->a4_r->value() + 90;
-    angles[4] = ui->a5_r->value() + 90;
-    angles[5] = ui->grip_r->value() + 90;
+    angles[0] = ui->increment_1->value() + dev.home_position[0]; // need to adjust with 90
+    angles[1] = ui->increment_2->value() + dev.home_position[1];
+    angles[2] = ui->increment_3->value() + dev.home_position[2];
+    angles[3] = ui->increment_4->value() + dev.home_position[3];
+    angles[4] = ui->increment_5->value() + dev.home_position[4];
+    angles[5] = ui->increment_6->value() + dev.home_position[5];
+
+    ui->base_r->setValue(static_cast<int>(ui->increment_1->value()));
+    ui->a2_r->setValue(static_cast<int>(ui->increment_2->value()));
+    ui->a3_r->setValue(static_cast<int>(ui->increment_3->value()));
+    ui->a4_r->setValue(static_cast<int>(ui->increment_4->value()));
+    ui->a5_r->setValue(static_cast<int>(ui->increment_5->value()));
+    ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
     dev.servo_write6(angles, 450);
 }
@@ -488,7 +528,8 @@ void MainWindow::program()
 {
     following_program = !following_program;
     toggle_jog();
-    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position);
+    manual_program.clear();
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
 }
 
 void MainWindow::check_if_filedialog()

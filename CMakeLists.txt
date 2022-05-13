@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(RobotDashboard VERSION 0.1 LANGUAGES CXX C)
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -15,7 +21,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing")
 set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad SerialPort  REQUIRED)
 
 find_package( OpenCV REQUIRED )
 
@@ -27,10 +33,12 @@ qt5_create_translation(TS_FILES)
 add_subdirectory(lib/libRobot)
 add_subdirectory(lib/libRASM)
 
+
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/RASM_Interpreter.cpp
     ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp
+    ${PROJECT_SOURCE_DIR}/src/BaseTranslationAxis.cpp
 )
 
 set(HEADERS
@@ -43,6 +51,8 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Instruction.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/isa.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Variable.hpp
+    ${PROJECT_SOURCE_DIR}/lib/BaseTranslationAxis.hpp
+    ${PROJECT_SOURCE_DIR}/lib/noSignal.hpp
 )
 
 set(INCLUDE_DIRS
@@ -91,7 +101,7 @@ else()
 endif()
 
 
-target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad)
+target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort)
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)

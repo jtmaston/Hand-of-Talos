@@ -92,7 +92,7 @@ void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
 
 void RobotArm::rotateX(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1]) * __RAD__;
+    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__;
     target[0] = 1; target[4] = 0; target[8] = 0;
     target[1] = 0; target[5] = cos ( phi ); target[9] = -sin ( phi );
     target[2] = 0; target[6] = sin ( phi ); target[10] = cos ( phi );
@@ -100,7 +100,7 @@ void RobotArm::rotateX(uint8_t num, float32_t* target)
 
 void RobotArm::rotateY(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__;
     target[0] = cos ( phi ); target[4] = 0; target[8] = sin ( phi );
     target[1] = 0; target[5] = 1; target[9] = 0;
     target[2] =-sin ( phi ); target[6] = 0; target[10] = cos ( phi );
@@ -108,7 +108,7 @@ void RobotArm::rotateY(uint8_t num, float32_t* target)
 
 void RobotArm::rotateZ(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] - this -> home_position[num - 1] ) * __RAD__ ;
+    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__ ;
     target[0] = cos ( phi ); target[4] = -sin ( phi ); target[8] = 0;
     target[1] = sin ( phi ); target[5] = cos ( phi ); target[9] = 0;
     target[2] = 0; target[6] = 0; target[10] = 1;
@@ -211,7 +211,7 @@ void RobotArm::print_matrix(float32_t *M)
 void RobotArm::go_home()
 {
     this -> toggleTorque(true);
-    this -> servo_write6(home_position.data(), 10000);
-    usleep(10000000);
+    this -> servo_write6(home_position.data(), 1000);
+    usleep(1000);
     //toggleTorque(0);
 }

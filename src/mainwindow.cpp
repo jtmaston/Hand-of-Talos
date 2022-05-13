@@ -1,7 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "noSignal.hpp"
 
-#include <chrono>
+int handleError(int status, const char *func_name,
+                const char *err_msg, const char *file_name,
+                int line, void *userdata)
+{
+    // Do nothing -- will suppress console output
+    return 0; // Return value is not used
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -17,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes()));         // axis readout is updated every 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
     connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(check_if_filedialog())); // camera is updated every 20ms
-    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));
+    
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));  // when the learn button is clicked, toggle the bar
     connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar())); // when the track button is clicked, toggle the bar
@@ -54,7 +61,36 @@ MainWindow::MainWindow(QWidget *parent)
     camera->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     camera->set(cv::CAP_PROP_FPS, 60);
 
+    if (!camera->isOpened())
+    {
+        connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(camera_restarter()));
+    } else
+    {
+        connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));
+    }
+    cv::redirectError(handleError);
+
     dev.toggleTorque(true);
+}
+
+void MainWindow::camera_restarter()
+{
+    QImage qt_image = QImage((const unsigned char *)(NO_SIGNAL_pixel_data), NO_SIGNAL_WIDTH, NO_SIGNAL_HEIGHT, QImage::Format_RGB888);
+    qt_image = qt_image.scaled(751, 481);
+    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
+    ui->viewfinder->updateGeometry();
+    int device_counts = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        if (camera->open(i, CAP_V4L2))
+        {
+            std::cout << "Camera at /dev/video" << i << " available\n";
+            disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(camera_restarter()));
+            connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));
+            return;
+        }
+    }
+    
 }
 
 MainWindow::~MainWindow()
@@ -65,7 +101,7 @@ MainWindow::~MainWindow()
 
     uint8_t cmd[] = {0x07, 0};
     write(dev.led_bus, cmd, 2);
-    //delete joystick;
+    // delete joystick;
     delete ui;
 }
 void MainWindow::toggle_learn_bar() // toggle the learning bar,
@@ -103,16 +139,24 @@ void MainWindow::set_learn_bar_visibility(bool state) // hide the learn bar, by 
 void MainWindow::update_axes() // this updates the axes display
 {
     float32_t *data = dev.servo_readall(); // read the values from all of the servos
-    //dev.angles = data;
-    dev.angles.reserve(7);                                  // TODO: prevent this preallocation from happening on each call
-    memcpy(dev.angles.data(), data, 6 * sizeof(float32_t));
+    // dev.angles = data;
+    dev.angles.reserve(7); // TODO: prevent this preallocation from happening on each call
 
-    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(-(data[0] - dev.home_position[0])) + "°").c_str()); // and set the strings for
-    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(-(data[1] - dev.home_position[1])) + "°").c_str()); // the labels
-    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(-(data[2] - dev.home_position[2])) + "°").c_str());
-    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string((data[3] - dev.home_position[3] + 170)) + "°").c_str());
-    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(data[4] - dev.home_position[4]) + "°").c_str());
-    ui->a6_d->setText(std::string("Axis 6: " + std::to_string(data[5] - dev.home_position[5]) + "°").c_str());
+    dev.angles[0] = data[0] - dev.home_position[0];
+    dev.angles[1] = -(data[1] - dev.home_position[1]);
+    dev.angles[2] = -(data[2] - dev.home_position[2]);
+    dev.angles[3] = -(data[3] - dev.home_position[3] + 170);
+    dev.angles[4] = data[4] - dev.home_position[4];
+    dev.angles[5] = data[5] - dev.home_position[5];
+
+    // memcpy(dev.angles.data(), data, 6 * sizeof(float32_t));
+
+    ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(dev.angles[0]) + "°").c_str()); // and set the strings for
+    ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(dev.angles[1]) + "°").c_str()); // the labels
+    ui->a3_d->setText(std::string(std::string("Axis 3: ") + std::to_string(dev.angles[2]) + "°").c_str());
+    ui->a4_d->setText(std::string(std::string("Axis 4: ") + std::to_string(dev.angles[3]) + "°").c_str());
+    ui->a5_d->setText(std::string(std::string("Axis 5: ") + std::to_string(dev.angles[4]) + "°").c_str());
+    ui->a6_d->setText(std::string("Gripper: " + std::to_string(int(dev.angles[5])) + "%").c_str());
 
     float32_t end_effector[16];
     dev.calculate_end_effector(end_effector);
@@ -141,43 +185,45 @@ void MainWindow::command() // get the values from the sliders, then write them o
     ui->a5_r->setValue(static_cast<int>(ui->increment_5->value()));
     ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
+    if (base.position != ui->increment_t->value())
+    {
+        base.move(ui->increment_t->value());
+    }
+
     dev.servo_write6(angles, time_mod); // move the axes
 }
 
 void MainWindow::learn() // starts the learn mode
 {
-    //disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
-    //go_home();                                                             // move back to home
-    dev.toggleTorque(false);                                               // and disable the torque
+    // disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
+    // go_home();                                                             // move back to home
+    dev.toggleTorque(false); // and disable the torque
     learning = true;
 }
 
 void MainWindow::add_step() // add a step
 {
-    //float32_t *angle = dev.servo_readall(); // read all the servo values
-    std::vector<float32_t> t(6);            // make them into a vector
+    // float32_t *angle = dev.servo_readall(); // read all the servo values
+    std::vector<float32_t> t(6); // make them into a vector
 
-
-    t [0] = -(dev.angles[0] - dev.home_position[0]);
-    t [1] = -(dev.angles[1] - dev.home_position[1]);
-    t [2] = -(dev.angles[2] - dev.home_position[2]);
-    t [3] = (dev.angles[3] - dev.home_position[3]) + 170;
-    t [4] = (dev.angles[4] - dev.home_position[4]);
-    t [5] = (dev.angles[5] - dev.home_position[5]);
-
-    
+    t[0] = dev.angles[0];
+    t[1] = dev.angles[1];
+    t[2] = dev.angles[2];
+    t[3] = (dev.angles[3]);
+    t[4] = (dev.angles[4]);
+    t[5] = (dev.angles[5]);
 
     Instruction local;
     local.opcode = TGT;
     local.params[0] = manual_program.size();
-    memmove(local.params + 1, t.data(), 5 * sizeof(float32_t));
+    memcpy(local.params + 1, t.data(), 5 * sizeof(float32_t));
     manual_program.push_back(local);
 
     local.opcode = ANGS;
     local.params[0] = local.params[0];
     manual_program.push_back(local);
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() + 1).c_str())); // then update the label
-    //delete angle;
+    // delete angle;
 }
 
 void MainWindow::remove_step() // remove a step from the queue
@@ -186,140 +232,132 @@ void MainWindow::remove_step() // remove a step from the queue
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 
-void MainWindow::run_learnprog()
-{
-    std::cout << dev.executing << '\n';
-    following_program = true;
-    toggle_jog();
-    uint16_t stepcount = dev.learned_angles.size();
-    // std::cout << stepcount << '\n';
-    //std::cout.flush();
-    while ( dev.executing )
-    {
-        for (int i = 0; i < stepcount && dev.executing; i++)
-        {
-            std::cout << "here";
-            ui->increment_1->setValue(dev.learned_angles[i][1]);
-            ui->increment_1->setValue(dev.learned_angles[i][2]);
-            ui->increment_1->setValue(dev.learned_angles[i][3]);
-            ui->increment_1->setValue(dev.learned_angles[i][4]);
-            ui->increment_1->setValue(dev.learned_angles[i][5]);
-            ui->increment_1->setValue(dev.learned_angles[i][6]);
-
-            usleep(1000000);
-        }
-    }
-}
-
 void MainWindow::follow_path() // start running
 {
-    following_program = !following_program;
     prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
-
 }
 
 void MainWindow::capture() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
 
-    int connected = true;
-    bool cap = 0;
-
-    Mat frame;
-    connected = camera->read(frame);
-
-    Mat imgHSV;
-    try
+    /*switch (camera->isOpened())
     {
-        cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
-    }
-    catch (cv::Exception e)
+    case 0:
     {
-        return;
+        
+        break;
     }
+    case 1:
+    {*/
+        int connected = true;
+        bool cap = 0;
 
-    line(frame, Point(320, 0), Point(320, 480), CV_RGB(255, 0, 0), 1); // draw the crosshair
-    line(frame, Point(0, 240), Point(640, 240), CV_RGB(255, 0, 0), 1);
-    // to hue saturation values, for easier processing
-    Mat imgTreshRed;
-    Mat imgTreshRed1;
-    inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed); // we treshold the image, removing every color but red
-    inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
-    imgTreshRed += imgTreshRed1;
-
-    Mat imgTreshGreen;
-    inRange(imgHSV, Scalar(45, 72, 92), Scalar(102, 255, 255), imgTreshGreen);
-
-    Mat imgTreshBlue;
-    inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
-
-    Mat res_red;                                     // by doing bitwise and with the treshold. anything that isn't
-    bitwise_and(frame, frame, res_red, imgTreshRed); // red, green or blue automatically gets turned to 0 ( as a pixel )
-                                                     // with bitwise and, they get destroyed
-    Mat res_green;
-    bitwise_and(frame, frame, res_green, imgTreshGreen);
-
-    Mat res_blue;
-    bitwise_and(frame, frame, res_blue, imgTreshBlue);
-
-    std::vector<std::vector<Point>> contours;
-    findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
-    int max = 0;
-    int ind = 0;
-
-    for (auto &contour : contours)
-        if (contourArea(contour) > max)
+        Mat frame;
+        connected = camera->read(frame);
+        if (frame.empty())
         {
-            ind = &contour - &contours[0];
-            max = contourArea(contour);
+            std::cout << "Suspected camera failure!";
+            connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(camera_restarter()));
+            disconnect(Scheduler_16ms, SIGNAL(timeout()), this, SLOT(capture()));
         }
 
-    if (max > 0)
-    {
-        red = boundingRect(contours[ind]);
-        rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
-        putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
-    }
-
-    contours.clear();
-    findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-
-    max = 0;
-    for (auto &contour : contours)
-        if (contourArea(contour) > max)
+        Mat imgHSV;
+        try
         {
-            ind = &contour - &contours[0];
-            max = contourArea(contour);
+            cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
+        }
+        catch (cv::Exception e)
+        {
+            return;
         }
 
-    if (max > 50)
-    {
-        green = boundingRect(contours[ind]);
-        rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
-        putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
-    }
+        line(frame, Point(320, 220), Point(320, 260), CV_RGB(255, 0, 0), 1); // draw the crosshair
+        line(frame, Point(300, 240), Point(340, 240), CV_RGB(255, 0, 0), 1);
+        // to hue saturation values, for easier processing
+        Mat imgTreshRed;
+        Mat imgTreshRed1;
+        inRange(imgHSV, Scalar(0, 50, 50), Scalar(10, 255, 255), imgTreshRed); // we treshold the image, removing every color but red
+        inRange(imgHSV, Scalar(170, 50, 50), Scalar(180, 255, 255), imgTreshRed1);
+        imgTreshRed += imgTreshRed1;
 
-    contours.clear();
-    findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+        Mat imgTreshGreen;
+        inRange(imgHSV, Scalar(45, 72, 92), Scalar(102, 255, 255), imgTreshGreen);
 
-    max = 0;
-    for (auto &contour : contours)
-        if (contourArea(contour) > max)
+        Mat imgTreshBlue;
+        inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
+
+        Mat res_red;                                     // by doing bitwise and with the treshold. anything that isn't
+        bitwise_and(frame, frame, res_red, imgTreshRed); // red, green or blue automatically gets turned to 0 ( as a pixel )
+                                                         // with bitwise and, they get destroyed
+        Mat res_green;
+        bitwise_and(frame, frame, res_green, imgTreshGreen);
+
+        Mat res_blue;
+        bitwise_and(frame, frame, res_blue, imgTreshBlue);
+
+        std::vector<std::vector<Point>> contours;
+        findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+        int max = 0;
+        int ind = 0;
+
+        for (auto &contour : contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
+
+        if (max > 0)
         {
-            ind = &contour - &contours[0];
-            max = contourArea(contour);
+            red = boundingRect(contours[ind]);
+            rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
+            putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
         }
 
-    if (max > 50)
-    {
-        blue = boundingRect(contours[ind]);
-        rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
-        putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
-    }
-    QImage qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
-    qt_image = qt_image.scaled(751, 481);
-    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
-    ui->viewfinder->updateGeometry();
+        contours.clear();
+        findContours(imgTreshGreen, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+        max = 0;
+        for (auto &contour : contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
+
+        if (max > 50)
+        {
+            green = boundingRect(contours[ind]);
+            rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
+            putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
+        }
+
+        contours.clear();
+        findContours(imgTreshBlue, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+        max = 0;
+        for (auto &contour : contours)
+            if (contourArea(contour) > max)
+            {
+                ind = &contour - &contours[0];
+                max = contourArea(contour);
+            }
+
+        if (max > 50)
+        {
+            blue = boundingRect(contours[ind]);
+            rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
+            putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
+        }
+        QImage qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        qt_image = qt_image.scaled(751, 481);
+        ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
+        ui->viewfinder->updateGeometry();
+        //break;
+    //}
+    //}
+
     return;
 }
 
@@ -526,8 +564,6 @@ void MainWindow::toggle_jog()
 
 void MainWindow::program()
 {
-    following_program = !following_program;
-    toggle_jog();
     manual_program.clear();
     prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
 }
@@ -555,4 +591,11 @@ void MainWindow::go_home()
     ui->a4_r->setValue(dev.home_position[3] - 90);
     ui->a5_r->setValue(dev.home_position[4] - 90);
     ui->grip_r->setValue(dev.home_position[5]);
+}
+
+cv::ErrorCallback camera_error_handler(int status, const char *func_name, const char *err_msg,
+                                       const char *file_name, int line, void *)
+{
+
+    return 0;
 }

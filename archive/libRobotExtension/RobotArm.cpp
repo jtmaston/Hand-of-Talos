@@ -211,7 +211,7 @@ void RobotArm::go_home()
 {
     this -> toggleTorque(true);
     this -> servo_write6(home_position.data(), 1000);
-    usleep(1000000);
+    usleep(1000);
     //toggleTorque(0);
 }
 

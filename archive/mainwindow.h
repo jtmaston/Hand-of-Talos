@@ -46,34 +46,6 @@ QT_END_NAMESPACE
 #define HIDDEN false
 #define VISIBLE true;
 
-class WorkerThread : public QThread
-{
-    Q_OBJECT
-
-    void run()
-    {
-        QString result;
-        uint16_t stepcount = dev->learned_angles.size();
-       // std::cout << stepcount << '\n';
-        //std::cout.flush();
-        while ( dev -> executing )
-        {
-            for (int i = 0; i < stepcount && dev -> executing; i++)
-            {
-                dev->servo_write6(&dev->learned_angles[i][0], 1000);
-                usleep(1000000);
-            }
-        }
-
-        emit resultReady(result);
-    }
-
-    public:
-        RobotArm *dev = nullptr;
-    signals:
-        void resultReady(const QString &s);
-};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

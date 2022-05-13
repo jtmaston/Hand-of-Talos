@@ -27,6 +27,7 @@
 #include "Instruction.hpp"
 #include "isa.hpp"
 #include "Variable.hpp"
+#include "BaseTranslationAxis.hpp"
 
 #include <fstream>
 
@@ -45,34 +46,6 @@ QT_END_NAMESPACE
 
 #define HIDDEN false
 #define VISIBLE true;
-
-class WorkerThread : public QThread
-{
-    Q_OBJECT
-
-    void run()
-    {
-        QString result;
-        uint16_t stepcount = dev->learned_angles.size();
-       // std::cout << stepcount << '\n';
-        //std::cout.flush();
-        while ( dev -> executing )
-        {
-            for (int i = 0; i < stepcount && dev -> executing; i++)
-            {
-                dev->servo_write6(&dev->learned_angles[i][0], 3000);
-                usleep(1000000);
-            }
-        }
-
-        emit resultReady(result);
-    }
-
-    public:
-        RobotArm *dev = nullptr;
-    signals:
-        void resultReady(const QString &s);
-};
 
 class MainWindow : public QMainWindow
 {
@@ -93,6 +66,8 @@ class MainWindow : public QMainWindow
         void go_home();
         uint8_t detect_camera();
         VideoCapture *camera = nullptr;
+        cv::ErrorCallback camera_error_handler(int status, const char* func_name, const char* err_msg, 
+                   const char* file_name, int line, void*);
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -107,7 +82,6 @@ class MainWindow : public QMainWindow
         void capture();
 
         void follow();
-        //void start_follow();
         void halt();
 
         void start_follow_red();
@@ -117,13 +91,12 @@ class MainWindow : public QMainWindow
         void jog();
         void program();
         void check_if_filedialog();
-        void run_learnprog();
 
         void update_stick();
         //void poll_joystick();
         
         void RASM_Interpreter(const std::vector <float> home_position, const std::vector<Instruction> program = std::vector<Instruction>());
-        
+        void camera_restarter();
         
 
     private:
@@ -144,10 +117,9 @@ class MainWindow : public QMainWindow
         QTimer *Scheduler_500ms = nullptr;
 
         RobotArm dev;
+        BaseTranslationAxis base;
+        
         QGamepad* joystick;
-
-        friend class WorkerThread;
-        WorkerThread learnModeThread;
 
 
         QFuture<void> cam_thread;
@@ -155,6 +127,7 @@ class MainWindow : public QMainWindow
         QFuture<void> joy_thread;
         QFuture<void> prog_thread;
         std::vector<Instruction> manual_program;
+        cv::Mat prev;
 
         void toggle_jog();
 

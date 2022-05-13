@@ -3,10 +3,14 @@
 
 void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const std::vector<Instruction> instructions) // TODO: memory optimizations
 {
+    following_program = !following_program;
+    toggle_jog();
+    dev.toggleTorque(true);
+
     std::vector<Instruction> program;
     std::vector<variable::Numeric> numeric_variables;
     std::vector<variable::Target> target_variables;
-    dev.toggleTorque(true);
+    
     switch (instructions.size())
     {
     case 0:
@@ -14,8 +18,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
         fileopen = true;
 
         while (filename.length() == 0 && following_program)
-        {
-        }
+        {}
 
         fileopen = false;
 
@@ -211,7 +214,9 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
         {
             if (instruction.params[0] + 1 > target_variables.size())
                 target_variables.reserve(target_variables.size() + 1);
-            memcpy(target_variables[instruction.params[0]].angles, instruction.params + 1, 5 * sizeof(float));
+            variable::Target tgt;
+            memcpy(tgt.angles, instruction.params + 1, 5 * sizeof(float));
+            target_variables.push_back(tgt);
 
             break;
         }
@@ -266,8 +271,11 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
         }
         program_counter++;
     }
-
+    following_program = false;
+    filename.clear();
     program.clear();
     numeric_variables.clear();
     target_variables.clear();
+    toggle_jog();
+    return;
 }

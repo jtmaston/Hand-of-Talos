@@ -37,5 +37,7 @@ int main(int argc, char *argv[])
     //bot.servo_write(0, (float)90.0, 1000);
 
     // 1 : seems ok | 2 : seems ok | 3 : 94 | 4 : 95 | 5 : seems ok
-    //ArmDevice bot;
+    //ArmDevice bot;*/
+    
+    return 0;
 }

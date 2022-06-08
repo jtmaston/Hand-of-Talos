@@ -10,10 +10,17 @@
 #include <QtConcurrent>
 #include <QFileDialog>
 #include <QtGamepad/QGamepad>
+#include <QMessageBox>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
+#include <opencv2/objdetect.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+#include <quirc.h>
 
 
 
@@ -30,7 +37,8 @@
 #include "BaseTranslationAxis.hpp"
 
 #include <fstream>
-
+#include <cmath>
+#include <exception>
 
 using namespace cv;
 
@@ -62,6 +70,7 @@ class MainWindow : public QMainWindow
         Rect blue;
         bool running;
         QString filename;
+        struct quirc *decoder;
 
         void go_home();
         uint8_t detect_camera();
@@ -97,6 +106,7 @@ class MainWindow : public QMainWindow
         
         void RASM_Interpreter(const std::vector <float> home_position, const std::vector<Instruction> program = std::vector<Instruction>());
         void camera_restarter();
+        bool joystick_hotplug_detect();
         
 
     private:
@@ -119,7 +129,8 @@ class MainWindow : public QMainWindow
         RobotArm dev;
         BaseTranslationAxis base;
         
-        QGamepad* joystick;
+        QGamepad* joystick = nullptr;
+        QGamepadManager* gamepad_manager;
 
 
         QFuture<void> cam_thread;

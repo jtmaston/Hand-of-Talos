@@ -198,7 +198,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
         break;
         case ABR:
             break;
-        case NUMERIC:
+        case NUMERIC_VAR:
         {
             if (instruction.params[0] + 1 > numeric_variables.size())
             {

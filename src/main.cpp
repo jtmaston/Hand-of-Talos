@@ -5,8 +5,55 @@
 #include <QTranslator>
 #include <stdlib.h>
 
+// << https://gist.github.com/AndreLouisCaron/1841061 
+namespace {
+
+    // redirect outputs to another output stream.
+    class redirect_outputs
+    {
+        std::ostream& myStream;
+        std::streambuf *const myBuffer;
+    public:
+        redirect_outputs ( std::ostream& lhs, std::ostream& rhs=std::cout )
+            : myStream(rhs), myBuffer(myStream.rdbuf())
+        {
+            myStream.rdbuf(lhs.rdbuf());
+        }
+
+        ~redirect_outputs () {
+            myStream.rdbuf(myBuffer);
+        }
+    };
+
+    // redirect output stream to a string.
+    class capture_outputs
+    {
+        std::ostringstream myContents;
+        const redirect_outputs myRedirect;
+    public:
+        capture_outputs ( std::ostream& stream=std::cout )
+            : myContents(), myRedirect(myContents, stream)
+        {}
+        std::string contents () const
+        {
+            return (myContents.str());
+        }
+    };
+
+}
+
+
 int main(int argc, char *argv[])
 {   
+    std::ofstream log_file("/dev/null", std::ios::binary);                      // a hotfix to avoid v4l2's garbage 
+    if (!log_file.is_open()) {
+        std::cerr
+            << "Could not open log file for writing."
+            << std::endl;
+        return (EXIT_FAILURE);
+    }
+    const redirect_outputs _(log_file, std::cerr);
+// >>
     char arg[] = "DISPLAY=:0.0";
     putenv(arg);
     //qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
@@ -24,20 +71,6 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     return a.exec();
-
-    //ArmDevice bot;
-   // bot.servo_write(2, (float)180, 2000);
-
-    //ArmDevice bot;
-    //bot.servo_write(1, (float) 10, 10000);
-
-    // axis 0 servo: 25  -> 335
-    // axis 1 servo: 100 -> 300
-
-    //bot.servo_write(0, (float)90.0, 1000);
-
-    // 1 : seems ok | 2 : seems ok | 3 : 94 | 4 : 95 | 5 : seems ok
-    //ArmDevice bot;*/
     
     return 0;
 }

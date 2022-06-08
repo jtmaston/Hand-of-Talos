@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1279</width>
+    <width>1280</width>
     <height>720</height>
    </rect>
   </property>
@@ -23,13 +23,10 @@
       <x>9</x>
       <y>9</y>
       <width>1273</width>
-      <height>711</height>
+      <height>681</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
-     </property>
      <item>
       <layout class="QHBoxLayout" name="top_bar">
        <item>
@@ -1393,25 +1390,9 @@ QPushButton:pressed {
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QWidget" name="filler" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="bottom_bar">
          <item>
           <widget class="QPushButton" name="prev">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1441,12 +1422,6 @@ QPushButton:pressed {
          </item>
          <item>
           <widget class="QPushButton" name="execute">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1476,12 +1451,6 @@ QPushButton:pressed {
          </item>
          <item>
           <widget class="QPushButton" name="next">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1513,17 +1482,8 @@ QPushButton:pressed {
        </item>
        <item>
         <layout class="QHBoxLayout" name="bottom_bar_2">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
          <item>
           <widget class="QPushButton" name="follow_red">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1553,12 +1513,6 @@ QPushButton:pressed {
          </item>
          <item>
           <widget class="QPushButton" name="follow_green">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1588,12 +1542,6 @@ QPushButton:pressed {
          </item>
          <item>
           <widget class="QPushButton" name="follow_blue">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>
@@ -1623,12 +1571,6 @@ QPushButton:pressed {
          </item>
          <item>
           <widget class="QPushButton" name="follow_stop">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>206</width>

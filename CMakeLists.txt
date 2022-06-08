@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing")
-set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -Wno-trigraphs")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad SerialPort  REQUIRED)
@@ -48,16 +48,16 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_exc.hpp
-    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Instruction.hpp
-    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/isa.hpp
-    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc/Variable.hpp
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/isa.hpp
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp
     ${PROJECT_SOURCE_DIR}/lib/BaseTranslationAxis.hpp
     ${PROJECT_SOURCE_DIR}/lib/noSignal.hpp
 )
 
 set(INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension
-    ${PROJECT_SOURCE_DIR}/lib/libRASM/Assembler/inc
+    ${PROJECT_SOURCE_DIR}/lib/libRASM/inc
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include
     ${PROJECT_SOURCE_DIR}/lib
 )
@@ -101,7 +101,7 @@ else()
 endif()
 
 
-target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort)
+target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort quirc)
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
@@ -116,7 +116,7 @@ if(APPLE)
     )
 endif()
 
-target_link_libraries(RobotDashboard PUBLIC ${OpenCV_LIBS})
+target_link_libraries(RobotDashboard PUBLIC quirc qtqrencode ${OpenCV_LIBS} )
 
 
 if(QT_VERSION_MAJOR EQUAL 6)

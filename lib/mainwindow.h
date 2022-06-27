@@ -72,6 +72,10 @@ class MainWindow : public QMainWindow
         VideoCapture *camera = nullptr;
         cv::ErrorCallback camera_error_handler(int status, const char* func_name, const char* err_msg, 
                    const char* file_name, int line, void*);
+        
+        std::vector<Instruction> instruction_queue;
+        std::vector<Instruction> interrupt_vector;
+        bool interrupt = false, active = true;
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -99,7 +103,7 @@ class MainWindow : public QMainWindow
         void update_stick();
         //void poll_joystick();
         
-        void RASM_Interpreter(const std::vector <float> home_position, const std::vector<Instruction> program = std::vector<Instruction>());
+        void RASM_Interpreter(const std::vector <float>, const std::vector<Instruction>&, const std::vector<Instruction>&, bool&, bool&);
         void camera_restarter();
         bool joystick_hotplug_detect();
         

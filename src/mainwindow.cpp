@@ -2,13 +2,6 @@
 #include "ui_mainwindow.h"
 #include "noSignal.hpp"
 
-int handleError(int status, const char *func_name,
-                const char *err_msg, const char *file_name,
-                int line, void *userdata)
-{
-    // Do nothing -- will suppress console output
-    return 0; // Return value is not used
-}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -70,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent)
     {
         connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(capture()));
     }
-    cv::redirectError(handleError);
 
     connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(joystick_hotplug_detect()));
 
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
     dev.toggleTorque(true);
 }
 

@@ -303,10 +303,9 @@ void MainWindow::capture() // this is 2am code.
 
         quirc_extract(decoder, 0, &code);
         quirc_decode(&code, &data);
-
-        std::string bufdecode((char *)&data.payload);
+        std::string buffer ((char*)&data.payload);
         uint16_t checksum = 0;
-        for (const char &c : bufdecode)
+        for (const char &c : buffer)
         {
             if (c != ' ')
             {
@@ -314,12 +313,12 @@ void MainWindow::capture() // this is 2am code.
             }
             else
             {
-                if ((std::to_string(checksum) == bufdecode.substr(bufdecode.find_last_of(" ") + 1)))
+                if ((std::to_string(checksum) == buffer.substr(buffer.find_last_of(" ") + 1)))
                 {
                     switch (QMessageBox::question(
                         this,
                         tr("Open program?"),
-                        tr(("Launch program " + bufdecode.substr(0, bufdecode.find(" ")) + " ?").c_str()),
+                        tr(("Launch program " + buffer.substr(0, buffer.find(" ")) + " ?").c_str()),
 
                         QMessageBox::Yes |
                             QMessageBox::No |
@@ -330,7 +329,7 @@ void MainWindow::capture() // this is 2am code.
                     case QMessageBox::Yes:
                         manual_program.clear();
                         prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
-                        filename = QString(("./programs/" + bufdecode.substr(0, bufdecode.find(" ")) + ".bin").c_str());
+                        filename = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
                         break;
                     }
                     break;

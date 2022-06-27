@@ -4,3 +4,6 @@
 [submodule "lib/libRASM"]
 	path = lib/libRASM
 	url = https://github.com/jtmaston/RASM.git
+[submodule "lib/libQuirc"]
+	path = lib/libQuirc
+	url = https://github.com/dlbeer/quirc.git

@@ -23,12 +23,7 @@
 #include <quirc.h>
 
 
-
-#ifdef __ARM_NEON
-#include <linux/videodev.h>
-#else
 #include <libv4l1-videodev.h>
-#endif
 
 //#include "lib/libjoystick/joystick.hh"
 #include "Instruction.hpp"

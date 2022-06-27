@@ -17,14 +17,19 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing")
-set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -Wno-trigraphs")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing -Wno-trigraphs -no-pie")
+set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -Wno-trigraphs -no-pie")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad SerialPort  REQUIRED)
 
 find_package( OpenCV REQUIRED )
 
+add_library(
+    quirc
+    STATIC
+    ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/decode.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/identify.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/quirc.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/version_db.c
+)
 
 set(TS_FILES extra/RobotDashBoard_en_US.ts extra/RobotDashBoard_ro_ro.ts)
 
@@ -32,7 +37,6 @@ qt5_create_translation(TS_FILES)
 
 add_subdirectory(lib/libRobot)
 add_subdirectory(lib/libRASM)
-
 
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/main.cpp
@@ -60,16 +64,12 @@ set(INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include
     ${PROJECT_SOURCE_DIR}/lib
+    ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib
 )
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${INCLUDE_DIRS})
 set(CMAKE_AUTOMOC_SEARCH_PATHS ${INCLUDE_DIRS})
 set(CMAKE_AUTORCC_SEARCH_PATHS ${INCLUDE_DIRS})
-
-#include_directories(
-#    ${INCLUDES}
-#    ${OpenCV_INCLUDE_DIRS}
-#)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
@@ -100,24 +100,9 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-
-target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort quirc)
-
-if(UNIX AND NOT APPLE)
-    target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
-endif()
-if(APPLE)
-    set_target_properties(RobotDashboard PROPERTIES
-        MACOSX_BUNDLE_GUI_IDENTIFIER com.jtmaston.site
-        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        MACOSX_BUNDLE TRUE
-        WIN32_EXECUTABLE TRUE
-    )
-endif()
-
-target_link_libraries(RobotDashboard PUBLIC quirc qtqrencode ${OpenCV_LIBS} )
-
+target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort)
+target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
+target_link_libraries(RobotDashboard PUBLIC quirc ${OpenCV_LIBS} )
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(RobotDashboard)

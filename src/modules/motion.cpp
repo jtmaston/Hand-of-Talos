@@ -1,6 +1,8 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
+
+
 void MainWindow::command() // get the values from the sliders, then write them on the bus
 {
     float32_t angles[6];
@@ -22,14 +24,12 @@ void MainWindow::command() // get the values from the sliders, then write them o
     {
         base.move(ui->increment_t->value());
     }
-    
-    Instruction target;
-    target.opcode = TGT;
     Instruction move;
     move.opcode = ANGS;
     move.params[0] = 8192;
     memmove(move.params + 1, angles, 6 * sizeof(float));
-    instruction_queue.push_back(std::move(move));
+    instruction_queue -> push_back(std::move(move));
+    anti_freewheel.unlock();
 }
 
 void MainWindow::halt()

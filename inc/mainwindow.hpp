@@ -28,10 +28,12 @@
 #include "isa.hpp"
 #include "Variable.hpp"
 #include "BaseTranslationAxis.hpp"
+#include "Image.hpp"
 
 #include <fstream>
 #include <exception>
-#include "noSignal.hpp"
+
+#include <mutex>
 
 using namespace cv;
 
@@ -68,12 +70,10 @@ class MainWindow : public QMainWindow
         void go_home();
         uint8_t detect_camera();
         VideoCapture *camera = nullptr;
-        cv::ErrorCallback camera_error_handler(int status, const char* func_name, const char* err_msg, 
-                   const char* file_name, int line, void*);
         
-        std::vector<Instruction> instruction_queue;
-        std::vector<Instruction> interrupt_vector;
-        bool interrupt = false, active = true;
+        std::vector<Instruction>* instruction_queue;
+        std::vector<Instruction>* interrupt_vector;
+        bool interrupt = false, active = true, nodelay = false;
 
         void init_peripherals();
         void init_signals();
@@ -105,9 +105,11 @@ class MainWindow : public QMainWindow
         void update_stick();
         //void poll_joystick();
         
-        void RASM_Interpreter(const std::vector <float>, const std::vector<Instruction>&, const std::vector<Instruction>&, bool&, bool&);
+        void RASM_Interpreter(const std::vector <float>, std::vector<Instruction>*, std::vector<Instruction>*, bool*, bool*);
         void camera_restarter();
         bool joystick_hotplug_detect();
+        void update_viewfinder();
+        void postprocess();
         
 
     private:
@@ -135,13 +137,17 @@ class MainWindow : public QMainWindow
 
 
         QFuture<void> cam_thread;
+        QFuture<void> process_thread;
+
         QFuture<void> learn_thread;
-        QFuture<void> joy_thread;
         QFuture<void> prog_thread;
         std::vector<Instruction> manual_program;
-        cv::Mat prev;
+        cv::Mat frame;
 
         void toggle_jog();
+        std::mutex anti_freewheel;
+        std::mutex synchroMesh;
+        std::mutex displaySync;
 
 
 };

@@ -40,6 +40,7 @@ void MainWindow::init_signals()
     connect(ui->grip_r, &QSlider::valueChanged, ui->increment_6, &QDoubleSpinBox::setValue);    //  >>
 
     connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(joystick_hotplug_detect()));               // start the hotplug detect of the joystick
+    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(update_viewfinder()));
 
     Scheduler_100ms->start(100);
     Scheduler_16ms->start(33);

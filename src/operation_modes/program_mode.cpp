@@ -4,6 +4,9 @@
 void MainWindow::program()
 {
     manual_program.clear();
+
+    
+
     //prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
     //FIXME:
 }

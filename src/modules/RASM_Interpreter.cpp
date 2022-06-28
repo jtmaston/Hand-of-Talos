@@ -1,23 +1,23 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const std::vector<Instruction> &program_stack,
-                                  const std::vector<Instruction> &interrupt_vector, bool &running, bool &interrupt) // TODO: memory optimizations
+void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::vector<Instruction>* program_stack,
+                                   std::vector<Instruction>* interrupt_vector, bool *running, bool *interrupt) // TODO: memory optimizations
 {
 
-    std::vector<variable::Numeric> numeric_variables;
-    std::vector<variable::Target> target_variables;
+    std::vector<variable::Numeric> numeric_variables;    std::vector<variable::Target> target_variables;
 
     std::cout << "[INFO] Interpreter active!\n";
-
-    while (running)
+    
+    while (*running)
     {
-        int program_size = program_stack.size();
+        anti_freewheel.lock();
+        int program_size = program_stack -> size();
         int program_counter = 0;
-        while ((program_counter < program_size) && running)
+        while ((program_counter <program_size) && *running)
         {
-            Instruction instruction = program_stack.at(program_counter);
-            switch (program_stack.at(program_counter).opcode)
+            Instruction instruction = program_stack->at(program_counter);
+            switch (program_stack->at(program_counter).opcode)
             {
             case ANG:
                 switch (static_cast<int>(instruction.params[0]))
@@ -51,24 +51,17 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
                 {
                     case 8192:
                     {
-                        ui->increment_1->setValue(instruction.params[1]);
-                        ui->increment_2->setValue(instruction.params[2]);
-                        ui->increment_3->setValue(instruction.params[3]);
-                        ui->increment_4->setValue(instruction.params[4]);
-                        ui->increment_5->setValue(instruction.params[5]);
+                        dev.servo_write6(instruction.params + 1, time_mod);
+                        break;
                     }
-                    default:
+                    default:                                // in theory, this *should* maintain backwards compatibility with older programs. Maybe.
                     {
-                        ui->increment_1->setValue(target_variables.at(instruction.params[0]).angles[0]);
-                        ui->increment_2->setValue(target_variables.at(instruction.params[0]).angles[1]);
-                        ui->increment_3->setValue(target_variables.at(instruction.params[0]).angles[2]);
-                        ui->increment_4->setValue(target_variables.at(instruction.params[0]).angles[3]);
-                        ui->increment_5->setValue(target_variables.at(instruction.params[0]).angles[4]);
-                        // ui->increment_6->setValue(target_variables.at(instruction.params[0]].angles[5]);
+                        dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod);
+                        break;
                     }
                 }
-                
-                usleep(time_mod * 1000);
+                if (!nodelay)
+                    usleep(time_mod * 1000);
                 break;
 
             case DEL:
@@ -246,12 +239,11 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
             }
             program_counter++;
         }
+        program_stack->clear();
     }
-    following_program = false;
-    filename.clear();
-    numeric_variables.clear();
-    target_variables.clear();
-    toggle_jog();
+    
+    std::cout << "[INFO] Exited interpreter!\n";
+
     return;
 }
 

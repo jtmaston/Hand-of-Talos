@@ -12,21 +12,25 @@ MainWindow::MainWindow(QWidget *parent)
     init_signals();
     init_peripherals();
 
+    instruction_queue = new std::vector<Instruction>;
+
     running = true;
-    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, instruction_queue, interrupt_vector, running, active);
+    nodelay = true;
+    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, instruction_queue, interrupt_vector, &running, &active);
     dev.toggleTorque(true);
 }
 
 MainWindow::~MainWindow()
 {
     running = false;
+    anti_freewheel.unlock();
     cam_thread.waitForFinished();
-    joy_thread.waitForFinished();
     prog_thread.waitForFinished();
 
     uint8_t cmd[] = {0x07, 0};
     write(dev.led_bus, cmd, 2);
     quirc_destroy(decoder);
+    delete instruction_queue;     // FIXME: placement of this here is dangerous and will result in segfault!
     delete joystick;
     delete ui;
 }

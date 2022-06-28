@@ -22,17 +22,14 @@
 #include <iostream>
 #include <quirc.h>
 
-
 #include <libv4l1-videodev.h>
 
-//#include "lib/libjoystick/joystick.hh"
 #include "Instruction.hpp"
 #include "isa.hpp"
 #include "Variable.hpp"
 #include "BaseTranslationAxis.hpp"
 
 #include <fstream>
-#include <cmath>
 #include <exception>
 
 using namespace cv;
@@ -76,6 +73,10 @@ class MainWindow : public QMainWindow
         std::vector<Instruction> instruction_queue;
         std::vector<Instruction> interrupt_vector;
         bool interrupt = false, active = true;
+
+        void init_peripherals();
+        void init_signals();
+
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar

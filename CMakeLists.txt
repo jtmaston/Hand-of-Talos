@@ -40,14 +40,30 @@ add_subdirectory(lib/libRASM)
 
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/RASM_Interpreter.cpp
     ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp
-    ${PROJECT_SOURCE_DIR}/src/BaseTranslationAxis.cpp
+
+    ${PROJECT_SOURCE_DIR}/src/init/peripherals.cpp
+    ${PROJECT_SOURCE_DIR}/src/init/signals.cpp
+
+    ${PROJECT_SOURCE_DIR}/src/modules/ui.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/camera.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/BaseTranslationAxis.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/motion.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/RASM_Interpreter.cpp
+
+    ${PROJECT_SOURCE_DIR}/src/operation_modes/tracking_mode.cpp
+    ${PROJECT_SOURCE_DIR}/src/operation_modes/jog_mode.cpp
+    ${PROJECT_SOURCE_DIR}/src/operation_modes/learn_mode.cpp
+    ${PROJECT_SOURCE_DIR}/src/operation_modes/program_mode.cpp
+    
 )
 
 set(HEADERS
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.h
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.ui
+    ${PROJECT_SOURCE_DIR}/inc/mainwindow.hpp
+    ${PROJECT_SOURCE_DIR}/inc/mainwindow.ui
+    ${PROJECT_SOURCE_DIR}/inc/noSignal.hpp
+    ${PROJECT_SOURCE_DIR}/inc/BaseTranslationAxis.hpp
+
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
@@ -55,8 +71,7 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/isa.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp
-    ${PROJECT_SOURCE_DIR}/lib/BaseTranslationAxis.hpp
-    ${PROJECT_SOURCE_DIR}/lib/noSignal.hpp
+    
 )
 
 set(INCLUDE_DIRS
@@ -65,6 +80,7 @@ set(INCLUDE_DIRS
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include
     ${PROJECT_SOURCE_DIR}/lib
     ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib
+    ${PROJECT_SOURCE_DIR}/inc
 )
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${INCLUDE_DIRS})

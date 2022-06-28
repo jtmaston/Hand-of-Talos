@@ -1,68 +1,23 @@
-#include "mainwindow.h"
+#include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const std::vector<Instruction> &program_stack,
                                   const std::vector<Instruction> &interrupt_vector, bool &running, bool &interrupt) // TODO: memory optimizations
 {
-    following_program = !following_program;
-    toggle_jog();
-    dev.toggleTorque(true);
 
-    std::vector<Instruction> program;
     std::vector<variable::Numeric> numeric_variables;
     std::vector<variable::Target> target_variables;
 
-    /*switch (instructions.size())
-    {
-    case 0:
-    {
-        fileopen = true;
-
-        while (filename.length() == 0 && following_program)
-        {}
-
-        fileopen = false;
-
-        std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
-
-        std::string progname;
-        std::string progsize_s;
-
-        input_file >> progname;
-        size_t progsize;
-        input_file >> progsize;
-
-        input_file.get(); // remove trailing \n
-        uint16_t read_size = 0;
-        while (read_size < progsize)
-        {
-            char *chunk = new char[sizeof(Instruction)];
-            input_file.read(chunk, sizeof(Instruction));
-            program.push_back(std::move(*(Instruction *)chunk));
-            delete[] chunk;
-            read_size += sizeof(Instruction);
-        }
-        break;
-    }
-    default:
-    {
-        program = instructions;
-        break;
-    }
-    }
-    std::cout << "In interpreter\n";
-    int program_counter = 0;
-    int program_size = program.size();
-    */
+    std::cout << "[INFO] Interpreter active!\n";
 
     while (running)
     {
-
-        while ((program_counter < program_size) && following_program)
+        int program_size = program_stack.size();
+        int program_counter = 0;
+        while ((program_counter < program_size) && running)
         {
-            Instruction instruction = program[program_counter];
-
-            switch (program[program_counter].opcode)
+            Instruction instruction = program_stack.at(program_counter);
+            switch (program_stack.at(program_counter).opcode)
             {
             case ANG:
                 switch (static_cast<int>(instruction.params[0]))
@@ -92,12 +47,27 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
                 break;
 
             case ANGS:
-                ui->increment_1->setValue(target_variables[instruction.params[0]].angles[0]);
-                ui->increment_2->setValue(target_variables[instruction.params[0]].angles[1]);
-                ui->increment_3->setValue(target_variables[instruction.params[0]].angles[2]);
-                ui->increment_4->setValue(target_variables[instruction.params[0]].angles[3]);
-                ui->increment_5->setValue(target_variables[instruction.params[0]].angles[4]);
-                // ui->increment_6->setValue(target_variables[instruction.params[0]].angles[5]);
+                switch((int) instruction.params[0])
+                {
+                    case 8192:
+                    {
+                        ui->increment_1->setValue(instruction.params[1]);
+                        ui->increment_2->setValue(instruction.params[2]);
+                        ui->increment_3->setValue(instruction.params[3]);
+                        ui->increment_4->setValue(instruction.params[4]);
+                        ui->increment_5->setValue(instruction.params[5]);
+                    }
+                    default:
+                    {
+                        ui->increment_1->setValue(target_variables.at(instruction.params[0]).angles[0]);
+                        ui->increment_2->setValue(target_variables.at(instruction.params[0]).angles[1]);
+                        ui->increment_3->setValue(target_variables.at(instruction.params[0]).angles[2]);
+                        ui->increment_4->setValue(target_variables.at(instruction.params[0]).angles[3]);
+                        ui->increment_5->setValue(target_variables.at(instruction.params[0]).angles[4]);
+                        // ui->increment_6->setValue(target_variables.at(instruction.params[0]].angles[5]);
+                    }
+                }
+                
                 usleep(time_mod * 1000);
                 break;
 
@@ -179,23 +149,23 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
                 switch (static_cast<int>(instruction.params[1]))
                 {
                 case LE:
-                    if (numeric_variables[instruction.params[0]].value <= numeric_variables[instruction.params[2]].value)
+                    if (numeric_variables.at(instruction.params[0]).value <= numeric_variables.at(instruction.params[2]).value)
                         program_counter = instruction.params[3] - 1;
                     break;
                 case L:
-                    if (numeric_variables[instruction.params[0]].value < numeric_variables[instruction.params[2]].value)
+                    if (numeric_variables.at(instruction.params[0]).value < numeric_variables.at(instruction.params[2]).value)
                         program_counter = instruction.params[3] - 1;
                     break;
                 case GE:
-                    if (numeric_variables[instruction.params[0]].value >= numeric_variables[instruction.params[2]].value)
+                    if (numeric_variables.at(instruction.params[0]).value >= numeric_variables.at(instruction.params[2]).value)
                         program_counter = instruction.params[3] - 1;
                     break;
                 case G:
-                    if (numeric_variables[instruction.params[0]].value > numeric_variables[instruction.params[2]].value)
+                    if (numeric_variables.at(instruction.params[0]).value > numeric_variables.at(instruction.params[2]).value)
                         program_counter = instruction.params[3] - 1;
                     break;
                 case EQ:
-                    if (numeric_variables[instruction.params[0]].value == numeric_variables[instruction.params[2]].value)
+                    if (numeric_variables.at(instruction.params[0]).value == numeric_variables.at(instruction.params[2]).value)
                         program_counter = instruction.params[3] - 1;
                     break;
                 }
@@ -211,7 +181,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
                     std::cout << instruction.params[0] << " " << numeric_variables.size() << '\n';
                     numeric_variables.reserve(numeric_variables.size() + 1);
                 }
-                numeric_variables[instruction.params[0]].value = instruction.params[1];
+                numeric_variables.at(instruction.params[0]).value = instruction.params[1];
                 break;
             }
 
@@ -228,49 +198,49 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
 
             case ADD:
             {
-                numeric_variables[instruction.params[0]].value =
-                    numeric_variables[instruction.params[1]].value +
-                    numeric_variables[instruction.params[2]].value;
+                numeric_variables.at(instruction.params[0]).value =
+                    numeric_variables.at(instruction.params[1]).value +
+                    numeric_variables.at(instruction.params[2]).value;
                 break;
             }
             case PRT:
             {
-                std::cout << numeric_variables[instruction.params[0]].value << '\n';
+                std::cout << numeric_variables.at(instruction.params[0]).value << '\n';
                 std::cout.flush();
                 break;
             }
             case SUB:
             {
-                numeric_variables[instruction.params[0]].value =
-                    numeric_variables[instruction.params[1]].value -
-                    numeric_variables[instruction.params[2]].value;
+                numeric_variables.at(instruction.params[0]).value =
+                    numeric_variables.at(instruction.params[1]).value -
+                    numeric_variables.at(instruction.params[2]).value;
                 break;
             }
             case DIV:
             {
-                numeric_variables[instruction.params[0]].value = floor(
-                    numeric_variables[instruction.params[1]].value /
-                    numeric_variables[instruction.params[2]].value);
+                numeric_variables.at(instruction.params[0]).value = floor(
+                    numeric_variables.at(instruction.params[1]).value /
+                    numeric_variables.at(instruction.params[2]).value);
                 break;
             }
             case FDIV:
             {
-                numeric_variables[instruction.params[0]].value =
-                    numeric_variables[instruction.params[1]].value /
-                    numeric_variables[instruction.params[2]].value;
+                numeric_variables.at(instruction.params[0]).value =
+                    numeric_variables.at(instruction.params[1]).value /
+                    numeric_variables.at(instruction.params[2]).value;
                 break;
             }
 
             case SQRT:
             {
-                numeric_variables[instruction.params[0]].value = sqrt(
-                    numeric_variables[instruction.params[0]].value);
+                numeric_variables.at(instruction.params[0]).value = sqrt(
+                    numeric_variables.at(instruction.params[0]).value);
                 break;
             }
 
             case TRNC:
             {
-                numeric_variables[instruction.params[0]].value = floor(numeric_variables[instruction.params[0]].value);
+                numeric_variables.at(instruction.params[0]).value = floor(numeric_variables.at(instruction.params[0]).value);
                 break;
             }
             }
@@ -279,9 +249,53 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
     }
     following_program = false;
     filename.clear();
-    program.clear();
     numeric_variables.clear();
     target_variables.clear();
     toggle_jog();
     return;
 }
+
+
+/*
+    switch (instructions.size())
+    {
+    case 0:
+    {
+        fileopen = true;
+
+        while (filename.length() == 0 && following_program)
+        {}
+
+        fileopen = false;
+
+        std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
+
+        std::string progname;
+        std::string progsize_s;
+
+        input_file >> progname;
+        size_t progsize;
+        input_file >> progsize;
+
+        input_file.get(); // remove trailing \n
+        uint16_t read_size = 0;
+        while (read_size < progsize)
+        {
+            char *chunk = new char[sizeof(Instruction)];
+            input_file.read(chunk, sizeof(Instruction));
+            program.push_back(std::move(*(Instruction *)chunk));
+            delete[] chunk;
+            read_size += sizeof(Instruction);
+        }
+        break;
+    }
+    default:
+    {
+        program = instructions;
+        break;
+    }
+    }
+    std::cout << "In interpreter\n";
+    int program_counter = 0;
+    int program_size = program.size();
+    */

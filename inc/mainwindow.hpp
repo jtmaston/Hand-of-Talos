@@ -31,6 +31,7 @@
 
 #include <fstream>
 #include <exception>
+#include "noSignal.hpp"
 
 using namespace cv;
 

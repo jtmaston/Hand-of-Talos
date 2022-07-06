@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     init_signals();
     init_peripherals();
+    init_device();
 
     instruction_queue = new std::vector<Instruction>;
 

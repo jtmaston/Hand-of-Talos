@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QtGamepad/QGamepad>
 #include <QMessageBox>
+#include <QSlider>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -63,6 +64,7 @@ class MainWindow : public QMainWindow
         Rect red;
         Rect green;
         Rect blue;
+
         bool running;
         QString filename;
         struct quirc *decoder;
@@ -77,7 +79,9 @@ class MainWindow : public QMainWindow
 
         void init_peripherals();
         void init_signals();
+        void init_device();
 
+        QSlider* slider_array[6];
 
     public slots:
         void toggle_learn_bar();                        // hides or shows the learn bar
@@ -103,7 +107,6 @@ class MainWindow : public QMainWindow
         void check_if_filedialog();
 
         void update_stick();
-        //void poll_joystick();
         
         void RASM_Interpreter(const std::vector <float>, std::vector<Instruction>*, std::vector<Instruction>*, bool*, bool*);
         void camera_restarter();

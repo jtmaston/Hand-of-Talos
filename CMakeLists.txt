@@ -46,6 +46,7 @@ set(SOURCES
 
     ${PROJECT_SOURCE_DIR}/src/init/peripherals.cpp
     ${PROJECT_SOURCE_DIR}/src/init/signals.cpp
+    ${PROJECT_SOURCE_DIR}/src/init/device.cpp
 
     ${PROJECT_SOURCE_DIR}/src/modules/ui.cpp
     ${PROJECT_SOURCE_DIR}/src/modules/camera.cpp

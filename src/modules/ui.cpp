@@ -36,17 +36,33 @@ void MainWindow::set_learn_bar_visibility(bool state) // hide the learn bar, by 
 void MainWindow::update_axes() // this updates the axes display
 {
     float32_t *data = dev.servo_readall(); // read the values from all of the servos
-    // dev.angles = data;
-    dev.angles.reserve(7); // TODO: prevent this preallocation from happening on each call
 
-    dev.angles[0] = data[0] - dev.home_position[0];
-    dev.angles[1] = -(data[1] - dev.home_position[1]);
-    dev.angles[2] = -(data[2] - dev.home_position[2]);
-    dev.angles[3] = -(data[3] - dev.home_position[3] + 170);
-    dev.angles[4] = data[4] - dev.home_position[4];
-    dev.angles[5] = data[5] - dev.home_position[5];
 
-    // memcpy(dev.angles.data(), data, 6 * sizeof(float32_t));
+    for (int i = 0; i < 6; i++)
+    {
+        switch (i + 1)
+        {
+        case 1:
+        case 6:
+            dev.angles[i] = data[i] - dev.home_position[i];
+            break;
+        case 2:
+        case 3:
+            dev.angles[i] = -(data[i] - dev.home_position[i]);
+            dev.angles[i] = -(data[i] - dev.home_position[i]);
+            break;
+
+        case 4:
+            dev.angles[i] = -data[i];
+            break;
+        
+        case 5:
+            dev.angles[i] = data[i] - dev.home_position[i];
+            break;
+
+        }
+
+    }
 
     ui->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(dev.angles[0]).substr(0, 5) + "°").c_str()); // and set the strings for
     ui->a2_d->setText(std::string(std::string("Axis 2: ") + std::to_string(dev.angles[1]).substr(0, 5) + "°").c_str()); // the labels

@@ -25,11 +25,11 @@ void MainWindow::capture() // this is 2am code.
     auto start = high_resolution_clock::now();
     while (running)
     {
-        start = high_resolution_clock::now();
+        //start = high_resolution_clock::now();
         int read = camera->read(frame);
 
-        auto end = high_resolution_clock::now();
-        std::cout << duration<double, std::milli>(end - start).count() << '\n';
+        //auto end = high_resolution_clock::now();
+        //std::cout << duration<double, std::milli>(end - start).count() << '\n';
 
         if (frame.empty() || !read)
         {

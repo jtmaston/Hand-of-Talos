@@ -68,7 +68,7 @@ void MainWindow::camera_restarter()
     {
         if (camera->open(i, CAP_V4L2))
         {
-            // //std::cout << "Camera at /dev/video" << i << " available\n";
+            std::cout << "Camera at /dev/video" << i << " available\n";
             disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(camera_restarter()));
             cam_thread.waitForFinished();
             std::cout << "Restarting!\n";

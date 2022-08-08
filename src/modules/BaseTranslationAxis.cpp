@@ -22,9 +22,12 @@ BaseTranslationAxis::BaseTranslationAxis()
     if(!active)
     {
         std::cerr << "[ ERROR ]: Serial port init failed!";
+    }else
+    {
+        connect(&port, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);
     }
 
-    connect(&port, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);
+    
 
     //return 0;
 }

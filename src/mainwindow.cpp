@@ -13,10 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     init_peripherals();
     init_device();
 
+
     instruction_queue = new std::vector<Instruction>;
 
     running = true;
     nodelay = true;
+    this->time_mod = 5000;
     prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, instruction_queue, interrupt_vector, &running, &active);
     dev.toggleTorque(true);
 }

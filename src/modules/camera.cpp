@@ -20,6 +20,7 @@ void MainWindow::update_viewfinder()
 
 void MainWindow::capture() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
+
     int connected = true;
 
     auto start = high_resolution_clock::now();

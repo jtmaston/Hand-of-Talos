@@ -14,10 +14,11 @@ class BaseTranslationAxis : public QObject
         ~BaseTranslationAxis();
         void move(int range);
         int position;
+        bool active;
 
     private:
         bool detect();
-        bool active;
+        
         QSerialPort port;
         bool moving;
     

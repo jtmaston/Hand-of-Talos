@@ -29,7 +29,7 @@ void MainWindow::init_signals()
     connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stop_follow()));           //  >>
 
     connect(ui->halt_btn, SIGNAL(clicked()), SLOT(halt()));                     // << 
-    connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));                       //      top buttons
+    //connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));                       //      top buttons
     connect(ui->load_btn, SIGNAL(clicked()), SLOT(program()));                  // >>
 
     connect(ui->base_r, &QSlider::valueChanged, ui->increment_1, &QDoubleSpinBox::setValue);    //  <<

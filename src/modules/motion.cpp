@@ -20,7 +20,7 @@ void MainWindow::command() // get the values from the sliders, then write them o
     ui->a5_r->setValue(static_cast<int>(ui->increment_5->value()));
     ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
-    if (base.position != ui->increment_t->value())
+    if (base.position != ui->increment_t->value() && base.active)
     {
         base.move(ui->increment_t->value());
     }

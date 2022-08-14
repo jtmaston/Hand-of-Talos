@@ -22,8 +22,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -W
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad SerialPort  REQUIRED)
+#find_package( OpenCV REQUIRED )
 
-find_package( OpenCV REQUIRED )
+add_library(OpenCV STATIC IMPORTED)
+include_directories(/usr/local/include/opencv4/)
+
 
 add_library(
     quirc

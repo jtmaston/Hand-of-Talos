@@ -12,7 +12,7 @@ using std::chrono::milliseconds;
 
 void MainWindow::update_viewfinder()
 {
-    displaySync.lock();
+    //displaySync.lock();
     QImage qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
     ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     ui->viewfinder->updateGeometry();
@@ -23,14 +23,16 @@ void MainWindow::capture() // this is 2am code.
 
     int connected = true;
 
-    auto start = high_resolution_clock::now();
     while (running)
     {
-        //start = high_resolution_clock::now();
-        int read = camera->read(frame);
+        if ( process_thread.isFinished() )
+        {
+            process_thread = QtConcurrent::run(this, &MainWindow::postprocess);
+            std::cout << "Warning! Lost postprocessor. Restarted.\n";
+        }
+            
 
-        //auto end = high_resolution_clock::now();
-        //std::cout << duration<double, std::milli>(end - start).count() << '\n';
+        int read = camera->read(frame);
 
         if (frame.empty() || !read)
         {
@@ -46,10 +48,19 @@ void MainWindow::capture() // this is 2am code.
 void MainWindow::postprocess()
 {
     cv::Mat bw;
+
+    std::cout << "here";
+
     while (running)
     {
-        synchroMesh.lock();
 
+        if(!cam_thread.isRunning())
+        {
+            std::cout << "Whoops! We have no input!";
+            return;
+        }
+        synchroMesh.lock();
+            
         int w;
         int h;
         uint8_t *buf = quirc_begin(decoder, &w, &h);

@@ -61,9 +61,12 @@ void MainWindow::camera_restarter()
 {
     extern Image NoSignal;
     QImage qt_image = QImage((const unsigned char *)(NoSignal.pixel_data), NoSignal.width, NoSignal.height, QImage::Format_RGB888);
-    qt_image = qt_image.scaled(751, 481);
-    ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
-    ui->viewfinder->updateGeometry();
+    
+    if(frame.empty())
+        frame = cv::Mat ( NoSignal.height, NoSignal.width, CV_8UC3, (unsigned char* ) NoSignal.pixel_data );
+
+    cv::resize(frame, frame, Size(751, 481));
+
     for (int i = 0; i < 10; i++)
     {
         if (camera->open(i, CAP_V4L2))
@@ -72,7 +75,13 @@ void MainWindow::camera_restarter()
             disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(camera_restarter()));
             cam_thread.waitForFinished();
             std::cout << "Restarting!\n";
+            std::cout << "Waiting for process thread to die: \n";
+            synchroMesh.unlock();
+            process_thread.waitForFinished();
+            std::cout << "Exited! \n";
             cam_thread = QtConcurrent::run(this, &MainWindow::capture);
+            process_thread = QtConcurrent::run(this, &MainWindow::postprocess);
+            std::cout << "Done launching threads\n";
             return;
         }
     }

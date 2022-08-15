@@ -1,6 +1,10 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
+void arbitrator()
+{
+    
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)

@@ -7,6 +7,3 @@
 [submodule "lib/libQuirc"]
 	path = lib/libQuirc
 	url = https://github.com/dlbeer/quirc.git
-[submodule "lib/opencv"]
-	path = lib/opencv
-	url = https://github.com/Qengineering/Install-OpenCV-Raspberry-Pi-64-bits.git

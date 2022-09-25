@@ -1,9 +1,9 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::program()
+void MainWindow::runProgram()
 {
-    manual_program.clear();
+    manualProgramStack_.clear();
 
     
 
@@ -11,17 +11,17 @@ void MainWindow::program()
     //FIXME:
 }
 
-void MainWindow::check_if_filedialog()
+void MainWindow::checkForFileIngress()
 {
-    if (fileopen)
+    if (hasFileOpen_)
     {
-        filename = QFileDialog::getOpenFileName(this,
+        incomingFilename_ = QFileDialog::getOpenFileName(this,
                                                 "Pick the program file: ", "./", "Compiled robot Assembly Files (*.bin)");
 
-        if (filename.size() == 0)
+        if (incomingFilename_.size() == 0)
         {
-            following_program = false;
-            fileopen = false;
+            runningProgram_ = false;
+            hasFileOpen_ = false;
         }
     }
 }

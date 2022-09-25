@@ -23,7 +23,7 @@
 #include <iostream>
 #include <quirc.h>
 
-#include <libv4l1-videodev.h>
+#include <linux/videodev.h>
 
 #include "Instruction.hpp"
 #include "isa.hpp"
@@ -35,6 +35,7 @@
 #include <exception>
 
 #include <mutex>
+#include "Logger.hpp"
 
 using namespace cv;
 
@@ -51,6 +52,8 @@ QT_END_NAMESPACE
 #define HIDDEN false
 #define VISIBLE true;
 
+         // FIXME: move somewhere else | FIXME: rename
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -59,98 +62,108 @@ class MainWindow : public QMainWindow
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
 
-        int dir = 0;
+        int trackingDirection_ = 0;
 
-        Rect red;
-        Rect green;
-        Rect blue;
+        Rect redBoundingBox_;
+        Rect greenBoundingBox_;
+        Rect blueBoundingBox_;
 
-        bool running;
-        QString filename;
-        struct quirc *decoder;
+        bool applicationIsRunning_;
+        QString incomingFilename_;
+        struct quirc *qrDecoder_;
 
-        void go_home();
-        uint8_t detect_camera();
-        VideoCapture *camera = nullptr;
+        void goToHomePosition();
+        VideoCapture *robotCamera_ = nullptr;
         
-        std::vector<Instruction>* instruction_queue;
-        std::vector<Instruction>* interrupt_vector;
-        bool interrupt = false, active = true, nodelay = false;
+        std::vector<Instruction>* instructionQueue_;
+        bool waitForMoveComplete_;
 
-        void init_peripherals();
-        void init_signals();
-        void init_device();
+        void initPeripherals();
+        void initSignals();
+        void initDevice();
 
-        QSlider* slider_array[6];
+        QSlider* uiSliderArray_[6];
+
+
+        bool learnModeActive_ = 0;
 
     public slots:
-        void toggle_learn_bar();                        // hides or shows the learn bar
-        void toggle_camera_bar();                       // hides or shows the camera bar
-        void update_axes();                             // prints the axes onto the display
-        void command();                                 // issues the commands to the axes
+        void toggleLearnBar();                        // hides or shows the learn bar
+        void toggleCameraBar();                       // hides or shows the camera bar
+        void updateAxisDisplay();                             // prints the axes onto the display
+        void moveToPosition();                                 // issues the commands to the axes
 
-        void learn();                                   // go to learn mode
-        void add_step();                                // memorize coordinates for direct learning
-        void remove_step();                             // remove coordinate from direct learning
-        void follow_path();                             // execute the memorized coordinates
-        void capture();
+        void startLearnMode();                                   // go to learn mode
+        void addStep();                                // memorize coordinates for direct learning
+        void removeStep();                             // remove coordinate from direct learning
+        void startFollowingPath();                             // execute the memorized coordinates
 
-        void follow();
-        void halt();
+        void getFrame();
 
-        void start_follow_red();
-        void start_follow_blue();
-        void start_follow_green();
-        void stop_follow();
-        void jog();
-        void program();
-        void check_if_filedialog();
+        void startColorTracking();
+        void emergencyStop();
+        void setTrackingColorRed();
+        void setTrackingColorBlue();
+        void setTrackingColorGreen();
+        void stopTracking();
 
-        void update_stick();
+        void startJogging();
+        void updateJoystickPosition();
+        bool detectJoystickHotplug();
         
-        void RASM_Interpreter(const std::vector <float>, std::vector<Instruction>*, std::vector<Instruction>*, bool*, bool*);
-        void camera_restarter();
-        bool joystick_hotplug_detect();
-        void update_viewfinder();
-        void postprocess();
+        void runProgram();
+        void checkForFileIngress();
+        
+        
+        void rasmInterpreter(const std::vector <float>, std::vector<Instruction>*, bool*);
+        void cameraRestarter();
+        
+        void updateViewfinderFrame();
+        void postprocessImage();
+
+        // this is an *ugly* implementation, but we have to live with it, due to qt5's garbage slot mechanism
+
+        void runGetCurrentPosition();
+        void runCheckCollision();
+
+        void crappyDelay(int ms);
         
 
     private:
         Ui::MainWindow *ui = nullptr;                             // user interface
-        bool learn_bar_state = HIDDEN;                  // monitors the state of the bars
-        bool camera_bar_state = HIDDEN;
-        void set_learn_bar_visibility(bool state);
-        void set_camera_bar_visibility(bool state);
-        bool following_program = false;
-        bool learning = false;
-        bool fileopen = false;
+        bool learnBarVisibility_ = HIDDEN;                  // monitors the state of the bars
+        bool cameraBarVisibility = HIDDEN;
 
-        float32_t axes[6] = { 0 };
-        uint16_t time_mod = 1000;
+        void setLearnBarVisibility(bool state);
+        void setCameraBarVisibility(bool state);
+        void setAxisReadoutVisibility(bool state);
+        bool runningProgram_ = false;
+        bool runningLearnMode_ = false;
+        bool hasFileOpen_ = false;
 
-        QTimer *Scheduler_100ms = nullptr;                        // timers for different actions
-        QTimer *Scheduler_16ms = nullptr;
-        QTimer *Scheduler_500ms = nullptr;
+        QTimer *Scheduler_100ms_ = nullptr;                        // timers for different actions
+        QTimer *Scheduler_16ms_ = nullptr;
+        QTimer *Scheduler_500ms_ = nullptr;
+        QTimer *Scheduler_10ms_ = nullptr;
 
-        RobotArm dev;
-        BaseTranslationAxis base;
+        RobotArm dev_;
+        BaseTranslationAxis translationAxis_;
         
-        QGamepad* joystick = nullptr;
-        QGamepadManager* gamepad_manager;
+        QGamepad* joystick_ = nullptr;
+        QGamepadManager* gameplayManager_;
 
 
-        QFuture<void> cam_thread;
-        QFuture<void> process_thread;
+        QFuture<void> cameraThread_;
+        QFuture<void> postProcessinThread_;
+        QFuture<void> leanModeThread_;
+        QFuture<void> progThread_;
 
-        QFuture<void> learn_thread;
-        QFuture<void> prog_thread;
-        std::vector<Instruction> manual_program;
-        cv::Mat frame;
+        std::vector<Instruction> manualProgramStack_;
+        cv::Mat incomingFrame_;
 
-        void toggle_jog();
-        std::mutex anti_freewheel;
-        std::mutex synchroMesh;
-        std::mutex displaySync;
+        std::mutex antiFreewheel_;
+        std::mutex synchroMesh_;
+        std::mutex displaySync_;
 
 
 };

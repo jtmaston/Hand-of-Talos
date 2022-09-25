@@ -1,43 +1,40 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-
-void arbitrator()
-{
-    
-}
+#include "Logger.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
-    set_camera_bar_visibility(HIDDEN);
-    set_learn_bar_visibility(HIDDEN);
+    setCameraBarVisibility(HIDDEN);
+    setLearnBarVisibility(HIDDEN);
 
-    init_signals();
-    init_peripherals();
-    init_device();
+    initSignals();
+    initPeripherals();
+    initDevice();
 
 
-    instruction_queue = new std::vector<Instruction>;
+    instructionQueue_ = new std::vector<Instruction>;
 
-    running = true;
-    nodelay = true;
-    this->time_mod = 5000;
-    prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, instruction_queue, interrupt_vector, &running, &active);
-    dev.toggleTorque(true);
+    applicationIsRunning_ = true;
+    waitForMoveComplete_ = true;
+    dev_.timeFactor = 1000;
+    progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.home_position, instructionQueue_, &applicationIsRunning_);
+    dev_.toggleTorque(true);
 }
 
 MainWindow::~MainWindow()
 {
-    running = false;
-    anti_freewheel.unlock();
-    cam_thread.waitForFinished();
-    prog_thread.waitForFinished();
+    applicationIsRunning_ = false;
+    antiFreewheel_.unlock();
+    cameraThread_.waitForFinished();
+    progThread_.waitForFinished();
 
     uint8_t cmd[] = {0x07, 0};
-    write(dev.led_bus, cmd, 2);
-    quirc_destroy(decoder);
-    delete instruction_queue;     // FIXME: placement of this here is dangerous and will result in segfault!
-    delete joystick;
+    write(dev_.led_bus, cmd, 2);
+    quirc_destroy(qrDecoder_);
+    delete instructionQueue_;     // FIXME: placement of this here is dangerous and will result in segfault! Garbage code!
+    delete joystick_;
     delete ui;
 }

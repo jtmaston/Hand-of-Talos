@@ -21,7 +21,7 @@ BaseTranslationAxis::BaseTranslationAxis()
 
     if(!active)
     {
-        std::cerr << "[ ERROR ]: Serial port init failed!";
+        Logger::Warning("Cannot find base translation axis. Control is disabled!");
     }else
     {
         connect(&port, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);

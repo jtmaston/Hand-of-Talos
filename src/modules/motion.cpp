@@ -3,15 +3,15 @@
 
 
 
-void MainWindow::command() // get the values from the sliders, then write them on the bus
+void MainWindow::moveToPosition() // get the values from the sliders, then write them on the bus
 {
     float32_t angles[6];
-    angles[0] = ui->increment_1->value() + dev.home_position[0]; // need to adjust with 90
-    angles[1] = ui->increment_2->value() + dev.home_position[1];
-    angles[2] = ui->increment_3->value() + dev.home_position[2];
-    angles[3] = ui->increment_4->value() + dev.home_position[3];
-    angles[4] = ui->increment_5->value() + dev.home_position[4];
-    angles[5] = ui->increment_6->value() + dev.home_position[5];
+    angles[0] = ui->increment_1->value() + dev_.home_position[0]; // need to adjust with 90
+    angles[1] = ui->increment_2->value() + dev_.home_position[1];
+    angles[2] = ui->increment_3->value() + dev_.home_position[2];
+    angles[3] = ui->increment_4->value() + dev_.home_position[3];
+    angles[4] = ui->increment_5->value() + dev_.home_position[4];
+    angles[5] = ui->increment_6->value() + dev_.home_position[5];
 
     ui->base_r->setValue(static_cast<int>(ui->increment_1->value()));
     ui->a2_r->setValue(static_cast<int>(ui->increment_2->value()));
@@ -20,29 +20,29 @@ void MainWindow::command() // get the values from the sliders, then write them o
     ui->a5_r->setValue(static_cast<int>(ui->increment_5->value()));
     ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
-    if (base.position != ui->increment_t->value() && base.active)
+    if (translationAxis_.position != ui->increment_t->value() && translationAxis_.active)
     {
-        base.move(ui->increment_t->value());
+        translationAxis_.move(ui->increment_t->value());
     }
-    Instruction move;
-    move.opcode = ANGS;
-    move.params[0] = 8192;
-    memmove(move.params + 1, angles, 6 * sizeof(float));
-    instruction_queue -> push_back(std::move(move));
-    anti_freewheel.unlock();
+    Instruction movement;
+    movement.opcode = ANGS;
+    movement.params[0] = 8192;
+    memcpy(movement.params.data() + 1, angles, 6 * sizeof(float));
+    instructionQueue_ -> push_back(std::move(movement));
+    antiFreewheel_.unlock();
 }
 
-void MainWindow::halt()
+void MainWindow::emergencyStop()
 {
-    dev.toggleTorque(false);
+    dev_.toggleTorque(false);
 }
 
-void MainWindow::go_home()
+void MainWindow::goToHomePosition()
 {
-    ui->base_r->setValue(dev.home_position[0] - 90);
-    ui->a2_r->setValue(dev.home_position[1] - 90);
-    ui->a3_r->setValue(dev.home_position[2] - 90);
-    ui->a4_r->setValue(dev.home_position[3] - 90);
-    ui->a5_r->setValue(dev.home_position[4] - 90);
-    ui->grip_r->setValue(dev.home_position[5]);
+    Instruction movement;
+    movement.opcode = ANGS;
+    movement.params[0] = 8192;
+    memmove(movement.params.data()  + 1, dev_.home_position.data(), 6 * sizeof(float));
+    instructionQueue_ -> push_back(std::move(movement));
+    antiFreewheel_.unlock();
 }

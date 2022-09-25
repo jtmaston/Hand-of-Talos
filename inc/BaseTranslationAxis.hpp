@@ -4,7 +4,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QTextStream>
-
+#include "Logger.hpp"
 
 class BaseTranslationAxis : public QObject
 {

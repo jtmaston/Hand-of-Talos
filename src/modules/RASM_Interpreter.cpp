@@ -1,17 +1,24 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::vector<Instruction>* program_stack,
-                                   std::vector<Instruction>* interrupt_vector, bool *running, bool *interrupt) // TODO: memory optimizations
+#include <chrono>
+using namespace std::chrono;
+#include "Watchdog.hpp"
+
+void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::vector<Instruction>* program_stack,
+                                    bool *running) // TODO: memory optimizations
 {
 
     std::vector<variable::Numeric> numeric_variables;    std::vector<variable::Target> target_variables;
 
-    std::cout << "[INFO] Interpreter active!\n";
+    Logger::Info("Interpreter active!");
     
+    //Watchdog wd(&dev, &time_mod);
+    //wd.register_wd();
+
     while (*running)
     {
-        anti_freewheel.lock();
+        antiFreewheel_.lock();
         int program_size = program_stack -> size();
         int program_counter = 0;
         while ((program_counter <program_size) && *running)
@@ -42,8 +49,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
                     ui->grip_r->setValue(instruction.params[1]);
                     break;
                 }
-                usleep(time_mod * 1000);
-                std::cout << "angle\n";
+                usleep(dev_.timeFactor * 1000);
                 break;
 
             case ANGS:
@@ -51,17 +57,31 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
                 {
                     case 8192:
                     {
-                        dev.servo_write6(instruction.params + 1, time_mod);
+                        //auto test = dev.servo_readall();
+
+                        //wd.source.clear();
+                        //wd.destination.clear();
+
+                        /*for( uint_fast16_t i = 0 ; i < 6; i++ )
+                        {
+                            wd.source.push_back(test[i]);
+                            wd.destination.push_back(instruction.params[i + 1]);
+                        }*/
+                
+
+                        //delete test;
+
+                        //dev.servo_write6(instruction.params + 1, time_mod);       FIXME: uncomment
                         break;
                     }
                     default:                                // in theory, this *should* maintain backwards compatibility with older programs. Maybe.
                     {
-                        dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod);
+                        //dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod); FIXME: uncomment
                         break;
                     }
                 }
-                if (!nodelay)
-                    usleep(time_mod * 1000);
+                if (!waitForMoveComplete_)
+                    usleep(dev_.timeFactor * 1000);
                 break;
 
             case DEL:
@@ -72,12 +92,12 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
                 break;
 
             case SPD:
-                time_mod = instruction.params[0];
+                dev_.timeFactor = instruction.params[0];
                 break;
 
             case GHME:
                 // this -> go_home();
-                usleep(time_mod * 1000);
+                usleep(dev_.timeFactor * 1000);
                 break;
 
             case SHME: // TODO
@@ -126,7 +146,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
                     break;
                 }
                 }
-                usleep(time_mod * 1000);
+                usleep(dev_.timeFactor * 1000);
                 break;
 
             case MOVJ:
@@ -170,8 +190,6 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
             {
                 if (instruction.params[0] + 1 > numeric_variables.size())
                 {
-                    std::cout << "Need more space!\n";
-                    std::cout << instruction.params[0] << " " << numeric_variables.size() << '\n';
                     numeric_variables.reserve(numeric_variables.size() + 1);
                 }
                 numeric_variables.at(instruction.params[0]).value = instruction.params[1];
@@ -183,7 +201,8 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
                 if (instruction.params[0] + 1 > target_variables.size())
                     target_variables.reserve(target_variables.size() + 1);
                 variable::Target tgt;
-                memcpy(tgt.angles, instruction.params + 1, 5 * sizeof(float));
+                tgt.name = instruction.params[0];
+                memcpy(tgt.angles, instruction.params.data() + 1, 5 * sizeof(float));
                 target_variables.push_back(tgt);
 
                 break;
@@ -242,13 +261,16 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, std::v
         program_stack->clear();
     }
     
-    std::cout << "[INFO] Exited interpreter!\n";
+    Logger::Info("Exited interpreter!");
 
     return;
 }
 
 
 /*
+    Note: wtf is this
+
+
     switch (instructions.size())
     {
     case 0:

@@ -1,20 +1,29 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::init_device()
+void MainWindow::initDevice()
 {
-    dev.angles.clear();
+    dev_.angles.clear();
     for(int i = 0 ; i < 6; i++)
-        dev.angles.push_back(0);
+        dev_.angles.push_back(0);
 
-    slider_array[0] = ui->base_r;
-    slider_array[1] = ui->a2_r;
-    slider_array[2] = ui->a3_r;
-    slider_array[3] = ui->a4_r;
-    slider_array[4] = ui->a5_r;
-    slider_array[5] = ui->grip_r;
+    uiSliderArray_[0] = ui->base_r;
+    uiSliderArray_[1] = ui->a2_r;
+    uiSliderArray_[2] = ui->a3_r;
+    uiSliderArray_[3] = ui->a4_r;
+    uiSliderArray_[4] = ui->a5_r;
+    uiSliderArray_[5] = ui->grip_r;
     
-    //home_position = { 90, 90, 90, 0, 90, 0 };
-    dev.home_position = {90, 90, 90, 180, 90, 90};
+    dev_.go_home();
+    crappyDelay(dev_.timeFactor);
+}
 
+void MainWindow::runGetCurrentPosition()
+{
+    dev_.getCurrentPosition();
+}
+
+void MainWindow::runCheckCollision()
+{
+    dev_.checkCollision();
 }

@@ -10,72 +10,75 @@ using std::chrono::milliseconds;
 
 
 
-void MainWindow::update_viewfinder()
+void MainWindow::updateViewfinderFrame()
 {
     //displaySync.lock();
-    QImage qt_image = QImage((const unsigned char *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+    QImage qt_image = QImage((const unsigned char *)(incomingFrame_.data), incomingFrame_.cols, incomingFrame_.rows, QImage::Format_RGB888);
     ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     ui->viewfinder->updateGeometry();
 }
 
-void MainWindow::capture() // this is 2am code.
+void MainWindow::getFrame() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
 
     int connected = true;
 
-    while (running)
+    while (applicationIsRunning_)
     {
-        if ( process_thread.isFinished() )
+        if ( postProcessinThread_.isFinished() )
         {
-            process_thread = QtConcurrent::run(this, &MainWindow::postprocess);
-            std::cout << "Warning! Lost postprocessor. Restarted.\n";
+            postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
+            Logger::Warning("Warning! Lost postprocessor. Restarted.");
         }
-            
-
-        int read = camera->read(frame);
-
-        if (frame.empty() || !read)
+        
+        int read_confirm = false;
+        try
         {
-            std::cout << "Think our camera failed!\n";
-            connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(camera_restarter()));
+            //read_confirm = camera->read(frame);
+        }catch(std::exception e)
+        {
+            read_confirm = false;
+        }
+
+        if (incomingFrame_.empty() || !read_confirm)
+        {
+            Logger::Warning("Camera failure! Restarting...");
+            connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));
             return;
         }
-        synchroMesh.unlock();
+        synchroMesh_.unlock();
     }
     return;
 }
 
-void MainWindow::postprocess()
+void MainWindow::postprocessImage()
 {
     cv::Mat bw;
 
-    std::cout << "here";
-
-    while (running)
+    while (applicationIsRunning_)
     {
 
-        if(!cam_thread.isRunning())
+        if(!cameraThread_.isRunning())
         {
-            std::cout << "Whoops! We have no input!";
             return;
         }
-        synchroMesh.lock();
+        synchroMesh_.lock();
             
         int w;
         int h;
-        uint8_t *buf = quirc_begin(decoder, &w, &h);
-        cvtColor(frame, bw, COLOR_BGR2GRAY, 0);
+        uint8_t *buf = quirc_begin(qrDecoder_, &w, &h);
+        cvtColor(incomingFrame_, bw, COLOR_BGR2GRAY, 0);
         for (int_fast32_t y = 0; y < bw.rows; y++)
             for (int_fast32_t x = 0; x < bw.cols; x++)
                 buf[(y * w + x)] = bw.at<uint8_t>(y, x);
-        quirc_end(decoder);
+        quirc_end(qrDecoder_);
 
-        if (quirc_count(decoder) > 0)
+        if (quirc_count(qrDecoder_) > 0)
         {
             struct quirc_code code;
             struct quirc_data data;
 
-            quirc_extract(decoder, 0, &code);
+            quirc_extract(qrDecoder_, 0, &code);
             quirc_decode(&code, &data);
             std::string buffer((char *)&data.payload);
             uint16_t checksum = 0;
@@ -101,9 +104,9 @@ void MainWindow::postprocess()
                             QMessageBox::Cancel))
                         {
                         case QMessageBox::Yes:
-                            manual_program.clear();
+                            manualProgramStack_.clear();
                             // prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program); FIXME:
-                            filename = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
+                            incomingFilename_ = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
                             break;
                         }
                         break;
@@ -115,15 +118,15 @@ void MainWindow::postprocess()
         Mat imgHSV;
         try
         {
-            cvtColor(frame, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
+            cvtColor(incomingFrame_, imgHSV, COLOR_BGR2HSV); // convert the image to HSV, or Hue Saturation Value
         }
         catch (cv::Exception e)
         {
             return;
         }
 
-        line(frame, Point(320, 220), Point(320, 260), CV_RGB(255, 0, 0), 1); // draw the crosshair
-        line(frame, Point(300, 240), Point(340, 240), CV_RGB(255, 0, 0), 1);
+        line(incomingFrame_, Point(320, 220), Point(320, 260), CV_RGB(255, 0, 0), 1); // draw the crosshair
+        line(incomingFrame_, Point(300, 240), Point(340, 240), CV_RGB(255, 0, 0), 1);
         // to hue saturation values, for easier processing
         Mat imgTreshRed;
         Mat imgTreshRed1;
@@ -138,13 +141,13 @@ void MainWindow::postprocess()
         inRange(imgHSV, Scalar(112, 60, 63), Scalar(124, 255, 255), imgTreshBlue);
 
         Mat res_red;                                     // by doing bitwise and with the treshold. anything that isn't
-        bitwise_and(frame, frame, res_red, imgTreshRed); // red, green or blue automatically gets turned to 0 ( as a pixel )
+        bitwise_and(incomingFrame_, incomingFrame_, res_red, imgTreshRed); // red, green or blue automatically gets turned to 0 ( as a pixel )
                                                          // with bitwise and, they get destroyed
         Mat res_green;
-        bitwise_and(frame, frame, res_green, imgTreshGreen);
+        bitwise_and(incomingFrame_, incomingFrame_, res_green, imgTreshGreen);
 
         Mat res_blue;
-        bitwise_and(frame, frame, res_blue, imgTreshBlue);
+        bitwise_and(incomingFrame_, incomingFrame_, res_blue, imgTreshBlue);
 
         std::vector<std::vector<Point>> contours;
         findContours(imgTreshRed, contours, RETR_EXTERNAL, CHAIN_APPROX_NONE);
@@ -161,9 +164,9 @@ void MainWindow::postprocess()
 
         if (max > 0)
         {
-            red = boundingRect(contours[ind]);
-            rectangle(frame, red.tl(), red.br(), CV_RGB(255, 0, 0), 3);
-            putText(frame, "Red", red.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
+            redBoundingBox_ = boundingRect(contours[ind]);
+            rectangle(incomingFrame_, redBoundingBox_.tl(), redBoundingBox_.br(), CV_RGB(255, 0, 0), 3);
+            putText(incomingFrame_, "Red", redBoundingBox_.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255));
         }
 
         contours.clear();
@@ -179,9 +182,9 @@ void MainWindow::postprocess()
 
         if (max > 50)
         {
-            green = boundingRect(contours[ind]);
-            rectangle(frame, green.tl(), green.br(), CV_RGB(0, 255, 0), 3);
-            putText(frame, "Green", green.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
+            greenBoundingBox_ = boundingRect(contours[ind]);
+            rectangle(incomingFrame_, greenBoundingBox_.tl(), greenBoundingBox_.br(), CV_RGB(0, 255, 0), 3);
+            putText(incomingFrame_, "Green", greenBoundingBox_.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0));
         }
 
         contours.clear();
@@ -197,11 +200,11 @@ void MainWindow::postprocess()
 
         if (max > 50)
         {
-            blue = boundingRect(contours[ind]);
-            rectangle(frame, blue.tl(), blue.br(), CV_RGB(0, 0, 255), 3);
-            putText(frame, "Blue", blue.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
+            blueBoundingBox_ = boundingRect(contours[ind]);
+            rectangle(incomingFrame_, blueBoundingBox_.tl(), blueBoundingBox_.br(), CV_RGB(0, 0, 255), 3);
+            putText(incomingFrame_, "Blue", blueBoundingBox_.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
         }
-        displaySync.unlock();
+        displaySync_.unlock();
     }
 }
 

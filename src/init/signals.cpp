@@ -5,32 +5,42 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::init_signals()
+void MainWindow::crappyDelay(int ms)
 {
-    Scheduler_100ms = new QTimer(this); // timer called every 100ms
-    Scheduler_16ms = new QTimer(this);  // timer called every  20ms
-    Scheduler_500ms = new QTimer(this);
+    QTime dieTime= QTime::currentTime().addSecs(ms / 1000);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}  
 
-    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(update_axes()));           // axis readout is updated every 100ms
-    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));               // control from the axis is also updated ever 100ms
-    connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(check_if_filedialog()));   // camera is updated every 20ms
+void MainWindow::initSignals()
+{
+    Scheduler_100ms_ = new QTimer(this); // timer called every 100ms
+    Scheduler_16ms_ = new QTimer(this);  // timer called every  20ms
+    Scheduler_500ms_ = new QTimer(this);
+    Scheduler_10ms_ = new QTimer(this);
 
-    connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggle_learn_bar()));        // when the learn button is clicked, toggle the bar
-    connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggle_camera_bar()));       // when the track button is clicked, toggle the bar
+    connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(updateAxisDisplay()));           // axis readout is updated every 100ms
+    connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(moveToPosition()));               // control from the axis is also updated ever 100ms
+    connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(checkForFileIngress()));   // camera is updated every 20ms
+    connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runGetCurrentPosition()));
 
-    connect(ui->next, SIGNAL(clicked()), SLOT(add_step()));                     //  <<
-    connect(ui->prev, SIGNAL(clicked()), SLOT(remove_step()));                  //      buttons for the learn mode
-    connect(ui->execute, SIGNAL(clicked()), SLOT(follow_path()));               //  >>
+    connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggleLearnBar()));        // when the learn button is clicked, toggle the bar
+    connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggleCameraBar()));       // when the track button is clicked, toggle the bar
     
+    connect(ui->add_step, SIGNAL(clicked()), SLOT(addStep()));                     //  <<
+    connect(ui->remove_step, SIGNAL(clicked()), SLOT(removeStep()));                  //      buttons for the learn mode
+    connect(ui->run_learned, SIGNAL(clicked()), SLOT(startFollowingPath()));               //  >>
 
-    connect(ui->follow_red, SIGNAL(clicked()), SLOT(start_follow_red()));       //  <<
-    connect(ui->follow_green, SIGNAL(clicked()), SLOT(start_follow_green()));   //      buttons for color tracking mode
-    connect(ui->follow_blue, SIGNAL(clicked()), SLOT(start_follow_blue()));
-    connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stop_follow()));           //  >>
+    connect(ui->follow_red, SIGNAL(clicked()), SLOT(setTrackingColorRed()));       //  <<
+    connect(ui->follow_green, SIGNAL(clicked()), SLOT(setTrackingColorGreen()));   //      buttons for color tracking mode
+    connect(ui->follow_blue, SIGNAL(clicked()), SLOT(setTrackingColorBlue()));
+    connect(ui->follow_stop, SIGNAL(clicked()), SLOT(stopTracking()));           //  >>
 
-    connect(ui->halt_btn, SIGNAL(clicked()), SLOT(halt()));                     // << 
+    connect(ui->halt_btn, SIGNAL(clicked()), SLOT(emergencyStop()));                     // << 
     //connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));                       //      top buttons
-    connect(ui->load_btn, SIGNAL(clicked()), SLOT(program()));                  // >>
+    connect(ui->load_btn, SIGNAL(clicked()), SLOT(runProgram()));                  // >>
+
+    connect(ui->factor_slider, &QSlider::valueChanged, ui->factor_box, &QSpinBox::setValue);
 
     connect(ui->base_r, &QSlider::valueChanged, ui->increment_1, &QDoubleSpinBox::setValue);    //  <<
     connect(ui->a2_r, &QSlider::valueChanged, ui->increment_2, &QDoubleSpinBox::setValue);      //      Connect the sliders to the text boxes,
@@ -39,11 +49,12 @@ void MainWindow::init_signals()
     connect(ui->a5_r, &QSlider::valueChanged, ui->increment_5, &QDoubleSpinBox::setValue);      //
     connect(ui->grip_r, &QSlider::valueChanged, ui->increment_6, &QDoubleSpinBox::setValue);    //  >>
 
-    connect(Scheduler_500ms, SIGNAL(timeout()), SLOT(joystick_hotplug_detect()));               // start the hotplug detect of the joystick
-    connect(Scheduler_16ms, SIGNAL(timeout()), SLOT(update_viewfinder()));
+    connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(detectJoystickHotplug()));               // start the hotplug detect of the joystick
+    connect(Scheduler_16ms_, SIGNAL(timeout()), SLOT(updateViewfinderFrame()));
 
-    Scheduler_100ms->start(100);
-    Scheduler_16ms->start(33);
-    Scheduler_500ms->start(500);
+    Scheduler_100ms_->start(100);
+    Scheduler_16ms_->start(33);
+    Scheduler_500ms_->start(500);
+    Scheduler_10ms_->start(10);
     
 }

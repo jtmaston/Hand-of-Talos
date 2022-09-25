@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(RobotDashboard VERSION 0.1 LANGUAGES CXX C)
 
+cmake_policy(SET CMP0069 NEW)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -22,14 +26,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -W
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent Network Gamepad SerialPort  REQUIRED)
-#find_package( OpenCV REQUIRED )
+find_package( OpenCV REQUIRED )
+find_package(Iconv REQUIRED)
 
 add_library(OpenCV STATIC IMPORTED)
 include_directories(/usr/local/include/opencv4/)
 
 
 add_library(
-    quirc
+    quirc_builtin
     STATIC
     ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/decode.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/identify.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/quirc.c ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib/version_db.c
 )
@@ -56,6 +61,8 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/modules/BaseTranslationAxis.cpp
     ${PROJECT_SOURCE_DIR}/src/modules/motion.cpp
     ${PROJECT_SOURCE_DIR}/src/modules/RASM_Interpreter.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/watchdog.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/Logger.cpp
 
     ${PROJECT_SOURCE_DIR}/src/operation_modes/tracking_mode.cpp
     ${PROJECT_SOURCE_DIR}/src/operation_modes/jog_mode.cpp
@@ -69,6 +76,8 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/inc/mainwindow.ui
     ${PROJECT_SOURCE_DIR}/inc/BaseTranslationAxis.hpp
     ${PROJECT_SOURCE_DIR}/inc/Image.hpp
+    ${PROJECT_SOURCE_DIR}/inc/Watchdog.hpp
+    ${PROJECT_SOURCE_DIR}/inc/Logger.hpp
 
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_exc.hpp
@@ -79,6 +88,7 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/isa.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp
+
     
 )
 
@@ -114,6 +124,13 @@ else()
             ${SOURCES} ${HEADERS}
         )
 
+        #if( supported )
+            #message(STATUS "IPO / LTO enabled")
+            #set_property(TARGET RobotDashboard PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        #else()
+        #    message(STATUS "IPO / LTO not supported: <${error}>")
+        #endif()
+
         target_include_directories( RobotDashboard
             PUBLIC
             ${INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS}
@@ -126,8 +143,9 @@ endif()
 
 target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort)
 target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
-target_link_libraries(RobotDashboard PUBLIC quirc ${OpenCV_LIBS} )
+target_link_libraries(RobotDashboard PUBLIC quirc_builtin ${OpenCV_LIBS} )
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(RobotDashboard)
 endif()
+ 

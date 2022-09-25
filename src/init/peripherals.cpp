@@ -1,87 +1,81 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-
-
-void MainWindow::init_peripherals()
+void MainWindow::initPeripherals()
 {
-    camera = new VideoCapture(0, cv::CAP_V4L);
-    camera->set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    camera->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    camera->set(cv::CAP_PROP_FPS, 30);
+    robotCamera_ = new VideoCapture(0, cv::CAP_OPENCV_MJPEG);
+    robotCamera_->set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    robotCamera_->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    robotCamera_->set(cv::CAP_PROP_FPS, 60);
 
-    decoder = quirc_new();
-    quirc_resize(decoder, 640, 480);
+    qrDecoder_ = quirc_new();
+    quirc_resize(qrDecoder_, 640, 480);
 
-    synchroMesh.lock();
+    synchroMesh_.lock();
 
-    if (!camera->isOpened())
+    if (!robotCamera_->isOpened())
     {
-        connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(camera_restarter()));
-        
+        connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));
     }
     else
     {
-        cam_thread = QtConcurrent::run(this, &MainWindow::capture);
-        process_thread = QtConcurrent::run(this, &MainWindow::postprocess);
+        cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
+        postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
     }
-
-    
-
 }
 
-bool MainWindow::joystick_hotplug_detect()
+bool MainWindow::detectJoystickHotplug()
 {
 
     auto gamepads = QGamepadManager::instance()->connectedGamepads();
     if (gamepads.isEmpty())
     {
         ui->jog_btn->setEnabled(false);
-        //std::cout << "[ WARN ] No gamepad detected.\n";
+        // std::cout << "[ WARN ] No gamepad detected.\n";
 
-        if (joystick != nullptr)
+        if (joystick_ != nullptr)
         {
-            delete joystick;
-            joystick = nullptr;
+            delete joystick_;
+            joystick_ = nullptr;
         }
         return false;
     }
 
-    if (joystick != nullptr)
+    if (joystick_ != nullptr)
         return true;
 
-    //std::cout << "[ INFO ] Joystick connected\n";
+    // std::cout << "[ INFO ] Joystick connected\n";
 
-    joystick = new QGamepad(*gamepads.begin(), this);
+    joystick_ = new QGamepad(*gamepads.begin(), this);
 
     return true;
 }
 
-void MainWindow::camera_restarter()
+void MainWindow::cameraRestarter()
 {
     extern Image NoSignal;
     QImage qt_image = QImage((const unsigned char *)(NoSignal.pixel_data), NoSignal.width, NoSignal.height, QImage::Format_RGB888);
-    
-    if(frame.empty())
-        frame = cv::Mat ( NoSignal.height, NoSignal.width, CV_8UC3, (unsigned char* ) NoSignal.pixel_data );
 
-    cv::resize(frame, frame, Size(751, 481));
+    if (incomingFrame_.empty())
+        incomingFrame_ = cv::Mat(NoSignal.height, NoSignal.width, CV_8UC3, (unsigned char *)NoSignal.pixel_data);
+
+    cv::resize(incomingFrame_, incomingFrame_, Size(751, 481));
 
     for (int i = 0; i < 10; i++)
     {
-        if (camera->open(i, CAP_V4L2))
+        if (robotCamera_->open(i, CAP_V4L2))
         {
-            std::cout << "Camera at /dev/video" << i << " available\n";
-            disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(camera_restarter()));
-            cam_thread.waitForFinished();
-            std::cout << "Restarting!\n";
-            std::cout << "Waiting for process thread to die: \n";
-            synchroMesh.unlock();
-            process_thread.waitForFinished();
-            std::cout << "Exited! \n";
-            cam_thread = QtConcurrent::run(this, &MainWindow::capture);
-            process_thread = QtConcurrent::run(this, &MainWindow::postprocess);
-            std::cout << "Done launching threads\n";
+            Logger::Info("Camera at /dev/video" + std::to_string(i) + " available");
+            disconnect(Scheduler_100ms_, SIGNAL(timeout()), this, SLOT(cameraRestarter()));
+            cameraThread_.waitForFinished();
+            Logger::Info("Restarting!");
+            Logger::Info("Waiting for process thread to die...");
+            synchroMesh_.unlock();
+            postProcessinThread_.waitForFinished();
+            Logger::Info("Exited!");
+            cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
+            postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
+            Logger::Info("Done launching threads");
             return;
         }
     }

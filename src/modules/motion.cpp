@@ -21,13 +21,17 @@ void MainWindow::moveToPosition() // get the values from the sliders, then write
     ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
     if (translationAxis_.position != ui->increment_t->value() && translationAxis_.active)
-    {
+    {   
         translationAxis_.move(ui->increment_t->value());
     }
     Instruction movement;
     movement.opcode = ANGS;
     movement.params[0] = 8192;
-    memcpy(movement.params.data() + 1, angles, 6 * sizeof(float));
+    
+    movement.params.clear();
+    for(int i = 0 ; i < 6; i++)
+        movement.params.push_back(angles[i]);
+
     instructionQueue_ -> push_back(std::move(movement));
     antiFreewheel_.unlock();
 }

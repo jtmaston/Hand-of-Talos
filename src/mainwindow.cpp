@@ -5,6 +5,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    instructionQueue_ = new std::vector<Instruction>;
+
 
     ui->setupUi(this);
     setCameraBarVisibility(HIDDEN);
@@ -13,9 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
     initSignals();
     initPeripherals();
     initDevice();
-
-
-    instructionQueue_ = new std::vector<Instruction>;
 
     applicationIsRunning_ = true;
     waitForMoveComplete_ = true;

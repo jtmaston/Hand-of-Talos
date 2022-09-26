@@ -75,7 +75,7 @@ class MainWindow : public QMainWindow
         void goToHomePosition();
         VideoCapture *robotCamera_ = nullptr;
         
-        std::vector<Instruction>* instructionQueue_;
+        std::vector<Instruction>* instructionQueue_ = nullptr;
         bool waitForMoveComplete_;
 
         void initPeripherals();

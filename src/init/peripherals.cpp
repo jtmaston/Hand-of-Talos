@@ -3,7 +3,7 @@
 
 void MainWindow::initPeripherals()
 {
-    robotCamera_ = new VideoCapture(0, cv::CAP_OPENCV_MJPEG);
+    robotCamera_ = new VideoCapture(0, cv::CAP_V4L);
     robotCamera_->set(cv::CAP_PROP_FRAME_WIDTH, 640);
     robotCamera_->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     robotCamera_->set(cv::CAP_PROP_FPS, 60);

@@ -34,7 +34,7 @@ void MainWindow::getFrame() // this is 2am code.
         int read_confirm = false;
         try
         {
-            //read_confirm = camera->read(frame);
+            read_confirm = robotCamera_->read(incomingFrame_);
         }catch(std::exception e)
         {
             read_confirm = false;

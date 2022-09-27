@@ -270,9 +270,12 @@ void RobotArm::getCurrentPosition()
 void RobotArm::setDestination(std::vector<float> new_destination)
 {
     endPosition_ = std::vector<float>(new_destination.cbegin() + 1, new_destination.cend());
+    for(int i = 0 ; i < 6; i++)
+        endPosition_.at(i) -= homePosition_.at(i);
     moving = true;
     moveStartTime_ = std::chrono::system_clock::now();
     startPosition_ = currentPosition_;
+    
 }
 void RobotArm::setTimeMod(int ms)
 {
@@ -294,20 +297,20 @@ std::vector<float32_t> logger_row3;
 
 bool RobotArm::checkCollision()
 {
-    std::cout << logger_row1.size() << '\n'; std::cout.flush();
-    if(logger_row1.size() == 100)
+    std::cout << logger_row1.size() << '\n';
+    std::cout.flush();
+    if (logger_row1.size() == 100)
     {
         std::ofstream fout("output.csv");
-        
+
         fout << "ACTUAL,PROJECTED,PERCENT\n";
-        for(int i = 0 ; i < 100; i++)
+        for (int i = 0; i < 100; i++)
         {
             fout << logger_row1.at(i) << "," << logger_row2.at(i) << "," << logger_row3.at(i) << '\n';
         }
         fout.close();
         throw std::runtime_error("HALTED AT REQ'D POINT");
     }
-        
 
     switch (moving)
     {
@@ -320,7 +323,6 @@ bool RobotArm::checkCollision()
         // distance = end - start
         // debate
 
-
         // we must go from start to end in time_factor ms
         // therefore
         // we must be travelling at ( distance / time_factor ) deg / ms
@@ -330,14 +332,16 @@ bool RobotArm::checkCollision()
         timeFactor = 450;
 
         for (int i = 0; i < 1; i++)
-        {                 //|                distance                  |   timeFactor  |        time         |
+        { //|                distance                  |   timeFactor  |        time         |
             float offset = ((endPosition_.at(i) - startPosition_.at(i)) / timeFactor) * milliseconds.count();
             float projectedPosition = offset + startPosition_.at(i);
 
-            //std::cout << milliseconds.count() << " " <<projectedPosition << '\n';
-            logger_row1.push_back(currentPosition_.at(0));
-            logger_row2.push_back(projectedPosition);
-            logger_row3.push_back((float)milliseconds.count() / (float)timeFactor * 100.0f);
+            if (milliseconds.count() <= timeFactor)
+            {
+                logger_row1.push_back(currentPosition_.at(0) + homePosition_.at(i));
+                logger_row2.push_back(projectedPosition);
+                logger_row3.push_back((float)milliseconds.count() / (float)timeFactor * 100.0f);
+            }
         }
         break;
     }

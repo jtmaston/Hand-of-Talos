@@ -36,7 +36,7 @@ class RobotArm : public ArmDevice
         void goHome();                                                           // move to the home position
 
         std::vector<float32_t> homePosition_;
-         std::vector<float32_t> currentPosition_;
+        std::vector<float32_t> currentPosition_;
         std::vector<float32_t> endPosition_;
         std::vector<float32_t> startPosition_;
         

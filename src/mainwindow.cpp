@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     applicationIsRunning_ = true;
     waitForMoveComplete_ = true;
     dev_.timeFactor = 1000;
-    progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.home_position, instructionQueue_, &applicationIsRunning_);
+    progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, instructionQueue_, &applicationIsRunning_);
     dev_.toggleTorque(true);
 }
 

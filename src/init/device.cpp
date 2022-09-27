@@ -3,9 +3,9 @@
 
 void MainWindow::initDevice()
 {
-    dev_.angles.clear();
+    dev_.currentPosition_.clear();
     for (int i = 0; i < 6; i++)
-        dev_.angles.push_back(0);
+        dev_.currentPosition_.push_back(0);
 
     uiSliderArray_[0] = ui->base_r;
     uiSliderArray_[1] = ui->a2_r;
@@ -15,7 +15,7 @@ void MainWindow::initDevice()
     uiSliderArray_[5] = ui->grip_r;
     dev_.timeFactor = 1000;
 
-    dev_.go_home();
+    dev_.goHome();
     crappyDelay(dev_.timeFactor);
 }
 

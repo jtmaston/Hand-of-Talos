@@ -115,12 +115,12 @@ void MainWindow::startColorTracking()
     ui->a4_r->setValue(ui->a4_r->value() - round(beta));
 
     float32_t angles[6];
-    angles[0] = ui->increment_1->value() + dev_.home_position[0]; // need to adjust with 90
-    angles[1] = ui->increment_2->value() + dev_.home_position[1];
-    angles[2] = ui->increment_3->value() + dev_.home_position[2];
-    angles[3] = ui->increment_4->value() + dev_.home_position[3];
-    angles[4] = ui->increment_5->value() + dev_.home_position[4];
-    angles[5] = ui->increment_6->value() + dev_.home_position[5];
+    angles[0] = ui->increment_1->value() + dev_.homePosition_[0]; // need to adjust with 90
+    angles[1] = ui->increment_2->value() + dev_.homePosition_[1];
+    angles[2] = ui->increment_3->value() + dev_.homePosition_[2];
+    angles[3] = ui->increment_4->value() + dev_.homePosition_[3];
+    angles[4] = ui->increment_5->value() + dev_.homePosition_[4];
+    angles[5] = ui->increment_6->value() + dev_.homePosition_[5];
 
     ui->base_r->setValue(static_cast<int>(ui->increment_1->value()));
     ui->a2_r->setValue(static_cast<int>(ui->increment_2->value()));

@@ -46,7 +46,7 @@ void Watchdog::handler()
         std::cout << "We actually are: ";
         for (int i = 0; i < 6; i++)
         {
-            std::cout << dev->angles[i] + dev->home_position.at(i) << " ";
+            std::cout << dev->currentPosition_[i] + dev->homePosition_.at(i) << " ";
         }
         std::cout << '\n';
         //delete state;

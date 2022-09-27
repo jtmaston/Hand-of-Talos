@@ -3,13 +3,13 @@
 
 RobotArm::RobotArm() : ArmDevice()
 {
-    home_position.reserve(6);
-    home_position = {90, 90, 90, 180, 90, 90};
+    homePosition_.reserve(6);
+    homePosition_ = {90, 90, 90, 180, 90, 90};
 }
 #pragma region Matrix
 
 #ifdef __ARM_NEON
-void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3)
+void RobotArm::matrixMultiply(float32_t *T1, float32_t *T2, float32_t *T3)
 {
 
     // these are the columns A
@@ -71,13 +71,13 @@ void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3)
     vst1q_f32(T3 + 12, T3_3);
 }
 #else
-void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3)
+void RobotArm::matrixMultiply(float32_t *T1, float32_t *T2, float32_t *T3)
 {
-    c_multiply(T1, T2, T3);
+    matrixMultiplyCompatible(T1, T2, T3);
 }
 #endif
 
-void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
+void RobotArm::matrixMultiplyCompatible(float32_t *A, float32_t *B, float32_t *C)
 {
     int n = 4, m = 4, k = 4;
     for (int i_idx = 0; i_idx < n; i_idx++)
@@ -95,7 +95,7 @@ void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
 
 void RobotArm::rotateX(uint8_t num, float32_t *target)
 {
-    float32_t phi = (this->angles[num - 1]) * __RAD__;
+    float32_t phi = (this->currentPosition_[num - 1]) * __RAD__;
     target[0] = 1;
     target[4] = 0;
     target[8] = 0;
@@ -109,7 +109,7 @@ void RobotArm::rotateX(uint8_t num, float32_t *target)
 
 void RobotArm::rotateY(uint8_t num, float32_t *target)
 {
-    float32_t phi = (this->angles[num - 1]) * __RAD__;
+    float32_t phi = (this->currentPosition_[num - 1]) * __RAD__;
     target[0] = cos(phi);
     target[4] = 0;
     target[8] = sin(phi);
@@ -123,7 +123,7 @@ void RobotArm::rotateY(uint8_t num, float32_t *target)
 
 void RobotArm::rotateZ(uint8_t num, float32_t *target)
 {
-    float32_t phi = (this->angles[num - 1]) * __RAD__;
+    float32_t phi = (this->currentPosition_[num - 1]) * __RAD__;
     target[0] = cos(phi);
     target[4] = -sin(phi);
     target[8] = 0;
@@ -150,7 +150,7 @@ void RobotArm::translateZ(uint8_t num, float32_t *target)
     target[14] = this->translations[num - 1];
 }
 
-void RobotArm::calculate_end_effector(float32_t *target)
+void RobotArm::calculateEndEffector(float32_t *target)
 {
     float32_t Transformation_Matrices[][16] =
         {
@@ -193,12 +193,12 @@ void RobotArm::calculate_end_effector(float32_t *target)
     translateX(5, Transformation_Matrices[4]);
     rotateX(5, Transformation_Matrices[4]);
 
-    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], target);
+    matrixMultiply(Transformation_Matrices[0], Transformation_Matrices[1], target);
 
-    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], steps[0]);
-    neon_multiply(steps[0], Transformation_Matrices[2], steps[1]);
-    neon_multiply(steps[1], Transformation_Matrices[3], steps[2]);
-    neon_multiply(steps[2], Transformation_Matrices[4], target);
+    matrixMultiply(Transformation_Matrices[0], Transformation_Matrices[1], steps[0]);
+    matrixMultiply(steps[0], Transformation_Matrices[2], steps[1]);
+    matrixMultiply(steps[1], Transformation_Matrices[3], steps[2]);
+    matrixMultiply(steps[2], Transformation_Matrices[4], target);
 
     /*float32_t step1[16];
     neon_multiply(T1, T2, step1);
@@ -214,7 +214,7 @@ void RobotArm::calculate_end_effector(float32_t *target)
     neon_multiply(step3, T4, target);*/
 }
 
-void RobotArm::print_matrix(float32_t *M)
+void RobotArm::printMatrix(float32_t *M)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -228,10 +228,10 @@ void RobotArm::print_matrix(float32_t *M)
 }
 #pragma endregion
 
-void RobotArm::go_home()
+void RobotArm::goHome()
 {
     this->toggleTorque(true);
-    this->servo_write6(home_position.data(), 1000);
+    this->servo_write6(homePosition_.data(), 1000);
     usleep(1000);
 }
 float move = 0;
@@ -246,34 +246,104 @@ void RobotArm::getCurrentPosition()
         {
         case 1:
         case 6:
-            angles[i] = data[i] - home_position[i];
+            currentPosition_[i] = data[i] - homePosition_[i];
             break;
         case 2:
         case 3:
-            angles[i] = -(data[i] - home_position[i]);
-            angles[i] = -(data[i] - home_position[i]);
+            currentPosition_[i] = -(data[i] - homePosition_[i]);
+            currentPosition_[i] = -(data[i] - homePosition_[i]);
             break;
 
         case 4:
-            angles[i] = -data[i];
+            currentPosition_[i] = -data[i];
             break;
 
         case 5:
-            angles[i] = data[i] - home_position[i];
+            currentPosition_[i] = data[i] - homePosition_[i];
             break;
         }
-        //std::cout << angles[i] << " ";
+        // std::cout << angles[i] << " ";
     }
-    //std::cout << '\n';
+    // std::cout << '\n';
     delete data; // readall returns a dynamic pointer, so it must be deleted to prevent memory leaks
 }
-void RobotArm::setDestination()
+void RobotArm::setDestination(std::vector<float> new_destination)
 {
+    endPosition_ = std::vector<float>(new_destination.cbegin() + 1, new_destination.cend());
+    moving = true;
+    moveStartTime_ = std::chrono::system_clock::now();
+    startPosition_ = currentPosition_;
 }
-void RobotArm::setTimeMod()
+void RobotArm::setTimeMod(int ms)
 {
+    if (!moving)
+    {
+        timeFactor = ms;
+    }
+    else
+    {
+        throw std::runtime_error("Attempt to set time factor before movement ended!");
+    }
 }
+
+std::vector<float32_t> logger_row1;
+std::vector<float32_t> logger_row2;
+std::vector<float32_t> logger_row3;
+
+#include <fstream>
+
 bool RobotArm::checkCollision()
 {
+    std::cout << logger_row1.size() << '\n'; std::cout.flush();
+    if(logger_row1.size() == 100)
+    {
+        std::ofstream fout("output.csv");
+        
+        fout << "ACTUAL,PROJECTED,PERCENT\n";
+        for(int i = 0 ; i < 100; i++)
+        {
+            fout << logger_row1.at(i) << "," << logger_row2.at(i) << "," << logger_row3.at(i) << '\n';
+        }
+        fout.close();
+        throw std::runtime_error("HALTED AT REQ'D POINT");
+    }
+        
+
+    switch (moving)
+    {
+    case true:
+    {
+        moveCurrentTime_ = std::chrono::system_clock::now();
+        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(moveCurrentTime_ - moveStartTime_);
+
+        // time_factor = 1000
+        // distance = end - start
+        // debate
+
+
+        // we must go from start to end in time_factor ms
+        // therefore
+        // we must be travelling at ( distance / time_factor ) deg / ms
+        // conclusion, to determine position at a given moment, we must do
+        // (distance / time_factor) * moment, thus getting an offset.
+        // we add said offset to our current position, and get our projected position.
+        timeFactor = 450;
+
+        for (int i = 0; i < 1; i++)
+        {                 //|                distance                  |   timeFactor  |        time         |
+            float offset = ((endPosition_.at(i) - startPosition_.at(i)) / timeFactor) * milliseconds.count();
+            float projectedPosition = offset + startPosition_.at(i);
+
+            //std::cout << milliseconds.count() << " " <<projectedPosition << '\n';
+            logger_row1.push_back(currentPosition_.at(0));
+            logger_row2.push_back(projectedPosition);
+            logger_row3.push_back((float)milliseconds.count() / (float)timeFactor * 100.0f);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
     return false;
 }

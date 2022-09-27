@@ -105,7 +105,7 @@ void MainWindow::postprocessImage()
                         {
                         case QMessageBox::Yes:
                             manualProgramStack_.clear();
-                            // prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program); FIXME:
+                            // prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.homePosition_, manual_program); FIXME:
                             incomingFilename_ = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
                             break;
                         }

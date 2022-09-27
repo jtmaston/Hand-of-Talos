@@ -20,7 +20,7 @@ void MainWindow::initSignals()
     Scheduler_10ms_ = new QTimer(this);
 
     connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(updateAxisDisplay()));           // axis readout is updated every 100ms
-    connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(moveToPosition()));               // control from the axis is also updated ever 100ms
+    connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(moveToPosition()));               // control from the axis is also updated ever 100ms
     connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(checkForFileIngress()));   // camera is updated every 20ms
     connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runGetCurrentPosition()));
 
@@ -51,6 +51,7 @@ void MainWindow::initSignals()
 
     connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(detectJoystickHotplug()));               // start the hotplug detect of the joystick
     connect(Scheduler_16ms_, SIGNAL(timeout()), SLOT(updateViewfinderFrame()));
+    connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runCheckCollision()));
 
     Scheduler_100ms_->start(100);
     Scheduler_16ms_->start(33);

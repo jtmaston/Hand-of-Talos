@@ -51,10 +51,10 @@ void MainWindow::addStep() // add a step
     Instruction local;
     local.opcode = TGT;
     local.params[0] = manualProgramStack_.size() / 2;
-    memcpy(local.params.data() + 1, dev_.angles.data(), 5 * sizeof(float32_t));
+    memcpy(local.params.data() + 1, dev_.currentPosition_.data(), 5 * sizeof(float32_t));
 
     for (int i = 0; i < 5; i++)
-        local.params[i + 1] += dev_.home_position[i];
+        local.params[i + 1] += dev_.homePosition_[i];
 
     manualProgramStack_.push_back(local);
 

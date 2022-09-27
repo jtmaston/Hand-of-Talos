@@ -5,23 +5,23 @@
 using namespace std::chrono;
 #include "Watchdog.hpp"
 
-void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::vector<Instruction>* program_stack,
-                                    bool *running) // TODO: memory optimizations
+void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::vector<Instruction> *program_stack,
+                                 bool *running) // TODO: memory optimizations
 {
-
-    std::vector<variable::Numeric> numeric_variables;    std::vector<variable::Target> target_variables;
+    
+    std::vector<variable::Numeric> numeric_variables;
+    std::vector<variable::Target> target_variables;
 
     Logger::Info("Interpreter active!");
-    
-    //Watchdog wd(&dev, &time_mod);
-    //wd.register_wd();
+
+
 
     while (*running)
     {
         antiFreewheel_.lock();
-        int program_size = program_stack -> size();
+        int program_size = program_stack->size();
         int program_counter = 0;
-        while ((program_counter <program_size) && *running)
+        while ((program_counter < program_size) && *running)
         {
             Instruction instruction = program_stack->at(program_counter);
             switch (program_stack->at(program_counter).opcode)
@@ -53,32 +53,33 @@ void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::ve
                 break;
 
             case ANGS:
-                switch((int) instruction.params[0])
+                switch ((int)instruction.params[0])
                 {
-                    case 8192:
+                case 8192:
+                {
+                    // auto test = dev.servo_readall();
+
+                    // wd.source.clear();
+                    // wd.destination.clear();
+
+                    /*for( uint_fast16_t i = 0 ; i < 6; i++ )
                     {
-                        //auto test = dev.servo_readall();
+                        wd.source.push_back(test[i]);
+                        wd.destination.push_back(instruction.params[i + 1]);
+                    }*/
 
-                        //wd.source.clear();
-                        //wd.destination.clear();
+                    // delete test;
 
-                        /*for( uint_fast16_t i = 0 ; i < 6; i++ )
-                        {
-                            wd.source.push_back(test[i]);
-                            wd.destination.push_back(instruction.params[i + 1]);
-                        }*/
-                
+                    // dev.servo_write6(instruction.params + 1, time_mod);       FIXME: uncomment
+                    dev_.setDestination(instruction.params);
 
-                        //delete test;
-
-                        //dev.servo_write6(instruction.params + 1, time_mod);       FIXME: uncomment
-                        break;
-                    }
-                    default:                                // in theory, this *should* maintain backwards compatibility with older programs. Maybe.
-                    {
-                        //dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod); FIXME: uncomment
-                        break;
-                    }
+                    break;
+                }
+                default: // in theory, this *should* maintain backwards compatibility with older programs. Maybe.
+                {
+                    // dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod); FIXME: uncomment
+                    break;
+                }
                 }
                 if (!waitForMoveComplete_)
                     usleep(dev_.timeFactor * 1000);
@@ -260,12 +261,11 @@ void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::ve
         }
         program_stack->clear();
     }
-    
+
     Logger::Info("Exited interpreter!");
 
     return;
 }
-
 
 /*
     Note: wtf is this

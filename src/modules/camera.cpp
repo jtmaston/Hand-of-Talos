@@ -12,7 +12,7 @@ using std::chrono::milliseconds;
 
 void MainWindow::updateViewfinderFrame()
 {
-    //displaySync.lock();
+    displaySync_.lock();
     QImage qt_image = QImage((const unsigned char *)(incomingFrame_.data), incomingFrame_.cols, incomingFrame_.rows, QImage::Format_RGB888);
     ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     ui->viewfinder->updateGeometry();

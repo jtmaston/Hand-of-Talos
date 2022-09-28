@@ -303,7 +303,7 @@ std::vector<float32_t> logger_row4;
 bool RobotArm::checkCollision()
 {
     std::cout << logger_row1.size() << '\n';
-    std::cout.flush();
+    /*std::cout.flush();
     if (logger_row1.size() == 100)
     {
         std::ofstream fout("output.csv");
@@ -315,7 +315,7 @@ bool RobotArm::checkCollision()
         }
         fout.close();
         throw std::runtime_error("HALTED AT REQ'D POINT");
-    }
+    }*/
 
     switch (moving)
     {

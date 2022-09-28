@@ -5,8 +5,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    instructionQueue_ = new std::vector<Instruction>;
 
+    applicationIsRunning_ = true;
+    waitForMoveComplete_ = true;
+
+    instructionQueue_ = new std::vector<Instruction>;
 
     ui->setupUi(this);
     setCameraBarVisibility(HIDDEN);
@@ -15,9 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     initSignals();
     initPeripherals();
     initDevice();
-
-    applicationIsRunning_ = true;
-    waitForMoveComplete_ = true;
+    
     dev_.timeFactor = 1000;
     progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, instructionQueue_, &applicationIsRunning_);
     watchdogThread_ = QtConcurrent::run(this, &MainWindow::runCheckCollision);

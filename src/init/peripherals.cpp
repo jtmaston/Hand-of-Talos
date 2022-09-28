@@ -6,7 +6,7 @@ void MainWindow::initPeripherals()
     robotCamera_ = new VideoCapture(0, cv::CAP_V4L);
     robotCamera_->set(cv::CAP_PROP_FRAME_WIDTH, 640);
     robotCamera_->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    robotCamera_->set(cv::CAP_PROP_FPS, 60);
+    robotCamera_->set(cv::CAP_PROP_FPS, 30  );
 
     qrDecoder_ = quirc_new();
     quirc_resize(qrDecoder_, 640, 480);
@@ -20,7 +20,8 @@ void MainWindow::initPeripherals()
     else
     {
         cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
-        postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
+        //if(!postProcessinThread_.isRunning())
+        //    postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
     }
 }
 
@@ -74,7 +75,8 @@ void MainWindow::cameraRestarter()
             postProcessinThread_.waitForFinished();
             Logger::Info("Exited!");
             cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
-            postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
+            //if(!postProcessinThread_.isRunning())
+            //    postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
             Logger::Info("Done launching threads");
             return;
         }

@@ -302,7 +302,7 @@ std::vector<float32_t> logger_row4;
 
 bool RobotArm::checkCollision()
 {
-    std::cout << logger_row1.size() << '\n';
+    //std::cout << logger_row1.size() << '\n';
     /*std::cout.flush();
     if (logger_row1.size() == 100)
     {

@@ -154,7 +154,7 @@ class MainWindow : public QMainWindow
 
 
         QFuture<void> cameraThread_;
-        QFuture<void> postProcessinThread_;
+        //QFuture<void> postProcessinThread_;
         QFuture<void> leanModeThread_;
         QFuture<void> progThread_;
         QFuture<void> watchdogThread_;

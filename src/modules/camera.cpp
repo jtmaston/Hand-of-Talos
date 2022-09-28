@@ -9,9 +9,12 @@ using std::chrono::high_resolution_clock;
 using std::chrono::milliseconds;
 
 
-
+#include <chrono>
+std::chrono::time_point<std::chrono::system_clock> t;
 void MainWindow::updateViewfinderFrame()
 {
+    std::cout << duration_cast<milliseconds>((high_resolution_clock::now() - t )).count() << '\n';
+    t = high_resolution_clock::now();
     displaySync_.lock();
     QImage qt_image = QImage((const unsigned char *)(incomingFrame_.data), incomingFrame_.cols, incomingFrame_.rows, QImage::Format_RGB888);
     ui->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
@@ -25,11 +28,12 @@ void MainWindow::getFrame() // this is 2am code.
 
     while (applicationIsRunning_)
     {
-        if ( postProcessinThread_.isFinished() )
-        {
-            postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
-            Logger::Warning("Warning! Lost postprocessor. Restarted.");
-        }
+        //if ( postProcessinThread_.isFinished() )
+        //{
+            //if(!postProcessinThread_.isRunning())
+                //postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
+            //Logger::Warning("Warning! Lost postprocessor. Restarted.");
+        //}
         
         int read_confirm = false;
         try
@@ -46,18 +50,27 @@ void MainWindow::getFrame() // this is 2am code.
             connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));
             return;
         }
+        postprocessImage();
         synchroMesh_.unlock();
+        //displaySync_.unlock();
     }
     return;
 }
 
 void MainWindow::postprocessImage()
 {
+    using namespace std::chrono;
+ 
+    // Use auto keyword to avoid typing long
+    // type definitions to get the timepoint
+    // at this instant use function now()
+    
+
     cv::Mat bw;
 
-    while (applicationIsRunning_)
-    {
-
+    //while (true)
+    //{
+        
         if(!cameraThread_.isRunning())
         {
             return;
@@ -205,7 +218,7 @@ void MainWindow::postprocessImage()
             putText(incomingFrame_, "Blue", blueBoundingBox_.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0));
         }
         displaySync_.unlock();
-    }
+    //}
 }
 
 /*

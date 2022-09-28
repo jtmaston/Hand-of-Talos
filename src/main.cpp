@@ -9,9 +9,9 @@
 
 int main(int argc, char *argv[])
 {   
-    //char arg[] = "DISPLAY=:0.0";
-    //putenv(arg);
-    //qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    char arg[] = "DISPLAY=:0.0";
+    putenv(arg);
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
     
     QApplication a(argc, argv);
     QTranslator translator;

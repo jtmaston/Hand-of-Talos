@@ -32,9 +32,10 @@ void MainWindow::runCheckCollision()
         dev_.checkCollision();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-        std::cout << "Took " << duration.count() << '\n';
-        crappyDelay(10);
+        //std::cout << "Took " << duration.count() << '\n';
         
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(10ms);
     }
     
 }

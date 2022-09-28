@@ -17,7 +17,7 @@ class BaseTranslationAxis : public QObject
         bool active;
 
     private:
-        bool detect();
+        // bool detect();       TODO: maybe deprecate
         
         QSerialPort port;
         bool moving;

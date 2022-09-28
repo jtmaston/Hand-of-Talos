@@ -24,8 +24,7 @@ void MainWindow::updateViewfinderFrame()
 void MainWindow::getFrame() // this is 2am code.
 {                          // runs the viewfinder, alongside color detection
 
-    int connected = true;
-
+    bool read_confirm;
     while (applicationIsRunning_)
     {
         //if ( postProcessinThread_.isFinished() )
@@ -34,8 +33,7 @@ void MainWindow::getFrame() // this is 2am code.
                 //postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
             //Logger::Warning("Warning! Lost postprocessor. Restarted.");
         //}
-        
-        int read_confirm = false;
+
         try
         {
             read_confirm = robotCamera_->read(incomingFrame_);

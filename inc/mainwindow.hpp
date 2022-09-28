@@ -136,7 +136,7 @@ class MainWindow : public QMainWindow
 
         void setLearnBarVisibility(bool state);
         void setCameraBarVisibility(bool state);
-        void setAxisReadoutVisibility(bool state);
+        // void setAxisReadoutVisibility(bool state);
         bool runningProgram_ = false;
         bool runningLearnMode_ = false;
         bool hasFileOpen_ = false;

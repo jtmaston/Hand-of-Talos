@@ -10,7 +10,7 @@ void MainWindow::startLearnMode() // starts the learn mode
     movement_warning->setText("Please wait for return to origin!");
     movement_warning->setStandardButtons(0);
 
-    switch (learnModeActive_)
+    switch ((int) learnModeActive_)
     {
     case 0:
     {
@@ -67,7 +67,7 @@ void MainWindow::addStep() // add a step
 
 void MainWindow::removeStep() // remove a step from the queue
 {
-    dev_.learned_angles.pop_back();
+    dev_.learnedAngles.pop_back();
     // ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 

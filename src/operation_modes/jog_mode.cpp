@@ -22,7 +22,7 @@ void MainWindow::startJogging()
 
 void MainWindow::updateJoystickPosition()
 {
-    //float32_t* angles = dev.servo_readall();
+    //float32_t* angles = dev.servoReadall();
     /*float32_t angles[] = 
     {
         dev.angles[0] - joystick->axisLeftX() * 0.05,
@@ -38,5 +38,5 @@ void MainWindow::updateJoystickPosition()
         std::cout << angles[i] << " ";
     std::cout << '\n';
 
-    dev.servo_write6(angles, 1000);*/
+    dev.servoWrite6(angles, 1000);*/
 }

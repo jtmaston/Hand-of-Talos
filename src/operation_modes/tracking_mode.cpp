@@ -20,9 +20,9 @@ void MainWindow::setTrackingColorRed()
     uint8_t speed[] = {0x05, 3};
     uint8_t color[] = {0x06, 0};
 
-    write(dev_.led_bus, mode, 2);
-    write(dev_.led_bus, speed, 2);
-    write(dev_.led_bus, color, 2);
+    write(dev_.ledBus, mode, 2);
+    write(dev_.ledBus, speed, 2);
+    write(dev_.ledBus, color, 2);
 }
 
 void MainWindow::setTrackingColorGreen()
@@ -43,9 +43,9 @@ void MainWindow::setTrackingColorGreen()
     uint8_t speed[] = {0x05, 3};
     uint8_t color[] = {0x06, 1};
 
-    write(dev_.led_bus, mode, 2);
-    write(dev_.led_bus, speed, 2);
-    write(dev_.led_bus, color, 2);
+    write(dev_.ledBus, mode, 2);
+    write(dev_.ledBus, speed, 2);
+    write(dev_.ledBus, color, 2);
 }
 
 void MainWindow::setTrackingColorBlue()
@@ -66,9 +66,9 @@ void MainWindow::setTrackingColorBlue()
     uint8_t speed[] = {0x05, 3};
     uint8_t color[] = {0x06, 2};
 
-    write(dev_.led_bus, mode, 2);
-    write(dev_.led_bus, speed, 2);
-    write(dev_.led_bus, color, 2);
+    write(dev_.ledBus, mode, 2);
+    write(dev_.ledBus, speed, 2);
+    write(dev_.ledBus, color, 2);
 }
 
 void MainWindow::stopTracking()
@@ -78,7 +78,7 @@ void MainWindow::stopTracking()
     disconnect(Scheduler_500ms_, SIGNAL(timeout()), this, SLOT(startColorTracking()));
     //connect(Scheduler_100ms, SIGNAL(timeout()), SLOT(command()));
     uint8_t cmd[] = {0x07, 0};
-    write(dev_.led_bus, cmd, 2);
+    write(dev_.ledBus, cmd, 2);
 }
 
 void MainWindow::startColorTracking()
@@ -108,8 +108,8 @@ void MainWindow::startColorTracking()
     }
 
     }
-    float32_t alpha = (asin((320 - x_center) / ((22) * pixMod)) * 180) / __PI__;
-    float32_t beta = (asin((240 - y_center) / ((36) * pixMod)) * 180) / __PI__;
+    float32_t alpha = (asin((320 - x_center) / ((22) * pixMod)) * 180) / M_PI;
+    float32_t beta = (asin((240 - y_center) / ((36) * pixMod)) * 180) / M_PI;
 
     ui->base_r->setValue(ui->base_r->value() + round(alpha));
     ui->a4_r->setValue(ui->a4_r->value() - round(beta));
@@ -129,5 +129,5 @@ void MainWindow::startColorTracking()
     ui->a5_r->setValue(static_cast<int>(ui->increment_5->value()));
     ui->grip_r->setValue(static_cast<int>(ui->increment_6->value()));
 
-    //dev.servo_write6(angles, 450);        FIXME:
+    //dev.servoWrite6(angles, 450);        FIXME:
 }

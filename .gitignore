@@ -20,3 +20,6 @@ cpp/src/networking
 .DS_Store
 cmake*
 quirc*
+cmake-build-debug*
+cmake-build-debug/
+.idea

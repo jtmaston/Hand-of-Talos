@@ -57,7 +57,7 @@ void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::ve
                 {
                 case 8192:
                 {
-                    // auto test = dev.servo_readall();
+                    // auto test = dev.servoReadall();
 
                     // wd.source.clear();
                     // wd.destination.clear();
@@ -70,14 +70,14 @@ void MainWindow::rasmInterpreter(const std::vector<float> home_position, std::ve
 
                     // delete test;
 
-                    // dev.servo_write6(instruction.params + 1, time_mod);       FIXME: uncomment
+                    // dev.servoWrite6(instruction.params + 1, time_mod);       FIXME: uncomment
                     dev_.setDestination(instruction.params);
 
                     break;
                 }
                 default: // in theory, this *should* maintain backwards compatibility with older programs. Maybe.
                 {
-                    // dev.servo_write6(target_variables.at(instruction.params[0]).angles, time_mod); FIXME: uncomment
+                    // dev.servoWrite6(target_variables.at(instruction.params[0]).angles, time_mod); FIXME: uncomment
                     break;
                 }
                 }

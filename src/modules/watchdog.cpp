@@ -29,7 +29,7 @@ void Watchdog::handler()
 {
     while (wd_active)
     {
-        //state = dev->servo_readall();
+        //state = dev->servoReadall();
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(stop - started);

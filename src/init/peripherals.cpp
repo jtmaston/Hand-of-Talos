@@ -72,7 +72,7 @@ void MainWindow::cameraRestarter()
             Logger::Info("Restarting!");
             Logger::Info("Waiting for process thread to die...");
             synchroMesh_.unlock();
-            postProcessinThread_.waitForFinished();
+            //postProcessinThread_.waitForFinished();
             Logger::Info("Exited!");
             cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
             //if(!postProcessinThread_.isRunning())

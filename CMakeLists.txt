@@ -17,6 +17,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+set(AUTOGEN_BUILD_DIR ${PROJECT_SOURCE_DIR}/inc)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,8 +30,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools Concurrent N
 find_package( OpenCV REQUIRED )
 find_package(Iconv REQUIRED)
 
-add_library(OpenCV STATIC IMPORTED)
-include_directories(/usr/local/include/opencv4/)
+#add_library(OpenCV STATIC IMPORTED)
+#include_directories(/usr/local/include/opencv4/)
 
 
 add_library(
@@ -80,9 +81,8 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/inc/Logger.hpp
 
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
-    ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_exc.hpp
 
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
+        ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
     ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
 
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp

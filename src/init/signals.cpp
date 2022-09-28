@@ -20,9 +20,12 @@ void MainWindow::initSignals()
     Scheduler_10ms_ = new QTimer(this);
 
     connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(updateAxisDisplay()));           // axis readout is updated every 100ms
-    connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(moveToPosition()));               // control from the axis is also updated ever 100ms
+    //connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(moveToPosition()));               // control from the axis is also updated ever 100ms
     connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(checkForFileIngress()));   // camera is updated every 20ms
     connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runGetCurrentPosition()));
+
+    //ui->base_r->setTracking(false);
+    connect(ui->base_r, SIGNAL(sliderReleased()),this, SLOT(moveToPosition()));
 
     connect(ui->learn_btn, SIGNAL(clicked()), SLOT(toggleLearnBar()));        // when the learn button is clicked, toggle the bar
     connect(ui->track_btn, SIGNAL(clicked()), SLOT(toggleCameraBar()));       // when the track button is clicked, toggle the bar
@@ -40,7 +43,8 @@ void MainWindow::initSignals()
     //connect(ui->jog_btn, SIGNAL(clicked()), SLOT(jog()));                       //      top buttons
     connect(ui->load_btn, SIGNAL(clicked()), SLOT(runProgram()));                  // >>
 
-    connect(ui->factor_slider, &QSlider::valueChanged, ui->factor_box, &QSpinBox::setValue);
+
+    //connect(ui->base_r, SIGNAL(valueChanged(int)), ui->increment_1, &QDoubleSpinBox::setValue);
 
     connect(ui->base_r, &QSlider::valueChanged, ui->increment_1, &QDoubleSpinBox::setValue);    //  <<
     connect(ui->a2_r, &QSlider::valueChanged, ui->increment_2, &QDoubleSpinBox::setValue);      //      Connect the sliders to the text boxes,
@@ -51,7 +55,7 @@ void MainWindow::initSignals()
 
     connect(Scheduler_500ms_, SIGNAL(timeout()), SLOT(detectJoystickHotplug()));               // start the hotplug detect of the joystick
     connect(Scheduler_16ms_, SIGNAL(timeout()), SLOT(updateViewfinderFrame()));
-    connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runCheckCollision()));
+    //connect(Scheduler_10ms_, SIGNAL(timeout()), SLOT(runCheckCollision()));
 
     Scheduler_100ms_->start(100);
     Scheduler_16ms_->start(33);

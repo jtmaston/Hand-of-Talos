@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     waitForMoveComplete_ = true;
     dev_.timeFactor = 1000;
     progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, instructionQueue_, &applicationIsRunning_);
+    watchdogThread_ = QtConcurrent::run(this, &MainWindow::runCheckCollision);
+    
     dev_.toggleTorque(true);
 }
 

@@ -19,12 +19,22 @@ void MainWindow::initDevice()
     crappyDelay(dev_.timeFactor);
 }
 
-void MainWindow::runGetCurrentPosition()
+void MainWindow::runGetCurrentPosition()                    //      
 {
     dev_.getCurrentPosition();
 }
 
 void MainWindow::runCheckCollision()
 {
-    dev_.checkCollision();
+    while(applicationIsRunning_)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        dev_.checkCollision();
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        std::cout << "Took " << duration.count() << '\n';
+        crappyDelay(10);
+        
+    }
+    
 }

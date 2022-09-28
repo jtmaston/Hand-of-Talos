@@ -5,6 +5,7 @@
 
 void MainWindow::moveToPosition() // get the values from the sliders, then write them on the bus
 {
+    std::cout << "Here!";
     float32_t angles[6];
     angles[0] = ui->increment_1->value() + dev_.homePosition_[0]; // need to adjust with 90
     angles[1] = ui->increment_2->value() + dev_.homePosition_[1];

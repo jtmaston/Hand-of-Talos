@@ -270,12 +270,16 @@ void RobotArm::getCurrentPosition()
 void RobotArm::setDestination(std::vector<float> new_destination)
 {
     endPosition_ = std::vector<float>(new_destination.cbegin() + 1, new_destination.cend());
-    for(int i = 0 ; i < 6; i++)
-        endPosition_.at(i) -= homePosition_.at(i);
+    
     moving = true;
     moveStartTime_ = std::chrono::system_clock::now();
     startPosition_ = currentPosition_;
-    
+    timeFactor = 3000;
+    servo_write6(endPosition_.data(), timeFactor);
+
+    for(int i = 0 ; i < 6; i++)
+        endPosition_.at(i) -= homePosition_.at(i);
+
 }
 void RobotArm::setTimeMod(int ms)
 {
@@ -292,6 +296,7 @@ void RobotArm::setTimeMod(int ms)
 std::vector<float32_t> logger_row1;
 std::vector<float32_t> logger_row2;
 std::vector<float32_t> logger_row3;
+std::vector<float32_t> logger_row4;
 
 #include <fstream>
 
@@ -303,10 +308,10 @@ bool RobotArm::checkCollision()
     {
         std::ofstream fout("output.csv");
 
-        fout << "ACTUAL,PROJECTED,PERCENT\n";
+        fout << "TARGET,ACTUAL,PROJECTED,PERCENT\n";
         for (int i = 0; i < 100; i++)
         {
-            fout << logger_row1.at(i) << "," << logger_row2.at(i) << "," << logger_row3.at(i) << '\n';
+            fout << logger_row4.at(i) << "," <<logger_row1.at(i) << "," << logger_row2.at(i) << "," << logger_row3.at(i) << '\n';
         }
         fout.close();
         throw std::runtime_error("HALTED AT REQ'D POINT");
@@ -329,18 +334,19 @@ bool RobotArm::checkCollision()
         // conclusion, to determine position at a given moment, we must do
         // (distance / time_factor) * moment, thus getting an offset.
         // we add said offset to our current position, and get our projected position.
-        timeFactor = 450;
+        timeFactor = 3000;
 
         for (int i = 0; i < 1; i++)
         { //|                distance                  |   timeFactor  |        time         |
             float offset = ((endPosition_.at(i) - startPosition_.at(i)) / timeFactor) * milliseconds.count();
-            float projectedPosition = offset + startPosition_.at(i);
+            float projectedPosition = offset + startPosition_.at(i) + homePosition_.at(i);
 
             if (milliseconds.count() <= timeFactor)
             {
-                logger_row1.push_back(currentPosition_.at(0) + homePosition_.at(i));
-                logger_row2.push_back(projectedPosition);
-                logger_row3.push_back((float)milliseconds.count() / (float)timeFactor * 100.0f);
+                logger_row1.push_back((float)currentPosition_.at(0) + (float)homePosition_.at(i));
+                logger_row2.push_back((float)projectedPosition);
+                logger_row3.push_back((float)milliseconds.count());
+                logger_row4.push_back(endPosition_.at(i) + homePosition_.at(i));
             }
         }
         break;

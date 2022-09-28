@@ -157,6 +157,7 @@ class MainWindow : public QMainWindow
         QFuture<void> postProcessinThread_;
         QFuture<void> leanModeThread_;
         QFuture<void> progThread_;
+        QFuture<void> watchdogThread_;
 
         std::vector<Instruction> manualProgramStack_;
         cv::Mat incomingFrame_;

@@ -3,11 +3,10 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <stdlib.h>
 
 
 
-int main(int argc, char *argv[])
+auto main(int argc, char *argv[]) -> int
 {   
     char arg[] = "DISPLAY=:0.0";
     putenv(arg);
@@ -15,17 +14,16 @@ int main(int argc, char *argv[])
     
     QApplication a(argc, argv);
     QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "RobotDashBoard_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
+    const QStringList ui_languages = QLocale::system().uiLanguages();
+    for (const QString &locale : ui_languages) {
+        const QString base_name = "RobotDashBoard_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + base_name)) {
+            QApplication::installTranslator(&translator);
             break;
         }
     }
     MainWindow w;
     w.show();
-    return a.exec();
-    
-    return 0;
+    return QApplication::exec();
+
 }

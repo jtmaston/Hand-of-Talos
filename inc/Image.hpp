@@ -5,14 +5,14 @@
 class Image
 {
 public:
-    int width;
-    int height;
-    const char *pixel_data;
+    int width_;
+    int height_;
+    const char *pixelData_;
 
     Image(int w, int h, const char *pix)
     {
-        width = w;
-        height = h;
-        pixel_data = pix;
+        width_ = w;
+        height_ = h;
+        pixelData_ = pix;
     }
 };

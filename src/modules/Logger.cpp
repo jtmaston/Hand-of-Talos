@@ -1,20 +1,20 @@
 #include "Logger.hpp"
 
-void Logger::Error(std::string message)
+void Logger::error(const std::string& message)
 {
     std::cout << "\033[;31m"
               << "[" << "ERR" << "]" <<"\033[0m: "
               << message << '\n';
 }
 
-void Logger::Warning(std::string message)
+void Logger::warning(const std::string& message)
 {
     std::cout << "\033[;33m"
               << "[" << "WARN" << "]" <<"\033[0m: "
               << message << '\n';
 }
 
-void Logger::Info(std::string message)
+void Logger::info(const std::string& message)
 {
     std::cout << "\033[;34m"
               << "[" <<"INFO" << "]" <<"\033[0m: "

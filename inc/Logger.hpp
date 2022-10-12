@@ -1,14 +1,14 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef ROBOTDASHBOARD_LOGGER_HPP
+#define ROBOTDASHBOARD_LOGGER_HPP
 
 #include <iostream>
 #include <string>
 
 namespace Logger
 {
-    void Error(std::string);
-    void Warning(std::string);
-    void Info(std::string);
+    void error(const std::string& message);
+    void warning(const std::string& message);
+    void info(const std::string& message);
 }
 
 #endif

@@ -4,29 +4,30 @@
 
 BaseTranslationAxis::BaseTranslationAxis()
 {
-    const auto serialPortInfos = QSerialPortInfo::availablePorts();
+    const auto serial_port_infos = QSerialPortInfo::availablePorts();
 
-    active = false;
-    for (const QSerialPortInfo &serialPortInfo : serialPortInfos) {
-        if ( ( serialPortInfo.manufacturer().toStdString() == "1a86" ) && (serialPortInfo.productIdentifier() == 29987))
+    active_ = false;
+    for (const QSerialPortInfo &serial_port_info : serial_port_infos) {
+        if ((serial_port_info.manufacturer().toStdString() == "1a86" ) && (serial_port_info.productIdentifier() == 29987))
         {
-            port.setBaudRate(QSerialPort::Baud9600);
-            port.setPortName(serialPortInfo.portName());
-            if ( port.open(QIODevice::ReadWrite) )
-                active = true;
+            port_.setBaudRate(QSerialPort::Baud9600);
+            port_.setPortName(serial_port_info.portName());
+            if ( port_.open(QIODevice::ReadWrite) )
+                active_ = true;
             break;
         }
             
     }
 
-    if(!active)
+    if(!active_)
     {
-        Logger::Warning("Cannot find base translation axis. Control is disabled!");
+        Logger::warning("Cannot find base translation axis. Control is disabled!");
     }else
     {
-        connect(&port, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);
+        connect(&port_, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);
     }
-
+    position_ = 0;
+    moving_ = false;
     
 
     //return 0;
@@ -34,12 +35,12 @@ BaseTranslationAxis::BaseTranslationAxis()
 
 BaseTranslationAxis::~BaseTranslationAxis()
 {
-    port.close();
+    port_.close();
 }
 
 void BaseTranslationAxis::read()
 {
-    auto data = port.readAll();
+    auto data = port_.readAll();
     
     switch(data[0])
     {
@@ -79,8 +80,8 @@ void BaseTranslationAxis::move(int range)
 {
     QByteArray data;
     data.append(std::to_string(range + 25).c_str());
-    port.write(data);
-    port.write("\n");
-    position = range;
-    moving = true;
+    port_.write(data);
+    port_.write("\n");
+    position_ = range;
+    moving_ = true;
 }

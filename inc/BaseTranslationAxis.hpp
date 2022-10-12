@@ -11,16 +11,16 @@ class BaseTranslationAxis : public QObject
     Q_OBJECT
     public:
         BaseTranslationAxis();
-        ~BaseTranslationAxis();
+        ~BaseTranslationAxis() override;
         void move(int range);
-        int position;
-        bool active;
+        int position_{};
+        bool active_;
 
     private:
         // bool detect();       TODO: maybe deprecate
         
-        QSerialPort port;
-        bool moving;
+        QSerialPort port_;
+    bool moving_{};
     
     private slots:
         void read();

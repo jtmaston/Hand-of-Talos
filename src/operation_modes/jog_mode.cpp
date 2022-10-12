@@ -1,27 +1,25 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-void MainWindow::startJogging()
-{
-    disconnect(Scheduler_100ms_, SIGNAL(timeout()), this, SLOT(updateJoystickPosition()));
-    connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(updateJoystickPosition()));
+void MainWindow::startJogging() {
+    disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(updateJoystickPosition()));
+    connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(updateJoystickPosition()));
 
-    ui->base_r->setDisabled(runningProgram_);
-    ui->increment_1->setDisabled(runningProgram_);
-    ui->a2_r->setDisabled(runningProgram_);
-    ui->increment_2->setDisabled(runningProgram_);
-    ui->a3_r->setDisabled(runningProgram_);
-    ui->increment_3->setDisabled(runningProgram_);
-    ui->a4_r->setDisabled(runningProgram_);
-    ui->increment_4->setDisabled(runningProgram_);
-    ui->a5_r->setDisabled(runningProgram_);
-    ui->increment_5->setDisabled(runningProgram_);
-    ui->grip_r->setDisabled(runningProgram_);
-    ui->increment_6->setDisabled(runningProgram_);
+    ui_->base_r->setDisabled(runningProgram_);
+    ui_->increment_1->setDisabled(runningProgram_);
+    ui_->a2_r->setDisabled(runningProgram_);
+    ui_->increment_2->setDisabled(runningProgram_);
+    ui_->a3_r->setDisabled(runningProgram_);
+    ui_->increment_3->setDisabled(runningProgram_);
+    ui_->a4_r->setDisabled(runningProgram_);
+    ui_->increment_4->setDisabled(runningProgram_);
+    ui_->a5_r->setDisabled(runningProgram_);
+    ui_->increment_5->setDisabled(runningProgram_);
+    ui_->grip_r->setDisabled(runningProgram_);
+    ui_->increment_6->setDisabled(runningProgram_);
 }
 
-void MainWindow::updateJoystickPosition()
-{
+void MainWindow::updateJoystickPosition() {
     //float32_t* angles = dev.servoReadall();
     /*float32_t angles[] = 
     {

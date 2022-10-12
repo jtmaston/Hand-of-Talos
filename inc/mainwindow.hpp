@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ROBOTDASHBOARD_MAINWINDOW_HPP
+#define ROBOTDASHBOARD_MAINWINDOW_HPP
 
 #include <QMainWindow>
 #include "RobotArm.hpp"
@@ -39,8 +39,8 @@
 
 using namespace cv;
 
-#define pixMod 45.0847
-#define degRad 57.29577951308
+#define PIX_MOD 45.0847
+#define DEG_RAD 57.29577951308
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -50,17 +50,16 @@ namespace Ui
 QT_END_NAMESPACE
 
 #define HIDDEN false
-#define VISIBLE true;
 
-         // FIXME: move somewhere else | FIXME: rename
+// FIXME: move somewhere else | FIXME: rename
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
     public:
-        MainWindow(QWidget *parent = nullptr);
-        ~MainWindow();
+        explicit MainWindow(QWidget *parent = nullptr);
+        ~MainWindow() override;
 
         int trackingDirection_ = 0;
 
@@ -70,7 +69,7 @@ class MainWindow : public QMainWindow
 
         bool applicationIsRunning_;
         QString incomingFilename_;
-        struct quirc *qrDecoder_;
+        quirc *qrDecoder_;
 
         void goToHomePosition();
         VideoCapture *robotCamera_ = nullptr;
@@ -85,7 +84,7 @@ class MainWindow : public QMainWindow
         QSlider* uiSliderArray_[6];
 
 
-        bool learnModeActive_ = 0;
+        bool learnModeActive_ = false;
 
     public slots:
         void toggleLearnBar();                        // hides or shows the learn bar
@@ -115,24 +114,25 @@ class MainWindow : public QMainWindow
         void checkForFileIngress();
         
         
-        void rasmInterpreter(const std::vector <float>, std::vector<Instruction>*, bool*);
+        void rasmInterpreter(const std::vector <float>&, std::vector<Instruction>*, const bool*);
         void cameraRestarter();
         
         void updateViewfinderFrame();
         void postprocessImage();
+        void testProcedure();
 
         // this is an *ugly* implementation, but we have to live with it, due to qt5's garbage slot mechanism
 
         void runGetCurrentPosition();
         void runCheckCollision();
 
-        void crappyDelay(int ms);
+        static void crappyDelay(int ms);
         
 
     private:
-        Ui::MainWindow *ui = nullptr;                             // user interface
+        Ui::MainWindow *ui_ = nullptr;                             // user interface
         bool learnBarVisibility_ = HIDDEN;                  // monitors the state of the bars
-        bool cameraBarVisibility = HIDDEN;
+        bool cameraBarVisibility_ = HIDDEN;
 
         void setLearnBarVisibility(bool state);
         void setCameraBarVisibility(bool state);
@@ -141,10 +141,10 @@ class MainWindow : public QMainWindow
         bool runningLearnMode_ = false;
         bool hasFileOpen_ = false;
 
-        QTimer *Scheduler_100ms_ = nullptr;                        // timers for different actions
-        QTimer *Scheduler_16ms_ = nullptr;
-        QTimer *Scheduler_500ms_ = nullptr;
-        QTimer *Scheduler_10ms_ = nullptr;
+        QTimer *scheduler100Ms_ = nullptr;                        // timers for different actions
+        QTimer *scheduler16Ms_ = nullptr;
+        QTimer *scheduler500Ms_ = nullptr;
+        QTimer *scheduler10Ms_ = nullptr;
 
         RobotArm dev_;
         BaseTranslationAxis translationAxis_;
@@ -169,4 +169,4 @@ class MainWindow : public QMainWindow
 
 };
 
-#endif // MAINWINDOW_H
+#endif // ROBOTDASHBOARD_MAINWINDOW_HPP

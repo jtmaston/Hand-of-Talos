@@ -22,7 +22,7 @@ set(AUTOGEN_BUILD_DIR ${PROJECT_SOURCE_DIR}/inc)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing -Wno-trigraphs -no-pie")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -mtune=native -Wno-narrowing -Wno-trigraphs -no-pie -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-march=native -mtune=native -Wall -Wpedantic -O3 -Wno-trigraphs -no-pie")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
@@ -62,8 +62,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/modules/BaseTranslationAxis.cpp
     ${PROJECT_SOURCE_DIR}/src/modules/motion.cpp
     ${PROJECT_SOURCE_DIR}/src/modules/RASM_Interpreter.cpp
-    ${PROJECT_SOURCE_DIR}/src/modules/watchdog.cpp
-    ${PROJECT_SOURCE_DIR}/src/modules/Logger.cpp
+        ${PROJECT_SOURCE_DIR}/src/modules/Logger.cpp
 
     ${PROJECT_SOURCE_DIR}/src/operation_modes/tracking_mode.cpp
     ${PROJECT_SOURCE_DIR}/src/operation_modes/jog_mode.cpp
@@ -77,8 +76,7 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/inc/mainwindow.ui
     ${PROJECT_SOURCE_DIR}/inc/BaseTranslationAxis.hpp
     ${PROJECT_SOURCE_DIR}/inc/Image.hpp
-    ${PROJECT_SOURCE_DIR}/inc/Watchdog.hpp
-    ${PROJECT_SOURCE_DIR}/inc/Logger.hpp
+        ${PROJECT_SOURCE_DIR}/inc/Logger.hpp
 
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
 
@@ -124,12 +122,12 @@ else()
             ${SOURCES} ${HEADERS}
         )
 
-        #if( supported )
-            #message(STATUS "IPO / LTO enabled")
-            #set_property(TARGET RobotDashboard PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-        #else()
-        #    message(STATUS "IPO / LTO not supported: <${error}>")
-        #endif()
+        if( supported )
+            message(STATUS "IPO / LTO enabled")
+            set_property(TARGET RobotDashboard PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        else()
+            message(STATUS "IPO / LTO not supported: <${error}>")
+        endif()
 
         target_include_directories( RobotDashboard
             PUBLIC

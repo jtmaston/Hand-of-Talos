@@ -15,23 +15,21 @@ void MainWindow::initPeripherals()
 
     if (!robotCamera_->isOpened())
     {
-        connect(Scheduler_100ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));
+        connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));
     }
     else
     {
         cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
-        //if(!postProcessinThread_.isRunning())
-        //    postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
     }
 }
 
-bool MainWindow::detectJoystickHotplug()
+auto MainWindow::detectJoystickHotplug() -> bool
 {
 
     auto gamepads = QGamepadManager::instance()->connectedGamepads();
     if (gamepads.isEmpty())
     {
-        ui->jog_btn->setEnabled(false);
+        ui_->jog_btn->setEnabled(false);
         // std::cout << "[ WARN ] No gamepad detected.\n";
 
         if (joystick_ != nullptr)
@@ -54,11 +52,11 @@ bool MainWindow::detectJoystickHotplug()
 
 void MainWindow::cameraRestarter()
 {
-    extern Image NoSignal;
-    QImage qt_image = QImage((const unsigned char *)(NoSignal.pixel_data), NoSignal.width, NoSignal.height, QImage::Format_RGB888);
+    extern Image noSignal;
+    // QImage qt_image = QImage((const unsigned char *)(noSignal.pixelData_), noSignal.width_, noSignal.height_, QImage::Format_RGB888);
 
     if (incomingFrame_.empty())
-        incomingFrame_ = cv::Mat(NoSignal.height, NoSignal.width, CV_8UC3, (unsigned char *)NoSignal.pixel_data);
+        incomingFrame_ = cv::Mat(noSignal.height_, noSignal.width_, CV_8UC3, (unsigned char *)noSignal.pixelData_);
 
     cv::resize(incomingFrame_, incomingFrame_, Size(751, 481));
 
@@ -66,18 +64,15 @@ void MainWindow::cameraRestarter()
     {
         if (robotCamera_->open(i, CAP_V4L2))
         {
-            Logger::Info("Camera at /dev/video" + std::to_string(i) + " available");
-            disconnect(Scheduler_100ms_, SIGNAL(timeout()), this, SLOT(cameraRestarter()));
+            Logger::info("Camera at /dev/video" + std::to_string(i) + " available");
+            disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(cameraRestarter()));
             cameraThread_.waitForFinished();
-            Logger::Info("Restarting!");
-            Logger::Info("Waiting for process thread to die...");
+            Logger::info("Restarting!");
+            Logger::info("Waiting for process thread to die...");
             synchroMesh_.unlock();
-            //postProcessinThread_.waitForFinished();
-            Logger::Info("Exited!");
+            Logger::info("Exited!");
             cameraThread_ = QtConcurrent::run(this, &MainWindow::getFrame);
-            //if(!postProcessinThread_.isRunning())
-            //    postProcessinThread_ = QtConcurrent::run(this, &MainWindow::postprocessImage);
-            Logger::Info("Done launching threads");
+            Logger::info("Done launching threads");
             return;
         }
     }

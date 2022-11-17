@@ -74,10 +74,10 @@ void BaseTranslationAxis::read()
 
 void BaseTranslationAxis::move(int range)
 {
-    QByteArray data;
+    /**QByteArray data;
     data.append(std::to_string(range + 25).c_str());
     port.write(data);
     port.write("\n");
     position = range;
-    moving = true;
+    moving = true;**/
 }

@@ -215,7 +215,7 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
             if (instruction.params[0] + 1 > target_variables.size())
                 target_variables.reserve(target_variables.size() + 1);
             variable::Target tgt;
-            memcpy(tgt.angles, instruction.params + 1, 5 * sizeof(float));
+            memcpy(tgt.angles, instruction.params.data() + 1, 5 * sizeof(float));
             target_variables.push_back(tgt);
 
             break;

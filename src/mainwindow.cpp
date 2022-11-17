@@ -250,7 +250,7 @@ void MainWindow::add_step() // add a step
     Instruction local;
     local.opcode = TGT;
     local.params[0] = manual_program.size();
-    memcpy(local.params + 1, t.data(), 5 * sizeof(float32_t));
+    memcpy(local.params.data() + 1, t.data(), 5 * sizeof(float32_t));
     manual_program.push_back(local);
 
     local.opcode = ANGS;
@@ -263,6 +263,7 @@ void MainWindow::add_step() // add a step
 void MainWindow::remove_step() // remove a step from the queue
 {
     dev.learned_angles.pop_back();
+    disconnect(Scheduler_100ms, SIGNAL(timeout()), this, SLOT(command()));
     ui->execute->setText(QString(std::to_string(ui->execute->text().toInt() - 1).c_str())); // then update the label
 }
 

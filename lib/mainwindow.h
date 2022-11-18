@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow
         bool running;
         QString filename;
         struct quirc *decoder;
+        bool hasFinishedRunning = true;
 
         void go_home();
         uint8_t detect_camera();

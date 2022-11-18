@@ -297,7 +297,7 @@ void MainWindow::capture() // this is 2am code.
             buf[(y * w + x)] = bw.at<uint8_t>(y, x);
     quirc_end(decoder);
 
-    if (quirc_count(decoder) > 0)
+    if (quirc_count(decoder) > 0 && hasFinishedRunning)
     {
         struct quirc_code code;
         struct quirc_data data;
@@ -331,6 +331,7 @@ void MainWindow::capture() // this is 2am code.
                         manual_program.clear();
                         prog_thread = QtConcurrent::run(this, &MainWindow::RASM_Interpreter, dev.home_position, manual_program);
                         filename = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
+                        hasFinishedRunning = false;
                         break;
                     }
                     break;

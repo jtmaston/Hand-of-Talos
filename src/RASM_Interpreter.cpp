@@ -22,7 +22,8 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
 
         fileopen = false;
 
-        std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
+        //std::fstream input_file(filename.toStdString(), std::ios::in | std::ios::binary);
+        std::fstream input_file(filename.toStdString(), std::ios::in);
 
         std::string progname;
         std::string progsize_s;
@@ -33,13 +34,29 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
 
         input_file.get(); // remove trailing \n
         uint16_t read_size = 0;
-        while (read_size < progsize)
+        /*while (read_size < progsize)
         {
-            char *chunk = new char[sizeof(Instruction)];
+            /*char *chunk = new char[sizeof(Instruction)];
             input_file.read(chunk, sizeof(Instruction));
-            program.push_back(std::move(*(Instruction *)chunk));
+            Instruction a = *(Instruction *)chunk;
+            program.push_back(*(Instruction *)chunk);
             delete[] chunk;
             read_size += sizeof(Instruction);
+        }*/
+        while(!input_file.eof())
+        {
+            Instruction a; a.params.clear();
+            int c;
+            input_file >> c;
+            a.opcode = c;
+
+            for(int i = 0 ; i < 10 ; i ++)
+            {
+                float b;
+                input_file >> b;
+                a.params.push_back(b);
+            }
+            program.push_back(a);
         }
         break;
     }
@@ -87,11 +104,11 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
             break;
 
         case ANGS:
-            ui->increment_1->setValue(float(target_variables[instruction.params.at(0)].angles[0]));
-            ui->increment_2->setValue(float(target_variables[instruction.params.at(0)].angles[1]));
-            ui->increment_3->setValue(float(target_variables[instruction.params.at(0)].angles[2]));
-            ui->increment_4->setValue(float(target_variables[instruction.params.at(0)].angles[3]));
-            ui->increment_5->setValue(float(target_variables[instruction.params.at(0)].angles[4]));
+            ui->increment_1->setValue(target_variables[instruction.params.at(0)].angles.at(1));
+            ui->increment_2->setValue(target_variables[instruction.params.at(0)].angles.at(1));
+            ui->increment_3->setValue(target_variables[instruction.params.at(0)].angles.at(2));
+            ui->increment_4->setValue(target_variables[instruction.params.at(0)].angles.at(3));
+            ui->increment_5->setValue(target_variables[instruction.params.at(0)].angles.at(4));
             //ui->increment_6->setValue(target_variables[instruction.params.at(0]].angles[5]);
             usleep(time_mod * 1000);
             break;
@@ -279,5 +296,5 @@ void MainWindow::RASM_Interpreter(const std::vector<float> home_position, const 
     numeric_variables.clear();
     target_variables.clear();
     toggle_jog();
-    return;
+    hasFinishedRunning = true;
 }

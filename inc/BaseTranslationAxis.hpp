@@ -6,21 +6,19 @@
 #include <QTextStream>
 
 
-class BaseTranslationAxis : public QObject
+class TranslationAxis : public QObject
 {
     Q_OBJECT
     public:
-        BaseTranslationAxis();
-        ~BaseTranslationAxis();
+        TranslationAxis();
+        ~TranslationAxis() override;
         void move(int range);
-        int position;
+        int position_;
 
     private:
-        bool detect();
-        bool active;
-        QSerialPort port;
-        bool moving;
-    
+        bool active_;
+        QSerialPort port_;
+
     private slots:
         void read();
 };

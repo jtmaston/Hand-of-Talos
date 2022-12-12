@@ -40,31 +40,39 @@ add_subdirectory(lib/libRASM)
 
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/RASM_Interpreter.cpp
     ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp
-    ${PROJECT_SOURCE_DIR}/src/BaseTranslationAxis.cpp
-)
+    ${PROJECT_SOURCE_DIR}/src/modules/translationAxis.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/joystick.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/camera.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/userInterface.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/motion.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/teachIn.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/jog.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/RASM.cpp)
 
 set(HEADERS
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.h
-    ${PROJECT_SOURCE_DIR}/lib/mainwindow.ui
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.cpp
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension/RobotArm.hpp
+    ${PROJECT_SOURCE_DIR}/inc/mainwindow.h
+    ${PROJECT_SOURCE_DIR}/inc/mainwindow.ui
+    ${PROJECT_SOURCE_DIR}/src/modules/libRobotExtension/RobotArm.cpp
+    ${PROJECT_SOURCE_DIR}/src/modules/libRobotExtension/RobotArm.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_exc.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/isa.hpp
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp
-    ${PROJECT_SOURCE_DIR}/lib/BaseTranslationAxis.hpp
-    ${PROJECT_SOURCE_DIR}/lib/noSignal.hpp
+    ${PROJECT_SOURCE_DIR}/inc/BaseTranslationAxis.hpp
+    ${PROJECT_SOURCE_DIR}/inc/noSignal.hpp
+    ${PROJECT_SOURCE_DIR}/src/init/setup.cpp
+    ${PROJECT_SOURCE_DIR}/src/init/camera.cpp
 )
 
 set(INCLUDE_DIRS
-    ${PROJECT_SOURCE_DIR}/lib/libRobotExtension
+    ${PROJECT_SOURCE_DIR}/src/modules/libRobotExtension
     ${PROJECT_SOURCE_DIR}/lib/libRASM/inc
     ${PROJECT_SOURCE_DIR}/lib/libRobot/include
     ${PROJECT_SOURCE_DIR}/lib
     ${PROJECT_SOURCE_DIR}/lib/libQuirc/lib
+    ${PROJECT_SOURCE_DIR}/inc
 )
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${INCLUDE_DIRS})

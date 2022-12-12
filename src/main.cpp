@@ -1,42 +1,42 @@
-#include "mainwindow.h"
+#include "inc/mainwindow.h"
 
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <stdlib.h>
+#include <cstdlib>
 
 // << https://gist.github.com/AndreLouisCaron/1841061 
 namespace {
 
     // redirect outputs to another output stream.
-    class redirect_outputs
+    class RedirectOutputs
     {
-        std::ostream& myStream;
-        std::streambuf *const myBuffer;
+        std::ostream& myStream_;
+        std::streambuf *const myBuffer_;
     public:
-        redirect_outputs ( std::ostream& lhs, std::ostream& rhs=std::cout )
-            : myStream(rhs), myBuffer(myStream.rdbuf())
+        explicit RedirectOutputs (std::ostream& lhs, std::ostream& rhs=std::cout )
+            : myStream_(rhs), myBuffer_(myStream_.rdbuf())
         {
-            myStream.rdbuf(lhs.rdbuf());
+            myStream_.rdbuf(lhs.rdbuf());
         }
 
-        ~redirect_outputs () {
-            myStream.rdbuf(myBuffer);
+        ~RedirectOutputs () {
+            myStream_.rdbuf(myBuffer_);
         }
     };
 
     // redirect output stream to a string.
-    class capture_outputs
+    class CaptureOutputs
     {
-        std::ostringstream myContents;
-        const redirect_outputs myRedirect;
+        std::ostringstream myContents_;
+        const RedirectOutputs myRedirect_;
     public:
-        capture_outputs ( std::ostream& stream=std::cout )
-            : myContents(), myRedirect(myContents, stream)
+        explicit CaptureOutputs (std::ostream& stream=std::cout )
+            : myContents_(), myRedirect_(myContents_, stream)
         {}
-        std::string contents () const
+        auto contents () const -> std::string
         {
-            return (myContents.str());
+            return (myContents_.str());
         }
     };
 
@@ -52,25 +52,28 @@ int main(int argc, char *argv[])
             << std::endl;
         return (EXIT_FAILURE);
     }
-    const redirect_outputs _(log_file, std::cerr);
+    const RedirectOutputs _(log_file, std::cerr);
 // >>
-    char arg[] = "DISPLAY=:0.0";
-    //putenv(arg);
-    //qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    #ifdef __x86_64__
+        // do x64 stuff
+    #else
+        char arg[] = "DISPLAY=:0.0";
+        putenv(arg);
+    #endif
     
     QApplication a(argc, argv);
     QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "RobotDashBoard_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
+    const QStringList ui_languages = QLocale::system().uiLanguages();
+    for (const QString &locale : ui_languages) {
+        const QString base_name = "RobotDashBoard_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + base_name)) {
+            QApplication::installTranslator(&translator);
             break;
         }
     }
     MainWindow w;
     w.show();
-    return a.exec();
+    return QApplication::exec();
     
     return 0;
 }

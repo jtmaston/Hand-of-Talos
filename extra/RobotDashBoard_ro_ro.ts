@@ -68,8 +68,8 @@
         <translation>Axa 5: </translation>
     </message>
     <message>
-        <source>Base Rotation: </source>
-        <translation type="vanished">Rotația bazei: </translation>
+        <source>Base </source>
+        <translation type="vanished">Rotația </translation>
     </message>
     <message>
         <location filename="../lib/mainwindow.ui" line="142"/>

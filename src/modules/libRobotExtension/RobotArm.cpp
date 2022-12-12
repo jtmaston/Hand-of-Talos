@@ -2,12 +2,12 @@
 
 RobotArm::RobotArm() : ArmDevice()
 {
-    home_position.reserve(6);
-    //home_position = { 90, 90, 90, 0, 90, 0 };
-    home_position = {90, 90, 90, 180 - 5, 90, 90};
+    homePosition_.reserve(6);
+    //homePosition_ = { 90, 90, 90, 0, 90, 0 };
+    homePosition_ = {90, 90, 90, 180 - 5, 90, 90};
 }
 #ifdef __ARM_NEON
-void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
+void RobotArm::neonMultiply(float32_t *T1, float32_t *T2, float32_t *T3) {
 
         // these are the columns A
         float32x4_t T1_0;
@@ -68,22 +68,22 @@ void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
         vst1q_f32(T3+12, T3_3);
 }
 #else
-void RobotArm::neon_multiply(float32_t *T1, float32_t *T2, float32_t *T3) {
-    c_multiply(T1, T2, T3);
+void RobotArm::neonMultiply(float32_t *t1, float32_t *t2, float32_t *t) {
+    cMultiply(t1, t2, t);
 }
 #endif
 
-void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
+void RobotArm::cMultiply(float32_t *a, float32_t *b, float32_t *c)
 {
     int n = 4, m = 4, k = 4;
     for (int i_idx = 0; i_idx < n; i_idx++)
     {
         for (int j_idx = 0; j_idx < m; j_idx++)
         {
-            C[n * j_idx + i_idx] = 0;
+            c[n * j_idx + i_idx] = 0;
             for (int k_idx = 0; k_idx < k; k_idx++)
             {
-                C[n * j_idx + i_idx] += A[n * k_idx + i_idx] * B[k * j_idx + k_idx];
+                c[n * j_idx + i_idx] += a[n * k_idx + i_idx] * b[k * j_idx + k_idx];
             }
         }
     }
@@ -92,7 +92,7 @@ void RobotArm::c_multiply(float32_t *A, float32_t *B, float32_t *C)
 
 void RobotArm::rotateX(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__;
     target[0] = 1; target[4] = 0; target[8] = 0;
     target[1] = 0; target[5] = cos ( phi ); target[9] = -sin ( phi );
     target[2] = 0; target[6] = sin ( phi ); target[10] = cos ( phi );
@@ -100,7 +100,7 @@ void RobotArm::rotateX(uint8_t num, float32_t* target)
 
 void RobotArm::rotateY(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__;
     target[0] = cos ( phi ); target[4] = 0; target[8] = sin ( phi );
     target[1] = 0; target[5] = 1; target[9] = 0;
     target[2] =-sin ( phi ); target[6] = 0; target[10] = cos ( phi );
@@ -108,7 +108,7 @@ void RobotArm::rotateY(uint8_t num, float32_t* target)
 
 void RobotArm::rotateZ(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles[ num - 1] ) * __RAD__ ;
+    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__ ;
     target[0] = cos ( phi ); target[4] = -sin ( phi ); target[8] = 0;
     target[1] = sin ( phi ); target[5] = cos ( phi ); target[9] = 0;
     target[2] = 0; target[6] = 0; target[10] = 1;
@@ -116,20 +116,20 @@ void RobotArm::rotateZ(uint8_t num, float32_t* target)
 
 void RobotArm::translateX(uint8_t num, float32_t* target )
 {
-    target[12] =  this -> translations[ num - 1 ];
+    target[12] =  this -> translations_[num - 1 ];
 }
 
 void RobotArm::translateY(uint8_t num, float32_t* target)
 {
-    target[13] =  this -> translations[ num - 1 ];
+    target[13] =  this -> translations_[num - 1 ];
 }
 
 void RobotArm::translateZ(uint8_t num, float32_t* target)
 {
-    target[14] = this -> translations[ num - 1 ];
+    target[14] = this -> translations_[num - 1 ];
 }
 
-void RobotArm::calculate_end_effector(float32_t* target)
+void RobotArm::calculateEndEffector(float32_t* target)
 {   
     float32_t Transformation_Matrices[][16] =
     {
@@ -172,12 +172,12 @@ void RobotArm::calculate_end_effector(float32_t* target)
     translateX(5, Transformation_Matrices[4]);
     rotateX(5, Transformation_Matrices[4]);
 
-    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], target);
+    neonMultiply(Transformation_Matrices[0], Transformation_Matrices[1], target);
 
-    neon_multiply(Transformation_Matrices[0], Transformation_Matrices[1], steps[0]);
-    neon_multiply(steps[0], Transformation_Matrices[2], steps[1]);
-    neon_multiply(steps[1], Transformation_Matrices[3], steps[2]);
-    neon_multiply(steps[2], Transformation_Matrices[4], target);
+    neonMultiply(Transformation_Matrices[0], Transformation_Matrices[1], steps[0]);
+    neonMultiply(steps[0], Transformation_Matrices[2], steps[1]);
+    neonMultiply(steps[1], Transformation_Matrices[3], steps[2]);
+    neonMultiply(steps[2], Transformation_Matrices[4], target);
 
     /*float32_t step1[16];
     neon_multiply(T1, T2, step1);
@@ -189,29 +189,29 @@ void RobotArm::calculate_end_effector(float32_t* target)
 
     float32_t step3[16];
     neon_multiply(step2, T4, step3);
-    //print_matrix(step3);
-    neon_multiply(step3, T4, target);*/
+    //printMatrix(step3);
+    neonMultiply(step3, T4, target);*/
 
 }
 
 
-void RobotArm::print_matrix(float32_t *M)
+void RobotArm::printMatrix(float32_t * m)
 {
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            printf("%f ", M[j * 4 + i]);
+            printf("%f ", m[j * 4 + i]);
         }
         printf("\n");
     }
     printf("\n");
 }
 
-void RobotArm::go_home()
+void RobotArm::goHome()
 {
     this -> toggleTorque(true);
-    this -> servo_write6(home_position.data(), 1000);
+    this -> servo_write6(homePosition_.data(), 1000);
     usleep(1000);
     //toggleTorque(0);
 }

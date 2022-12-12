@@ -867,7 +867,7 @@ QPushButton:pressed {
              <string notr="true">color: rgb(254, 190, 12);</string>
             </property>
             <property name="text">
-             <string>Axis angles:</string>
+             <string>Axis angles_:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

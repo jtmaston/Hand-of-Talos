@@ -1,42 +1,44 @@
-#include <BaseTranslationAxis.hpp>
+#include "inc/BaseTranslationAxis.hpp"
+#include "Arm_lib.hpp"
+
 #include <iostream>
-#include <QByteArray>
 
-BaseTranslationAxis::BaseTranslationAxis()
+TranslationAxis::TranslationAxis()
 {
-    const auto serialPortInfos = QSerialPortInfo::availablePorts();
+    const auto serial_port_infos = QSerialPortInfo::availablePorts();
 
-    active = false;
-    for (const QSerialPortInfo &serialPortInfo : serialPortInfos) {
-        if ( ( serialPortInfo.manufacturer().toStdString() == "1a86" ) && (serialPortInfo.productIdentifier() == 29987))
+    position_ = 0;
+    active_ = false;
+    for (const QSerialPortInfo &serial_port_info : serial_port_infos) {
+        if ((serial_port_info.manufacturer().toStdString() == "1a86" ) && (serial_port_info.productIdentifier() == 29987))
         {
-            port.setBaudRate(QSerialPort::Baud9600);
-            port.setPortName(serialPortInfo.portName());
-            if ( port.open(QIODevice::ReadWrite) )
-                active = true;
+            port_.setBaudRate(QSerialPort::Baud9600);
+            port_.setPortName(serial_port_info.portName());
+            if ( port_.open(QIODevice::ReadWrite) )
+                active_ = true;
             break;
         }
             
     }
 
-    if(!active)
+    if(!active_)
     {
         std::cerr << "[ ERROR ]: Serial port init failed!";
     }
 
-    connect(&port, &QSerialPort::readyRead, this, &BaseTranslationAxis::read);
+    connect(&port_, &QSerialPort::readyRead, this, &TranslationAxis::read);
 
     //return 0;
 }
 
-BaseTranslationAxis::~BaseTranslationAxis()
+TranslationAxis::~TranslationAxis()
 {
-    port.close();
+    port_.close();
 }
 
-void BaseTranslationAxis::read()
+void TranslationAxis::read()
 {
-    auto data = port.readAll();
+    auto data = port_.readAll();
     
     switch(data[0])
     {
@@ -72,12 +74,12 @@ void BaseTranslationAxis::read()
     } 
 }
 
-void BaseTranslationAxis::move(int range)
+void TranslationAxis::move(int range)
 {
     /**QByteArray data;
     data.append(std::to_string(range + 25).c_str());
     port.write(data);
     port.write("\n");
-    position = range;
+    position_ = range;
     moving = true;**/
 }

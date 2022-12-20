@@ -111,7 +111,7 @@ void MainWindow::stopFollow()
     uint8_t cmd[] = {0x07, 0};
     write(dev_.led_bus, cmd, 2);
 }
-
+// hihi
 void MainWindow::updateAxes() // this updates the axes display
 {
     float32_t *data = dev_.servo_readall(); // read the values from all of the servos

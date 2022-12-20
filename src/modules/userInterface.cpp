@@ -2,7 +2,7 @@
 // Created by aanas on 12/12/22.
 //
 
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 void MainWindow::toggleLearnBar() // toggle the learning bar,
@@ -106,8 +106,8 @@ void MainWindow::startFollowBlue()
 
 void MainWindow::stopFollow()
 {
-    disconnect(scheduler500Ms_, SIGNAL(timeout()), this, SLOT(followColor()));
-    connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(command()));
+    //disconnect(scheduler500Ms_, SIGNAL(timeout()), this, SLOT(followColor()));
+    //connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(command()));
     uint8_t cmd[] = {0x07, 0};
     write(dev_.led_bus, cmd, 2);
 }
@@ -116,17 +116,18 @@ void MainWindow::updateAxes() // this updates the axes display
 {
     float32_t *data = dev_.servo_readall(); // read the values from all of the servos
     // dev.angles_ = data;
-    dev_.angles_.reserve(7); // TODO: prevent this preallocation from happening on each call
 
-    dev_.angles_[0] = data[0] - dev_.homePosition_[0];
-    dev_.angles_[1] = -(data[1] - dev_.homePosition_[1]);
-    dev_.angles_[2] = -(data[2] - dev_.homePosition_[2]);
-    dev_.angles_[3] = -(data[3] - dev_.homePosition_[3] + 170);
-    dev_.angles_[4] = data[4] - dev_.homePosition_[4];
-    dev_.angles_[5] = data[5] - dev_.homePosition_[5];
+    dev_.angles_.clear();           // TODO: this is bad :(
+
+
+    dev_.angles_.push_back(data[0] - dev_.homePosition_[0]);
+    dev_.angles_.push_back(-(data[1] - dev_.homePosition_[1]));
+    dev_.angles_.push_back(-(data[2] - dev_.homePosition_[2]));
+    dev_.angles_.push_back(-(data[3] - dev_.homePosition_[3] + 170));
+    dev_.angles_.push_back(data[4] - dev_.homePosition_[4]);
+    dev_.angles_.push_back(data[5] - dev_.homePosition_[5]);
 
     // memcpy(dev.angles_.data(), data, 6 * sizeof(float32_t));
-
     ui_->a1_d->setText(std::string(std::string("Axis 1: ") + std::to_string(dev_.angles_[0]).substr(0, 5) +
                                    "°").c_str()); // and set the strings for
     ui_->a2_d->setText(std::string(

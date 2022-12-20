@@ -2,7 +2,7 @@
 // Created by aanas on 12/12/22.
 //
 
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include "inc/noSignal.hpp"
 
@@ -72,8 +72,8 @@ void MainWindow::capture() // this is 2am code.
                 {
                     switch (QMessageBox::question(
                             this,
-                            tr("Open program?"),
-                            tr(("Launch program " + buffer.substr(0, buffer.find(" ")) + " ?").c_str()),
+                            tr("Open initializeInterpreterThread?"),
+                            tr(("Launch initializeInterpreterThread " + buffer.substr(0, buffer.find(" ")) + " ?").c_str()),
 
                             QMessageBox::Yes |
                             QMessageBox::No |
@@ -83,7 +83,7 @@ void MainWindow::capture() // this is 2am code.
                     {
                         case QMessageBox::Yes:
                             manualProgram_.clear();
-                            progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, manualProgram_);
+                            //progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, manualProgram_); TODO: FIXME: this
                             filename_ = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
                             hasFinishedRunning_ = false;
                             break;

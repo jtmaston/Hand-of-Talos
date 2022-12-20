@@ -1,7 +1,7 @@
 //
 // Created by aanas on 12/12/22.
 //
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 

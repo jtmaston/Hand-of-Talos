@@ -8,6 +8,8 @@
 using float32_t = float;
 #endif
 
+#include <array>
+
 class RobotArm : public ArmDevice
 {
     public:
@@ -26,8 +28,8 @@ class RobotArm : public ArmDevice
         void translateZ(uint8_t num, float32_t* target);            // apply translation matrix on the Z axis
         bool executing_ = false;
 
-        void neonMultiply(float32_t* t1, float32_t* t2, float32_t* t);                 // do matrix multiply using ARM NEON
-        void cMultiply(float32_t *a, float32_t *b, float32_t *c);                      // do matrix multipy using iterative method
+        static void neonMultiply(const float32_t* t1, const float32_t* t2, float32_t* t3);                 // do matrix multiply using ARM NEON
+        static void cMultiply(const float32_t *a, const float32_t *b, float32_t *c);                      // do matrix multipy using iterative method
         static void printMatrix(float32_t*);                                                  // print a matrix
 
         void calculateEndEffector(float32_t* target);                                 // calculate the end effector using direct kinematics

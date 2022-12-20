@@ -1,4 +1,4 @@
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 auto handleError(int status, [[maybe_unused]] const char *funcName,

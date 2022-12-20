@@ -1,7 +1,7 @@
 //
 // Created by aanas on 12/12/22.
 //
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 void MainWindow::jog() {
@@ -9,9 +9,9 @@ void MainWindow::jog() {
         connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(updateStick()));
         timeMod_ = 300;
         dev_.toggleTorque(true);
-        if (learning_)
-            connect(scheduler100Ms_, SIGNAL(timeout()),
-                    SLOT(command())); // control from the axis is also updated ever 100ms
+        //if (learning_)
+           // connect(scheduler100Ms_, SIGNAL(timeout()),
+                //    SLOT(command())); // control from the axis is also updated ever 100ms
 
     } else {
         disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(updateStick()));

@@ -1,5 +1,5 @@
-#ifndef ROBOTDASHBOARD_MAINWINDOW_H
-#define ROBOTDASHBOARD_MAINWINDOW_H
+#ifndef ROBOTDASHBOARD_MAINWINDOW_HPP
+#define ROBOTDASHBOARD_MAINWINDOW_HPP
 
 #include <QMainWindow>
 #include "RobotArm.hpp"
@@ -29,10 +29,15 @@
 #include "isa.hpp"
 #include "Variable.hpp"
 #include "BaseTranslationAxis.hpp"
+#include "Logger.hpp"
 
 #include <fstream>
 #include <cmath>
 #include <exception>
+#include <mutex>
+
+#include <QDoubleSpinBox>
+#include <QSlider>
 
 using namespace cv;
 
@@ -54,8 +59,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     public:
-        MainWindow(QWidget *parent = nullptr);
-        ~MainWindow();
+        explicit MainWindow(QWidget *parent = nullptr);
+        ~MainWindow() override;
 
         int dir_ = 0;
 
@@ -71,6 +76,9 @@ class MainWindow : public QMainWindow
         // uint8_t detectCamera();
 
         VideoCapture *camera_ = nullptr;
+
+        std::vector<Instruction> programStack_;
+        std::mutex interpreterLock_;
 
     public slots:
         void toggleLearnBar();                        // hides or shows the learn bar
@@ -91,13 +99,13 @@ class MainWindow : public QMainWindow
         void startFollowGreen();
         void stopFollow();
         void jog();
-        void program();
+        void initializeInterpreterThread();
         void checkIfFiledialog();
 
         void updateStick();
         //void poll_joystick();
         
-        void rasmInterpreter(std::vector <float> homePosition, std::vector<Instruction> program = std::vector<Instruction>());
+        void rasmInterpreter();
         void cameraRestarter();
         bool joystickHotplugDetect();
         
@@ -143,7 +151,11 @@ class MainWindow : public QMainWindow
 
         void toggleJog();
 
+        std::vector<QDoubleSpinBox*> increments_;
+        std::vector<QSlider*> sliders_;
 
+
+    bool checkIfMovementNecessary();
 };
 
-#endif // ROBOTDASHBOARD_MAINWINDOW_H
+#endif // ROBOTDASHBOARD_MAINWINDOW_HPP

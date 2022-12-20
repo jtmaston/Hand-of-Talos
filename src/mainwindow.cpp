@@ -1,4 +1,4 @@
-#include "inc/mainwindow.h"
+#include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,9 +19,13 @@ MainWindow::~MainWindow() {
     write(dev_.led_bus, cmd.data(), 2);
 
     quirc_destroy(decoder_);
+
+    interpreterLock_.unlock();
+
     delete joystick_;
     delete ui_;
 }
+
 
 
 

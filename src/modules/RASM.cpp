@@ -146,8 +146,7 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
                     usleep(timeMod_ * 1000);
                     break;
 
-                case ANGS:
-
+                case ANGS: {
                     if (instruction.params.at(0) == 8192) {
                         deb.clear();
                         for (auto &i: instruction.params) {
@@ -156,33 +155,36 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
                         }
                         Logger::info("Requested " + deb);
 
-                        /*ui_->increment_1->setValue(instruction.params.at(1));
-                        ui_->increment_2->setValue(instruction.params.at(2));
-                        ui_->increment_3->setValue(instruction.params.at(3));
-                        ui_->increment_4->setValue(instruction.params.at(4));
-                        ui_->increment_5->setValue(instruction.params.at(5));
-                        ui_->increment_6->setValue(instruction.params.at(6));*/
-                        dev_.servo_write6(instruction.params.data() + 1, 1000);
-                    }
-                    else {
+                        dev_.servo_write6(instruction.params.data() + 1, timeMod_);
+                    } else {
                         deb.clear();
-                        //std::cout << target_variables[instruction.params.at(0)].angles.size() << '\n';
-                        for (auto &i: target_variables[instruction.params.at(0)].angles) {
-                            deb.append(std::to_string(i));
-                            deb.append(" ");
-                        }
-                        Logger::info("Requested " + deb);
+                        Logger::info("Requested goto target " + std::to_string((int) instruction.params.at(0)));
 
-                        /*ui_->increment_1->setValue(target_variables[instruction.params.at(0)].angles.at(1));
-                        ui_->increment_2->setValue(target_variables[instruction.params.at(0)].angles.at(1));
-                        ui_->increment_3->setValue(target_variables[instruction.params.at(0)].angles.at(2));
-                        ui_->increment_4->setValue(target_variables[instruction.params.at(0)].angles.at(3));
-                        ui_->increment_5->setValue(target_variables[instruction.params.at(0)].angles.at(4));
-                        ui_->increment_6->setValue(target_variables[instruction.params.at(0)].angles.at(5));*/
+                        /*for( auto& i : target_variables.at((int)instruction.params.at(0)).angles)
+                            std::cout << i << ' ';
+                        std::cout << '\n';*/
+
+                        //QThread::msleep(10);
+
+                        //auto
+                        auto t = target_variables.at((int) instruction.params.at(0)).angles.data();
+                        dev_.servo_write6(t, 1000);
                     }
-                    //usleep(timeMod_ * 1000);
-                    break;
+                    // a poor man's delay that can be interrupted
+                    int time_slept = 0;
+                    int division = 10;
+                    while (time_slept < timeMod_) {
+                        if (interruptFlag_){
+                            interruptFlag_ = false;
+                            break;
+                        }
 
+                        time_slept += division;
+                        usleep(division * 1000);
+                    }
+
+                    break;
+                }
                 case DEL:
                     usleep(instruction.params.at(0) * 1000);
                     break;
@@ -292,19 +294,19 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
                 }
 
                 case TGT: {
-                    deb.clear();
-                    for (auto &i: target_variables[instruction.params.at(0)].angles) {
-                        deb.append(std::to_string(i));
-                        deb.append(" ");
-                    }
-                    Logger::info("Registered ROB-TARGET at " + deb);
-                    if (instruction.params.at(0) + 1 > target_variables.size())
-                        target_variables.reserve(target_variables.size() + 1);
+
                     variable::Target tgt;
                     for (int i = 1; i < instruction.params.size(); i++)
                         tgt.angles.push_back(instruction.params.at(i));
                     //memcpy(tgt.angles_, instruction.params.data() + 1, 5 * sizeof(float));
                     target_variables.push_back(tgt);
+
+                    deb.clear();
+                    for (auto &i: target_variables[instruction.params.at(0)].angles) {
+                        deb.append(std::to_string(i));
+                        deb.append(" ");
+                    }
+                    Logger::info("Registered ROB-TARGET " + std::to_string(int(instruction.params.at(0))) + " at " + deb);
 
                     break;
                 }

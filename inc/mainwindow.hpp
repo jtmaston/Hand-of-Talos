@@ -154,6 +154,8 @@ class MainWindow : public QMainWindow
         std::vector<QDoubleSpinBox*> increments_;
         std::vector<QSlider*> sliders_;
 
+        bool interruptFlag_ = false;
+
 
     bool checkIfMovementNecessary();
 };

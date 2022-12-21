@@ -10,7 +10,8 @@ void MainWindow::learn() // starts the learn mode
 {
     disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
     goHome();// move back to home
-    QThread::sleep(1);
+
+    QThread::msleep(1200); // TODO: add popup
     dev_.toggleTorque(false); // and disable the torque
     programStack_.clear();
 }
@@ -23,9 +24,19 @@ void MainWindow::addStep() // add a step
     Instruction local;
     local.opcode = TGT;
     local.params.clear();
-    local.params.push_back(programStack_.size() - 1);
-    std::cout << dev_.angles_.size();
-    local.params.insert(std::end(local.params), std::begin(dev_.angles_), std::end(dev_.angles_));
+    local.params.push_back(programStack_.size() / 2 + 1);
+
+    for ( int i = 0 ; i < 6; i ++ )
+    {
+        switch(i){
+            case 3:
+                local.params.push_back(dev_.angles_.at(i) + 180);
+                break;
+            default:
+                local.params.push_back(dev_.angles_.at(i) + 90);
+                break;
+        }
+    }
 
     programStack_.push_back(local);
 
@@ -44,18 +55,13 @@ void MainWindow::removeStep() // remove a step from the queue
         programStack_.pop_back();
         programStack_.pop_back();
     }
-
-    //dev_.learned_angles.pop_back();
-    //disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(command()));
     ui_->execute->setText(QString(std::to_string(programStack_.size() / 2).c_str())); // then update the label
 }
 
 void MainWindow::followLearnedPath() // start running
 {
     dev_.toggleTorque(true);
-    dev_.toggleTorque(true);
-    //std::cout << programStack_.size() << '\n';
-    interpreterLock_.unlock();
 
-    
+    std::cout << programStack_.size() << '\n';
+    interpreterLock_.unlock();
 }

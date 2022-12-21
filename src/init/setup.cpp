@@ -28,12 +28,20 @@ void MainWindow::setupApplication() {
     increments_.push_back(ui_->increment_5);
     increments_.push_back(ui_->increment_6);
 
-
-
-
     running_ = true;
     initializeInterpreterThread();
-    interpreterLock_.lock();
+
+    Instruction homeSetter;
+    homeSetter.opcode = TGT;
+    homeSetter.params.push_back(0);
+    homeSetter.params.insert(homeSetter.params.end(), dev_.homePosition_.begin(), dev_.homePosition_.end());
+
+    programStack_.push_back(homeSetter);
+    interpreterLock_.unlock();
+
+
+
+    //interpreterLock_.lock();
 }
 
 void MainWindow::initTimers() {

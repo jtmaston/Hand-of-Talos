@@ -18,7 +18,7 @@ void MainWindow::learn() // starts the learn mode
 
 void MainWindow::addStep() // add a step
 {
-    //float32_t *angle = dev_.servo_readall(); // read all the servo values
+    //float32_t *angle = dev_.servoReadall(); // read all the servo values
     std::vector<float32_t> t(6); // make them into a vector
 
     Instruction local;
@@ -28,14 +28,15 @@ void MainWindow::addStep() // add a step
 
     for ( int i = 0 ; i < 6; i ++ )
     {
-        switch(i){
+        /*switch(i){
             case 3:
                 local.params.push_back(dev_.angles_.at(i) + 180);
                 break;
             default:
                 local.params.push_back(dev_.angles_.at(i) + 90);
                 break;
-        }
+        }*/
+        local.params.push_back(dev_.angles_.at(i));
     }
 
     programStack_.push_back(local);

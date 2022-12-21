@@ -16,7 +16,7 @@ MainWindow::~MainWindow() {
     joyThread_.waitForFinished();
 
     std::array<uint8_t, 2> cmd = {0x07, 0};
-    write(dev_.led_bus, cmd.data(), 2);
+    write(dev_.ledBus_, cmd.data(), 2);
 
     quirc_destroy(decoder_);
 

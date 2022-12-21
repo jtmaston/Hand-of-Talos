@@ -61,7 +61,6 @@ set(HEADERS
         ${PROJECT_SOURCE_DIR}/inc/mainwindow.hpp
         ${PROJECT_SOURCE_DIR}/src/modules/libRobotExtension/RobotArm.hpp
         ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_lib.hpp
-        ${PROJECT_SOURCE_DIR}/lib/libRobot/include/Arm_exc.hpp
         ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Instruction.hpp
         ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/isa.hpp
         ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp

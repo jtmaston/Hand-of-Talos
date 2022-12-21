@@ -40,12 +40,12 @@ void MainWindow::followColor() {
     ui_->a4_r->setValue(ui_->a4_r->value() - round(beta));
 
     float32_t angles[6];
-    angles[0] = ui_->increment_1->value() + dev_.homePosition_[0]; // need to adjust with 90
-    angles[1] = ui_->increment_2->value() + dev_.homePosition_[1];
-    angles[2] = ui_->increment_3->value() + dev_.homePosition_[2];
-    angles[3] = ui_->increment_4->value() + dev_.homePosition_[3];
-    angles[4] = ui_->increment_5->value() + dev_.homePosition_[4];
-    angles[5] = ui_->increment_6->value() + dev_.homePosition_[5];
+    angles[0] = ui_->increment_1->value(); // need to adjust with 90
+    angles[1] = ui_->increment_2->value();
+    angles[2] = ui_->increment_3->value();
+    angles[3] = ui_->increment_4->value();
+    angles[4] = ui_->increment_5->value();
+    angles[5] = ui_->increment_6->value();
 
     ui_->base_r->setValue(static_cast<int>(ui_->increment_1->value()));
     ui_->a2_r->setValue(static_cast<int>(ui_->increment_2->value()));
@@ -57,7 +57,7 @@ void MainWindow::followColor() {
     /*Instruction anonymous_angs;
     anonymous_angs.opcode = ANGS;
     for(int)*/
-    //dev_.servo_write6(angles, 450);
+    //dev_.servoWrite6(angles, 450);
 }
 
 void MainWindow::goHome() {
@@ -72,7 +72,7 @@ void MainWindow::goHome() {
     interpreterLock_.unlock();
 }
 
-void MainWindow::command() // get the values from the sliders, the$n write them on the bus
+void MainWindow::command() // get the values from the sliders, the$n write them on the motorBus
 {
     // TODO: maybe tidy up a bit?
 
@@ -80,7 +80,7 @@ void MainWindow::command() // get the values from the sliders, the$n write them 
         return;
 
     for ( int i = 0 ; i < 6; i++) {
-        dev_.angles_.at(i) = increments_.at(i)->value() + dev_.homePosition_.at(i);
+        dev_.angles_.at(i) = increments_.at(i)->value();
         sliders_.at(i)->setValue(static_cast<int>(increments_.at(i)->value()));
     }
 

@@ -155,7 +155,7 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
                         }
                         Logger::info("Requested " + deb);
 
-                        dev_.servo_write6(instruction.params.data() + 1, timeMod_);
+                        dev_.servoWrite6(instruction.params.data() + 1, timeMod_);
                     } else {
                         deb.clear();
                         Logger::info("Requested goto target " + std::to_string((int) instruction.params.at(0)));
@@ -168,7 +168,7 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
 
                         //auto
                         auto t = target_variables.at((int) instruction.params.at(0)).angles.data();
-                        dev_.servo_write6(t, 1000);
+                        dev_.servoWrite6(t, 1000);
                     }
                     // a poor man's delay that can be interrupted
                     int time_slept = 0;

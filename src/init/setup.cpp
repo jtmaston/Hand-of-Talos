@@ -34,7 +34,8 @@ void MainWindow::setupApplication() {
     Instruction homeSetter;
     homeSetter.opcode = TGT;
     homeSetter.params.push_back(0);
-    homeSetter.params.insert(homeSetter.params.end(), dev_.homePosition_.begin(), dev_.homePosition_.end());
+    for(int i = 0 ; i < 6; i ++)
+        homeSetter.params.push_back(0);
 
     programStack_.push_back(homeSetter);
     interpreterLock_.unlock();

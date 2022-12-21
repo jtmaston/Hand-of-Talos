@@ -13,12 +13,10 @@ using float32_t = float;
 class RobotArm : public ArmDevice
 {
     public:
-
-        RobotArm();
         const std::array<float, 5> translations_ = {74, 29.5, 82.85, 82.85, 71.5 };
 
 
-        std::vector<float32_t> angles_;
+        std::array<float, 6> angles_;
         void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
         void rotateY(uint8_t num, float32_t* target);               // apply rotation matrix on the Y axis
         void rotateZ(uint8_t num, float32_t* target);               // apply rotation matrix on the Z axis
@@ -32,10 +30,7 @@ class RobotArm : public ArmDevice
         static void cMultiply(const float32_t *a, const float32_t *b, float32_t *c);                      // do matrix multipy using iterative method
         static void printMatrix(float32_t*);                                                  // print a matrix
 
-        void calculateEndEffector(float32_t* target);                                 // calculate the end effector using direct kinematics
-        void goHome();                                                           // move to the home position_
+        void calculateEndEffector(std::array<float, 16> target);                                 // calculate the end effector using direct kinematics         // move to the home position_
 
-        std::vector<float32_t> homePosition_;
-        
     friend class MainWindow;
 };

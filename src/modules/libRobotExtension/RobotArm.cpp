@@ -1,11 +1,5 @@
 #include <RobotArm.hpp>
 
-RobotArm::RobotArm() : ArmDevice()
-{
-    homePosition_.reserve(6);
-    //homePosition_ = { 90, 90, 90, 0, 90, 0 };
-    homePosition_ = {90, 90, 90, 180 - 5, 90, 90};
-}
 #ifdef __ARM_NEON
 void RobotArm::neonMultiply(const float32_t *t1, const float32_t *t2, float32_t *t3) {
 
@@ -87,7 +81,7 @@ void RobotArm::neonMultiply(const float32_t *t1, const float32_t *t2, float32_t 
 
 void RobotArm::rotateX(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles_[num - 1] ) * RAD;
     target[0] = 1; target[4] = 0; target[8] = 0;
     target[1] = 0; target[5] = cos ( phi ); target[9] = -sin ( phi );
     target[2] = 0; target[6] = sin ( phi ); target[10] = cos ( phi );
@@ -95,7 +89,7 @@ void RobotArm::rotateX(uint8_t num, float32_t* target)
 
 void RobotArm::rotateY(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__;
+    float32_t phi = ( this -> angles_[num - 1] ) * RAD;
     target[0] = cos ( phi ); target[4] = 0; target[8] = sin ( phi );
     target[1] = 0; target[5] = 1; target[9] = 0;
     target[2] =-sin ( phi ); target[6] = 0; target[10] = cos ( phi );
@@ -103,7 +97,7 @@ void RobotArm::rotateY(uint8_t num, float32_t* target)
 
 void RobotArm::rotateZ(uint8_t num, float32_t* target)
 {
-    float32_t phi = ( this -> angles_[num - 1] ) * __RAD__ ;
+    float32_t phi = ( this -> angles_[num - 1] ) * RAD ;
     target[0] = cos ( phi ); target[4] = -sin ( phi ); target[8] = 0;
     target[1] = sin ( phi ); target[5] = cos ( phi ); target[9] = 0;
     target[2] = 0; target[6] = 0; target[10] = 1;
@@ -124,7 +118,7 @@ void RobotArm::translateZ(uint8_t num, float32_t* target)
     target[14] = this -> translations_[num - 1 ];
 }
 
-void RobotArm::calculateEndEffector(float32_t* target)
+void RobotArm::calculateEndEffector(std::array<float, 16> target)
 {   
     float32_t transformation_matrices[][16] =
     {
@@ -167,12 +161,12 @@ void RobotArm::calculateEndEffector(float32_t* target)
     translateX(5, transformation_matrices[4]);
     rotateX(5, transformation_matrices[4]);
 
-    neonMultiply(transformation_matrices[0], transformation_matrices[1], target);
+    neonMultiply(transformation_matrices[0], transformation_matrices[1], target.data());
 
     neonMultiply(transformation_matrices[0], transformation_matrices[1], steps[0]);
     neonMultiply(steps[0], transformation_matrices[2], steps[1]);
     neonMultiply(steps[1], transformation_matrices[3], steps[2]);
-    neonMultiply(steps[2], transformation_matrices[4], target);
+    neonMultiply(steps[2], transformation_matrices[4], target.data());
 
     /*float32_t step1[16];
     neon_multiply(T1, T2, step1);
@@ -203,10 +197,3 @@ void RobotArm::printMatrix(float32_t * m)
     printf("\n");
 }
 
-void RobotArm::goHome()
-{
-    this -> toggleTorque(true);
-    this -> servo_write6(homePosition_.data(), 1000);
-    usleep(1000);
-    //toggleTorque(0);
-}

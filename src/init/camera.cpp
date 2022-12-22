@@ -10,11 +10,11 @@ auto handleError(int status, [[maybe_unused]] const char *funcName,
 
 void MainWindow::initCamera() {
     camera_ = new VideoCapture(0, CAP_V4L2);
-    camera_->set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    camera_->set(cv::CAP_PROP_FRAME_WIDTH, 864);
     camera_->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     camera_->set(cv::CAP_PROP_FPS, 30);
     decoder_ = quirc_new();
-    quirc_resize(decoder_, 640, 480);
+    quirc_resize(decoder_, 864, 480);
 
     if (!camera_->isOpened()) {
         connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(cameraRestarter()));

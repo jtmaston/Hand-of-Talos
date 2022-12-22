@@ -79,6 +79,9 @@ class MainWindow : public QMainWindow
 
         std::vector<Instruction> programStack_;
         std::mutex interpreterLock_;
+    bool learningTrajectory_ = false;
+    bool emgStop_ = false;
+    bool programInLoop_ = false;
 
     public slots:
         void toggleLearnBar();                        // hides or shows the learn bar
@@ -90,6 +93,14 @@ class MainWindow : public QMainWindow
         void addStep();                                // memorize coordinates for direct learning
         void removeStep();                             // remove coordinate from direct learning
         void followLearnedPath();                             // execute the memorized coordinates
+        void learnTrajectory();
+        void saveProgramToDisk();
+        void changeToLoop();
+
+        void halt();
+
+
+
         void capture();
 
         void followColor();

@@ -76,9 +76,13 @@ void MainWindow::initButtons() {
     connect(ui_->follow_green, SIGNAL(clicked()), SLOT(startFollowGreen()));
     connect(ui_->follow_blue, SIGNAL(clicked()), SLOT(startFollowBlue()));
 
-    //connect(ui_->halt_btn, SIGNAL(clicked()), SLOT(halt()));  FIXME
+    connect(ui_->halt_btn, SIGNAL(clicked()), SLOT(halt()));
     connect(ui_->jog_btn, SIGNAL(clicked()), SLOT(jog()));
     connect(ui_->load_btn, SIGNAL(clicked()), SLOT(initializeInterpreterThread()));
+    connect(ui_->TrajectoryToggleButton, SIGNAL(clicked()), SLOT(learnTrajectory()));
+
+    connect(ui_->SaveProgramButton, SIGNAL(clicked()), SLOT(saveProgramToDisk()));
+    connect(ui_->RunModeToggleButton, SIGNAL(clicked()), SLOT(changeToLoop()));
 }
 
 void MainWindow::initSliders() const

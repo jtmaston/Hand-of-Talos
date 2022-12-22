@@ -32,9 +32,14 @@ void MainWindow::setCameraBarVisibility(bool state) // hide the camera bar, by s
 void MainWindow::setLearnBarVisibility(bool state) // hide the learn bar, by setting the height to 0
 {
     learnBarState_ = state;
+    ui_->learnModeBar->setVisible(learnBarState_);
+    /*ui_->trackModeBar->setVisible(!learnBarState_);
     ui_->execute->setVisible(learnBarState_);
     ui_->next->setVisible(learnBarState_);
     ui_->prev->setVisible(learnBarState_);
+    ui_->RunModeToggleButton->setVisible(learnBarState_);
+    ui_->SaveProgramButton->setVisible(learnBarState_);
+    ui_->TrajectoryToggleButton->setVisible(learnBarState_);*/
 }
 
 void MainWindow::startFollowRed()

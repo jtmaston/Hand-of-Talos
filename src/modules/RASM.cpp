@@ -28,7 +28,7 @@ bool interpreterActive = false;
 
 // Warning! Under construction
 
-void MainWindow::rasmInterpreter() // TODO: memory optimizations
+void MainWindow::rasmInterpreter()
 {
 
     Logger::info("Interpreter active");
@@ -108,9 +108,11 @@ void MainWindow::rasmInterpreter() // TODO: memory optimizations
     std::string deb;
 
     while (running_) {
-        Logger::info("Reached and locked");
-        interpreterLock_.lock();
-        Logger::info("Interpreter Unlocked");
+        if ( !programInLoop_ ) {
+            Logger::info("Reached and locked");
+            interpreterLock_.lock();
+            Logger::info("Interpreter Unlocked");
+        }
         program_counter = 0;
 
         while (program_counter < programStack_.size()) {

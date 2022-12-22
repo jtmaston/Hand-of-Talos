@@ -11,6 +11,28 @@
 typedef float float32_t;
 #endif
 
+void MainWindow::halt()
+{
+    emgStop_ = !emgStop_;
+    if(emgStop_)
+    {
+        dev_.toggleTorque(false);
+        dev_.toggleTorque(false);
+        dev_.toggleTorque(false);
+        ui_->halt_btn->setText("Reset");
+        ui_->halt_btn->setProperty("background-color", "yellow");
+        Logger::warning("Stopped by emergency signal!");
+    }else
+    {
+        dev_.toggleTorque(true);
+        ui_->halt_btn->setText("STOP");
+        ui_->halt_btn->setProperty("background-color", "red");
+        Logger::warning("Reset from emergency");
+    }
+
+
+}
+
 void MainWindow::followColor() {
     int x_center = 640 / 2;
     int y_center = 480 / 2;
@@ -84,9 +106,9 @@ void MainWindow::command() // get the values from the sliders, the$n write them 
         sliders_.at(i)->setValue(static_cast<int>(increments_.at(i)->value()));
     }
 
-    if (base_.position_ != ui_->increment_t->value()) {
+    /*if (base_.position_ != ui_->increment_t->value()) {
         base_.move(ui_->increment_t->value());
-    }
+    }*/
 
     Instruction anonymous_angs;
     anonymous_angs.opcode = ANGS;
@@ -106,7 +128,7 @@ void MainWindow::command() // get the values from the sliders, the$n write them 
 inline bool MainWindow::checkIfMovementNecessary()
 {
     for( int i = 0 ; i < 6; i++) {
-        if (abs(dev_.angles_.at(i) - increments_.at(i)->value()) > 1)
+        if (abs(dev_.angles_.at(i) - increments_.at(i)->value()) > 2)
             return true;
     }
 

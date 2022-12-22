@@ -9,7 +9,7 @@
 void MainWindow::cameraRestarter()
 {
     QImage qt_image = QImage((const unsigned char *)(NO_SIGNAL_pixel_data), NO_SIGNAL_WIDTH, NO_SIGNAL_HEIGHT, QImage::Format_RGB888);
-    qt_image = qt_image.scaled(751, 481);
+    qt_image = qt_image.scaled(864, 480);
     ui_->viewfinder->setPixmap(QPixmap::fromImage(qt_image.rgbSwapped()));
     ui_->viewfinder->updateGeometry();
     for (int i = 0; i < 10; i++)

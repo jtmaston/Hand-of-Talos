@@ -171,5 +171,4 @@ void RobotArm::calculateEndEffector(TransformationMatrix &target) {
     multiplyMatrix(steps.at(0), transformation_matrices.at(2), steps.at(1));
     multiplyMatrix(steps.at(1), transformation_matrices.at(3), steps.at(2));
     multiplyMatrix(steps.at(2), transformation_matrices.at(4), target);
-
 }

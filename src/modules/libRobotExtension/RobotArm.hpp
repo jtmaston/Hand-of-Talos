@@ -10,6 +10,8 @@ using float32_t = float;
 
 #include <array>
 
+using TransformationMatrix = std::array<float32_t, 16>;
+
 class RobotArm : public ArmDevice
 {
     public:
@@ -17,20 +19,19 @@ class RobotArm : public ArmDevice
 
 
         std::array<float, 6> angles_;
-        void rotateX(uint8_t num, float32_t* target );              // apply rotation matrix on the X axis
-        void rotateY(uint8_t num, float32_t* target);               // apply rotation matrix on the Y axis
-        void rotateZ(uint8_t num, float32_t* target);               // apply rotation matrix on the Z axis
+        void rotateX(uint8_t num, TransformationMatrix& target );              // apply rotation matrix on the X axis
+        void rotateY(uint8_t num, TransformationMatrix& target);               // apply rotation matrix on the Y axis
+        void rotateZ(uint8_t num, TransformationMatrix& target);               // apply rotation matrix on the Z axis
 
-        void translateX(uint8_t num, float32_t* target );           // apply translation matrix on the X axis
-        void translateY(uint8_t num, float32_t* target);            // apply translation matrix on the Y axis
-        void translateZ(uint8_t num, float32_t* target);            // apply translation matrix on the Z axis
+        void translateX(uint8_t num, TransformationMatrix& target );           // apply translation matrix on the X axis
+        void translateY(uint8_t num, TransformationMatrix& target);            // apply translation matrix on the Y axis
+        void translateZ(uint8_t num, TransformationMatrix& target);            // apply translation matrix on the Z axis
         bool executing_ = false;
 
-        static void neonMultiply(const float32_t* t1, const float32_t* t2, float32_t* t3);                 // do matrix multiply using ARM NEON
-        static void cMultiply(const float32_t *a, const float32_t *b, float32_t *c);                      // do matrix multipy using iterative method
-        static void printMatrix(float32_t*);                                                  // print a matrix
+        static void multiplyMatrix(const TransformationMatrix& t1, const TransformationMatrix& t2, TransformationMatrix& t3);                 // do matrix multiply using ARM NEON
+        static void printMatrix(const TransformationMatrix&);                                                  // print a matrix
 
-        void calculateEndEffector(std::array<float, 16> target);                                 // calculate the end effector using direct kinematics         // move to the home position_
+        void calculateEndEffector(TransformationMatrix& target);                                 // calculate the end effector using direct kinematics         // move to the home position_
 
     friend class MainWindow;
 };

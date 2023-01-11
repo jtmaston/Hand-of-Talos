@@ -22,8 +22,12 @@
 #include <iostream>
 #include "lib/libQuirc/lib/quirc.h"
 
-
+#ifndef __x86_64
 #include <libv4l1-videodev.h>
+#else
+#include <linux/videodev2.h>
+#endif
+
 
 #include "Instruction.hpp"
 #include "isa.hpp"
@@ -98,13 +102,10 @@ class MainWindow : public QMainWindow
         void changeToLoop();
 
         void halt();
-
-
-
         void capture();
 
         void followColor();
-
+        void loadProgram();
         void startFollowRed();
         void startFollowBlue();
         void startFollowGreen();
@@ -119,6 +120,7 @@ class MainWindow : public QMainWindow
         void rasmInterpreter();
         void cameraRestarter();
         bool joystickHotplugDetect();
+        void toggleJog();
         
 
     //private:
@@ -132,13 +134,16 @@ class MainWindow : public QMainWindow
         void initSliders() const;
         void initCamera();
 
+        void setButtonColor(int index);
+
         bool learnBarState_ = HIDDEN;                  // monitors the state of the bars
         bool cameraBarState_ = HIDDEN;
         void setLearnBarVisibility(bool state);
         void setCameraBarVisibility(bool state);
-        bool followingProgram_ = false;
+        bool jogging_ = false;
         bool learning_ = false;
         bool fileopen_ = false;
+
 
         std::array<float32_t, 6> axes_= {0 };
         uint16_t timeMod_ = 1000;
@@ -160,10 +165,11 @@ class MainWindow : public QMainWindow
         std::vector<Instruction> manualProgram_;
         cv::Mat prev_;
 
-        void toggleJog();
+
 
         std::vector<QDoubleSpinBox*> increments_;
         std::vector<QSlider*> sliders_;
+        std::vector<QPushButton*> buttons_;
 
         bool interruptFlag_ = false;
 

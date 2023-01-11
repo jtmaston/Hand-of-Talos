@@ -20,13 +20,16 @@ void MainWindow::halt()
         dev_.toggleTorque(false);
         dev_.toggleTorque(false);
         ui_->halt_btn->setText("Reset");
-        ui_->halt_btn->setProperty("background-color", "yellow");
+        ui_->halt_btn->setProperty("alarm", true);
+        ui_->halt_btn->setStyleSheet(ui_->halt_btn->styleSheet());
+        //ui_->halt_btn->setStyleSheet("background-color:yellow");
         Logger::warning("Stopped by emergency signal!");
     }else
     {
         dev_.toggleTorque(true);
         ui_->halt_btn->setText("STOP");
-        ui_->halt_btn->setProperty("background-color", "red");
+        ui_->halt_btn->setProperty("alarm", false);
+        ui_->halt_btn->setStyleSheet(ui_->halt_btn->styleSheet());
         Logger::warning("Reset from emergency");
     }
 

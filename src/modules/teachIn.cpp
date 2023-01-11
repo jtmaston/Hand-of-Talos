@@ -69,10 +69,12 @@ void MainWindow::followLearnedPath() // start running
     interpreterLock_.unlock();
 }
 
+uint16_t previousTimeMod_;
 void MainWindow::learnTrajectory()
 {
     if(!learningTrajectory_)
     {
+        previousTimeMod_ = timeMod_;
         Instruction speedMod;
         speedMod.opcode = SPD;
         speedMod.params.push_back(100);
@@ -84,10 +86,11 @@ void MainWindow::learnTrajectory()
         disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(addStep()));
         Instruction speedMod;
         speedMod.opcode = SPD;
-        speedMod.params.push_back(1000);    // todo: check if command sets timeMod
+        speedMod.params.push_back(previousTimeMod_);    // todo: check if command sets timeMod
         programStack_.push_back(speedMod);
         programStack_.push_back(speedMod);
         ui_->TrajectoryToggleButton->setText("Trajectory learning: OFF");
+        timeMod_ = previousTimeMod_;
     }
     learningTrajectory_ = !learningTrajectory_;
 

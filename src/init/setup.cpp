@@ -28,6 +28,11 @@ void MainWindow::setupApplication() {
     increments_.push_back(ui_->increment_5);
     increments_.push_back(ui_->increment_6);
 
+    buttons_.push_back(ui_->learn_btn);
+    buttons_.push_back(ui_->track_btn);
+    buttons_.push_back(ui_->jog_btn);
+    buttons_.push_back(ui_->load_btn);
+
     running_ = true;
     initializeInterpreterThread();
 
@@ -39,6 +44,7 @@ void MainWindow::setupApplication() {
 
     programStack_.push_back(homeSetter);
     interpreterLock_.unlock();
+    ui_->jogSliders->setVisible(false);
 
 
 
@@ -52,7 +58,7 @@ void MainWindow::initTimers() {
 
     connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(updateAxes()));         // axis readout is updated every 100ms
     connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
-    connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(checkIfFiledialog())); // camera is updated every 20ms
+    //connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(checkIfFiledialog())); // camera is updated every 20ms
     connect(scheduler500Ms_, SIGNAL(timeout()), SLOT(joystickHotplugDetect()));
 
     scheduler100Ms_->start(100);
@@ -77,8 +83,8 @@ void MainWindow::initButtons() {
     connect(ui_->follow_blue, SIGNAL(clicked()), SLOT(startFollowBlue()));
 
     connect(ui_->halt_btn, SIGNAL(clicked()), SLOT(halt()));
-    connect(ui_->jog_btn, SIGNAL(clicked()), SLOT(jog()));
-    connect(ui_->load_btn, SIGNAL(clicked()), SLOT(initializeInterpreterThread()));
+    connect(ui_->jog_btn, SIGNAL(clicked()), SLOT(toggleJog()));
+    connect(ui_->load_btn, SIGNAL(clicked()), SLOT(loadProgram()));
     connect(ui_->TrajectoryToggleButton, SIGNAL(clicked()), SLOT(learnTrajectory()));
 
     connect(ui_->SaveProgramButton, SIGNAL(clicked()), SLOT(saveProgramToDisk()));

@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     running_ = true;
     dev_.toggleTorque(true);
+
 }
 
 MainWindow::~MainWindow() {
@@ -16,7 +17,7 @@ MainWindow::~MainWindow() {
     joyThread_.waitForFinished();
 
     std::array<uint8_t, 2> cmd = {0x07, 0};
-    write(dev_.ledBus_, cmd.data(), 2);
+    //write(dev_.ledBus_, cmd.data(), 2);
 
     quirc_destroy(decoder_);
 

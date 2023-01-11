@@ -4,15 +4,15 @@
 #include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
-
+bool previously_connected = false;
 auto MainWindow::joystickHotplugDetect() -> bool
 {
 
     auto gamepads = QGamepadManager::instance()->connectedGamepads();
     if (gamepads.isEmpty())
     {
-        ui_->jog_btn->setEnabled(false);
-        //std::cout << "[ WARN ] No gamepad detected.\n";
+        if(previously_connected)
+            Logger::info("Joystick disconnected!");
 
         if (joystick_ != nullptr)
         {
@@ -26,6 +26,8 @@ auto MainWindow::joystickHotplugDetect() -> bool
         return true;
 
     //std::cout << "[ INFO ] Joystick connected\n";
+    Logger::info("Joystick connected!");
+    previously_connected = true;
 
     joystick_ = new QGamepad(*gamepads.begin(), this);
 

@@ -16,10 +16,17 @@ void MainWindow::checkIfFiledialog() {
                                                  "Compiled robot Assembly Files (*.bin)");
 
         if (filename_.size() == 0) {
-            followingProgram_ = false;
-            fileopen_ = false;
+            //jogging_ = false;
+            //fileopen_ = false;
         }
     }
+}
+
+void MainWindow::loadProgram()
+{
+    setButtonColor(3);
+    setCameraBarVisibility(false);
+    setLearnBarVisibility(false);
 }
 
 #include <exception>
@@ -38,7 +45,7 @@ void MainWindow::rasmInterpreter()
 
     interpreterActive = true;
 
-    //followingProgram_ = !followingProgram_;
+    //jogging_ = !jogging_;
     //toggleJog();
     dev_.toggleTorque(true);
 
@@ -52,7 +59,7 @@ void MainWindow::rasmInterpreter()
         {
             fileopen_ = true;
 
-            while (filename_.length() == 0 && followingProgram_)
+            while (filename_.length() == 0 && jogging_)
             {}
 
             fileopen_ = false;

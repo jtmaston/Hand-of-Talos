@@ -16,7 +16,10 @@ void MainWindow::cameraRestarter()
     {
         if (camera_->open(i, CAP_V4L2))
         {
-            // //std::cout << "Camera at /dev/video" << i << " available\n";
+            camera_->set(cv::CAP_PROP_FRAME_WIDTH, 864);
+            camera_->set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+            camera_->set(cv::CAP_PROP_FPS, 30);
+
             disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(cameraRestarter()));
             connect(scheduler16Ms_, SIGNAL(timeout()), SLOT(capture()));
             return;
@@ -42,53 +45,53 @@ void MainWindow::capture() // this is 2am code.
 
     int w;
     int h;
-    uint8_t *buf = quirc_begin(decoder_, &w, &h);
-    cvtColor(frame, bw, COLOR_BGR2GRAY, 0);
-    for (int_fast32_t y = 0; y < bw.rows; y++)
-        for (int_fast32_t x = 0; x < bw.cols; x++)
-            buf[(y * w + x)] = bw.at<uint8_t>(y, x);
-    quirc_end(decoder_);
+    if(decoder_ != nullptr) {
+        uint8_t *buf = quirc_begin(decoder_, &w, &h);
+        cvtColor(frame, bw, COLOR_BGR2GRAY, 0);
+        for (int_fast32_t y = 0; y < bw.rows; y++)
+            for (int_fast32_t x = 0; x < bw.cols; x++)
+                buf[(y * w + x)] = bw.at<uint8_t>(y, x);
+        quirc_end(decoder_);
 
-    //std::cout << quirc_count(decoder) << '\n';
-
-    if (quirc_count(decoder_) > 0 && hasFinishedRunning_)
-    {
-        struct quirc_code code;
-        struct quirc_data data;
-
-        quirc_extract(decoder_, 0, &code);
-        quirc_decode(&code, &data);
-        std::string buffer ((char*)&data.payload);
-        uint16_t checksum = 0;
-        for (const char &c : buffer)
+        if (quirc_count(decoder_) > 0 && hasFinishedRunning_)
         {
-            if (c != ' ')
+            struct quirc_code code;
+            struct quirc_data data;
+
+            quirc_extract(decoder_, 0, &code);
+            quirc_decode(&code, &data);
+            std::string buffer ((char*)&data.payload);
+            uint16_t checksum = 0;
+            for (const char &c : buffer)
             {
-                checksum += c;
-            }
-            else
-            {
-                if ((std::to_string(checksum) == buffer.substr(buffer.find_last_of(" ") + 1)))
+                if (c != ' ')
                 {
-                    switch (QMessageBox::question(
-                            this,
-                            tr("Open initializeInterpreterThread?"),
-                            tr(("Launch initializeInterpreterThread " + buffer.substr(0, buffer.find(" ")) + " ?").c_str()),
-
-                            QMessageBox::Yes |
-                            QMessageBox::No |
-                            QMessageBox::Cancel,
-
-                            QMessageBox::Cancel))
+                    checksum += c;
+                }
+                else
+                {
+                    if ((std::to_string(checksum) == buffer.substr(buffer.find_last_of(" ") + 1)))
                     {
-                        case QMessageBox::Yes:
-                            manualProgram_.clear();
-                            //progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, manualProgram_); TODO: FIXME: this
-                            filename_ = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
-                            hasFinishedRunning_ = false;
-                            break;
+                        switch (QMessageBox::question(
+                                this,
+                                tr("Open initializeInterpreterThread?"),
+                                tr(("Launch initializeInterpreterThread " + buffer.substr(0, buffer.find(" ")) + " ?").c_str()),
+
+                                QMessageBox::Yes |
+                                QMessageBox::No |
+                                QMessageBox::Cancel,
+
+                                QMessageBox::Cancel))
+                        {
+                            case QMessageBox::Yes:
+                                manualProgram_.clear();
+                                //progThread_ = QtConcurrent::run(this, &MainWindow::rasmInterpreter, dev_.homePosition_, manualProgram_); TODO: FIXME: this
+                                filename_ = QString(("./programs/" + buffer.substr(0, buffer.find(" ")) + ".bin").c_str());
+                                hasFinishedRunning_ = false;
+                                break;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }

@@ -4,8 +4,10 @@
 #include "inc/mainwindow.hpp"
 #include "ui_mainwindow.h"
 
+
 void MainWindow::jog() {
-    if (!followingProgram_) {
+
+    /*if (!jogging_) {
         connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(updateStick()));
         timeMod_ = 300;
         dev_.toggleTorque(true);
@@ -17,8 +19,8 @@ void MainWindow::jog() {
         disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(updateStick()));
         timeMod_ = 1000;
     }
-    followingProgram_ = !followingProgram_;
-    toggleJog();
+    jogging_ = !jogging_;
+    toggleJog();*/
     //std::cout << following_program << '\n';
     //std::cout.flush();
 }
@@ -35,16 +37,11 @@ void MainWindow::updateStick() {
 }
 
 void MainWindow::toggleJog() {
-    ui_->base_r->setDisabled(followingProgram_);
-    ui_->increment_1->setDisabled(followingProgram_);
-    ui_->a2_r->setDisabled(followingProgram_);
-    ui_->increment_2->setDisabled(followingProgram_);
-    ui_->a3_r->setDisabled(followingProgram_);
-    ui_->increment_3->setDisabled(followingProgram_);
-    ui_->a4_r->setDisabled(followingProgram_);
-    ui_->increment_4->setDisabled(followingProgram_);
-    ui_->a5_r->setDisabled(followingProgram_);
-    ui_->increment_5->setDisabled(followingProgram_);
-    ui_->grip_r->setDisabled(followingProgram_);
-    ui_->increment_6->setDisabled(followingProgram_);
+    setButtonColor(2);
+
+    setCameraBarVisibility(false);
+    setLearnBarVisibility(false);
+
+    jogging_ = !jogging_;
+    ui_->jogSliders->setVisible(jogging_);
 }

@@ -181,3 +181,8 @@ void MainWindow::updateAxes() // this updates the axes display
             "°");
 
 }
+
+void MainWindow::changeMenu(int button_id)
+{
+    std::cout << button_id << '\n';
+}

@@ -34,6 +34,7 @@
 #include "Variable.hpp"
 #include "BaseTranslationAxis.hpp"
 #include "Logger.hpp"
+#include "menuIdentifier.hpp"
 
 #include <fstream>
 #include <cmath>
@@ -42,6 +43,7 @@
 
 #include <QDoubleSpinBox>
 #include <QSlider>
+#include <QButtonGroup>
 
 using namespace cv;
 
@@ -88,6 +90,7 @@ class MainWindow : public QMainWindow
     bool programInLoop_ = false;
 
     public slots:
+        void changeMenu(int button_id);
         void toggleLearnBar();                        // hides or shows the learn bar
         void toggleCameraBar();                       // hides or shows the camera bar
         void updateAxes();                             // prints the axes onto the display
@@ -121,6 +124,8 @@ class MainWindow : public QMainWindow
         void cameraRestarter();
         bool joystickHotplugDetect();
         void toggleJog();
+
+
         
 
     //private:
@@ -162,6 +167,7 @@ class MainWindow : public QMainWindow
 
         QFuture<void> joyThread_;
         QFuture<void> progThread_;
+        QButtonGroup menuButtons_;
         std::vector<Instruction> manualProgram_;
         cv::Mat prev_;
 

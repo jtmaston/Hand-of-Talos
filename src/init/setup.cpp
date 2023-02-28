@@ -28,6 +28,15 @@ void MainWindow::setupApplication() {
     increments_.push_back(ui_->increment_5);
     increments_.push_back(ui_->increment_6);
 
+    menuButtons_.addButton(ui_->learn_btn);
+    menuButtons_.addButton(ui_->track_btn);
+    menuButtons_.addButton(ui_->jog_btn);
+    menuButtons_.addButton(ui_->load_btn);
+    menuButtons_.setExclusive(true);
+
+    //connect(menuButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeMenu(int)));
+    connect(&menuButtons_, SIGNAL(buttonClicked(int)), this, &MainWindow::changeMenu);
+
     buttons_.push_back(ui_->learn_btn);
     buttons_.push_back(ui_->track_btn);
     buttons_.push_back(ui_->jog_btn);
@@ -68,10 +77,14 @@ void MainWindow::initTimers() {
 }
 
 void MainWindow::initButtons() {
-    connect(ui_->learn_btn, SIGNAL(clicked()),
+    /*connect(ui_->learn_btn, SIGNAL(clicked()),
             SLOT(toggleLearnBar()));  // when the learn button is clicked, toggle the bar
     connect(ui_->track_btn, SIGNAL(clicked()),
-            SLOT(toggleCameraBar())); // when the track button is clicked, toggle the bar
+            SLOT(toggleCameraBar())); // when the track button is clicked, toggle the bar*/
+    connect(ui_->learn_btn, SIGNAL(clicked()),
+            SLOT(changeMenu()));  // when the learn button is clicked, toggle the bar
+    connect(ui_->track_btn, SIGNAL(clicked()),
+            SLOT(changeMenu())); // when the track button is clicked, toggle the bar
 
     connect(ui_->next, SIGNAL(clicked()), SLOT(addStep()));           //  <<
     connect(ui_->prev, SIGNAL(clicked()), SLOT(removeStep()));        //  buttons for the learn mode

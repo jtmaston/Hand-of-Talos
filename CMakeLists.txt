@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.5)
 project(RobotDashboard VERSION 0.1 LANGUAGES CXX C)
 
 find_program(CCACHE_FOUND ccache)
-if (CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif (CCACHE_FOUND)
+#if (CCACHE_FOUND)
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+#endif (CCACHE_FOUND)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -56,6 +56,7 @@ set(SOURCES
         )
 
 set(HEADERS
+        ${PROJECT_SOURCE_DIR}/src/modules/menuIdentifier.hpp
         ${PROJECT_SOURCE_DIR}/src/modules/logger/Logger.hpp
         ${PROJECT_SOURCE_DIR}/inc/mainwindow.ui
         ${PROJECT_SOURCE_DIR}/inc/mainwindow.hpp
@@ -66,9 +67,11 @@ set(HEADERS
         ${PROJECT_SOURCE_DIR}/lib/libRASM/inc/Variable.hpp
         ${PROJECT_SOURCE_DIR}/inc/BaseTranslationAxis.hpp
         ${PROJECT_SOURCE_DIR}/inc/noSignal.hpp
+
         )
 
 set(INCLUDE_DIRS
+        ${PROJECT_SOURCE_DIR}/src/modules/
         ${PROJECT_SOURCE_DIR}/src/modules/libRobotExtension
         ${PROJECT_SOURCE_DIR}/src/modules/logger
         ${PROJECT_SOURCE_DIR}/lib/libRASM/inc

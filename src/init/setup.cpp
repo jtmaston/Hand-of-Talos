@@ -35,7 +35,7 @@ void MainWindow::setupApplication() {
     menuButtons_.setExclusive(true);
 
     //connect(menuButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeMenu(int)));
-    connect(&menuButtons_, SIGNAL(buttonClicked(int)), this, &MainWindow::changeMenu);
+    //connect(&menuButtons_, SIGNAL(buttonClicked(int)), this, &MainWindow::changeMenu);
 
     buttons_.push_back(ui_->learn_btn);
     buttons_.push_back(ui_->track_btn);
@@ -81,10 +81,8 @@ void MainWindow::initButtons() {
             SLOT(toggleLearnBar()));  // when the learn button is clicked, toggle the bar
     connect(ui_->track_btn, SIGNAL(clicked()),
             SLOT(toggleCameraBar())); // when the track button is clicked, toggle the bar*/
-    connect(ui_->learn_btn, SIGNAL(clicked()),
-            SLOT(changeMenu()));  // when the learn button is clicked, toggle the bar
-    connect(ui_->track_btn, SIGNAL(clicked()),
-            SLOT(changeMenu())); // when the track button is clicked, toggle the bar
+    connect(ui_->learn_btn, SIGNAL(clicked()), SLOT(changeMenu()));  // when the learn button is clicked, toggle the bar
+    connect(ui_->track_btn, SIGNAL(clicked()), SLOT(changeMenu())); // when the track button is clicked, toggle the bar
 
     connect(ui_->next, SIGNAL(clicked()), SLOT(addStep()));           //  <<
     connect(ui_->prev, SIGNAL(clicked()), SLOT(removeStep()));        //  buttons for the learn mode
@@ -96,8 +94,9 @@ void MainWindow::initButtons() {
     connect(ui_->follow_blue, SIGNAL(clicked()), SLOT(startFollowBlue()));
 
     connect(ui_->halt_btn, SIGNAL(clicked()), SLOT(halt()));
-    connect(ui_->jog_btn, SIGNAL(clicked()), SLOT(toggleJog()));
-    connect(ui_->load_btn, SIGNAL(clicked()), SLOT(loadProgram()));
+    connect(ui_->jog_btn, SIGNAL(clicked()), SLOT(changeMenu()));
+
+    connect(ui_->load_btn, SIGNAL(clicked()), SLOT(changeMenu()));
     connect(ui_->TrajectoryToggleButton, SIGNAL(clicked()), SLOT(learnTrajectory()));
 
     connect(ui_->SaveProgramButton, SIGNAL(clicked()), SLOT(saveProgramToDisk()));

@@ -25,7 +25,7 @@ void MainWindow::jog() {
     //std::cout.flush();
 }
 
-void MainWindow::updateStick() {
+/*void MainWindow::updateStick() {
     ui_->base_r->setValue(ui_->base_r->value() - joystick_->axisLeftX() * 100 * 0.05);
     ui_->a2_r->setValue(ui_->a2_r->value() - joystick_->axisLeftY() * 100 * 0.05);
     ui_->a3_r->setValue(ui_->a3_r->value() - joystick_->axisRightX() * 100 * 0.05);
@@ -34,10 +34,10 @@ void MainWindow::updateStick() {
     ui_->a5_r->setValue(ui_->a5_r->value() + joystick_->buttonRight() * 0.05);
 
     ui_->grip_r->setValue(ui_->grip_r->value() - round(axes_[5] * 100) * 0.1);
-}
+}*/
 
 void MainWindow::toggleJog() {
-    setButtonColor(2);
+    //setButtonColor(2);
 
     setCameraBarVisibility(false);
     setLearnBarVisibility(false);

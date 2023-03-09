@@ -45,8 +45,6 @@
 #include <QSlider>
 #include <QButtonGroup>
 
-using namespace cv;
-
 #define PIX_MOD 45.0847
 #define DEG_RAD 57.29577951308
 
@@ -67,30 +65,14 @@ class MainWindow : public QMainWindow
     public:
         explicit MainWindow(QWidget *parent = nullptr);
         ~MainWindow() override;
+        int windowToOpen = 0;
+        QLabel* hider = nullptr;
 
-        int dir_ = 0;
 
-        Rect red_;
-        Rect green_;
-        Rect blue_;
-        bool running_;
-        QString filename_;
-        quirc *decoder_;
-        bool hasFinishedRunning_ = true;
-
-        void goHome();
-        // uint8_t detectCamera();
-
-        VideoCapture *camera_ = nullptr;
-
-        std::vector<Instruction> programStack_;
-        std::mutex interpreterLock_;
-    bool learningTrajectory_ = false;
-    bool emgStop_ = false;
-    bool programInLoop_ = false;
 
     public slots:
-        void changeMenu(int button_id);
+        //void changeMenu(int button_id);
+        void changeMenu();
         void toggleLearnBar();                        // hides or shows the learn bar
         void toggleCameraBar();                       // hides or shows the camera bar
         void updateAxes();                             // prints the axes onto the display
@@ -115,21 +97,22 @@ class MainWindow : public QMainWindow
         void stopFollow();
         void jog();
         void initializeInterpreterThread();
-        void checkIfFiledialog();
+       // void checkIfFiledialog();
 
-        void updateStick();
+        //void updateStick();
         //void poll_joystick();
         
         void rasmInterpreter();
         void cameraRestarter();
         bool joystickHotplugDetect();
         void toggleJog();
+        void changeView(int a);
+
 
 
         
 
-    //private:
-    public:
+    private:
 
         Ui::MainWindow *ui_;                             // user interface
 
@@ -137,7 +120,7 @@ class MainWindow : public QMainWindow
         void initTimers();
         void initButtons();
         void initSliders() const;
-        void initCamera();
+        bool initCamera();
 
         void setButtonColor(int index);
 
@@ -150,8 +133,8 @@ class MainWindow : public QMainWindow
         bool fileopen_ = false;
 
 
-        std::array<float32_t, 6> axes_= {0 };
-        uint16_t timeMod_ = 1000;
+        std::array<float32_t, 6U> axes_= { 0.0F };
+        uint16_t timeMod_ = 1000U;
 
         QTimer *scheduler100Ms_ = nullptr;                        // timers for different actions
         QTimer *scheduler16Ms_ = nullptr;
@@ -181,6 +164,39 @@ class MainWindow : public QMainWindow
 
 
     bool checkIfMovementNecessary();
+
+
+    int dir_ = 0;
+
+    cv::Rect red_;
+    cv::Rect green_;
+    cv::Rect blue_;
+    bool running_ = false;
+    QString filename_;
+    quirc *decoder_;
+    bool hasFinishedRunning_ = true;
+    bool interpreterActive = false;
+
+    void goHome();
+    // uint8_t detectCamera();
+
+    cv::VideoCapture *camera_ = nullptr;
+
+    std::vector<Instruction> programStack_;
+    std::mutex interpreterLock_;
+    bool learningTrajectory_ = false;
+    bool emgStop_ = false;
+    bool programInLoop_ = false;
+
+    std::vector<float> followTarget_;
+    Instruction oneShot_ {
+        .opcode = 254
+    };
+
+    void fetchDecodeExecute_(Instruction i, int& pc);
+    std::vector<variable::Numeric> numeric_variables;
+    std::vector<variable::Target> target_variables;
+
 };
 
 #endif // ROBOTDASHBOARD_MAINWINDOW_HPP

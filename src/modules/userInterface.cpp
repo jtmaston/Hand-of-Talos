@@ -6,7 +6,7 @@
 #include "ui_mainwindow.h"
 
 void MainWindow::setButtonColor(int index) {
-    for(int i = 0 ; i < buttons_.size(); i++)
+    /*for(int i = 0 ; i < buttons_.size(); i++)
     {
         if(i == index) {
             buttons_.at(i)->setProperty("selectedActive", true);
@@ -16,17 +16,18 @@ void MainWindow::setButtonColor(int index) {
             buttons_.at(i)->setProperty("selectedActive", false);
             buttons_.at(i)->setStyleSheet(buttons_.at(i)->styleSheet());
         }
-    }
+    }*/
 }
 
 void MainWindow::toggleLearnBar() // TODO: trigger to toggle the mode, not the bar
 {
-    jogging_ = false;
-    setButtonColor(0);
-    setCameraBarVisibility(HIDDEN);         // hide the camera bar
-    learnBarState_ = !learnBarState_;        // << set if the learning bar is visible or not
-    setLearnBarVisibility(learnBarState_); // >>
-    learn();                                   // and go into the learn mode
+    //jogging_ = false;
+    //setButtonColor(0);
+    //setCameraBarVisibility(HIDDEN);         // hide the camera bar
+    //learnBarState_ = !learnBarState_;        // << set if the learning bar is visible or not
+    //setLearnBarVisibility(learnBarState_); // >>
+    //learn();                                   // and go into the learn mode
+
 }
 
 void MainWindow::toggleCameraBar() // ditto for the camera bar
@@ -85,7 +86,7 @@ void MainWindow::startFollowGreen()
         case 0:
         {
             dir_ = 2;
-            connect(scheduler500Ms_, SIGNAL(timeout()), SLOT(followColor()));
+            connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(followColor()));
             disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(command()));
             break;
         }
@@ -182,7 +183,48 @@ void MainWindow::updateAxes() // this updates the axes display
 
 }
 
-void MainWindow::changeMenu(int button_id)
+void MainWindow::changeView(int a)
 {
-    std::cout << button_id << '\n';
+    buttons_.at( a - 1 )->setProperty("selectedActive", true);
+    buttons_.at( a - 1 )->setStyleSheet(buttons_.at( a - 1 )->styleSheet());
+    switch(a)
+    {
+        case 1:
+        {
+            toggleLearnBar();
+            setLearnBarVisibility(true);
+            learn();
+            break;
+        }
+        case 2:
+        {
+            followTarget_.insert(followTarget_.begin(), &dev_.angles_[0], &dev_.angles_[dev_.angles_.size()]);
+            toggleCameraBar();
+            break;
+        }
+        case 3:
+        {
+            ui_->jogSliders->setVisible(true);
+            break;
+        }
+        default:
+            return;
+    }
+}
+
+void MainWindow::changeMenu()
+{
+
+    QPushButton* buttonSender = qobject_cast<QPushButton*>(sender()); // retrieve the button you have clicked
+    std::map<std::string, int> mapper =
+            {
+                    {"learn_btn", 1},
+                    {"track_btn", 2},
+                    {"jog_btn", 3},
+                    {"load_btn", 4},
+                    {"halt_btn", 5}
+            };
+
+
+    qApp->exit(mapper.at(buttonSender->objectName().toStdString()));
 }

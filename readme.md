@@ -23,13 +23,7 @@ The project is still very WIP, and it may take a while for a release that actual
     * Clone the repository and all submodules:
      ```git clone --recurse-submodules -j4 https://github.com/jtmaston/Hand-of-Talos.git```
     * Install the dependencies. This project depends on libi2c and qt. I'm assuming you're going to use a debian-based distro, if not, I'm sure you can figure out how to get the packages on your own
-        - ```sudo apt-get install build-essential
-            sudo apt-get install qtcreator
-            sudo apt-get install qt5-default
-            sudo apt-get install qttools5-dev```
-        - ```sudo apt-get install libi2c-dev```
-        - ```sudo apt-get install libopencv-dev```
-        - ```sudo apt-get install cmake```
+        - ```sudo apt-get install build-essential qtcreator qttools5-dev libi2c-dev libopencv-dev cmake libqt5gamepad5-dev libqt5serialport5-dev```
     * Make a build directory and build the program
         ``` mkdir build
             cd build
@@ -38,6 +32,16 @@ The project is still very WIP, and it may take a while for a release that actual
     * Have fun!
     * Note: it has been a while since this was updated. Additional modules may (?) need to be added, but you should find them by build errors.
 
+## Using the provided devkitF
+In order to speed up development, a devkit has been designed, allowing the program to be run under x86 ( with i2c calls disabled, of course.
+An update that emulates i2c is planned and in development, but it might take some time until it is complete.) Running said
+devkit requires the installation of the free software VMWare Player. Install the program and download the kit from [here](http://robotserver.local/index.php/s/oTnZgWZYb5JjXeP). (Note: you must be on the CB109 network,
+and the server must be running. This is done as a precaution, in order to limit access to the SDK to only members of the Robotics Club @ FIIR).
+
+After unzipping, simply import the VM into VMWare Player, and connect to it. The desktop should contain a ( most likely )
+outdated version of the sources, so make sure to run ```git pull --recurse-submodules```. Afterwards, the build instructions from above apply.
+
+ 
 ## Python
 This project started as a python-only endeavour, but due to performance issues on the raspi-4 I was using ( horrible, especially on the camera aspect ), the project has since been moved to C++. The Python code is still left up, for history's sake, feel free to also play around with it. The requirements *should* be in the requirements.txt, however no support will be provided for the py version.
 

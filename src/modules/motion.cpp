@@ -36,9 +36,12 @@ void MainWindow::halt()
 
 }
 
+
 void MainWindow::followColor() {
-    int x_center = 640 / 2;
-    int y_center = 480 / 2;
+    interruptFlag_ = true;
+    usleep(1000);
+    int x_center;
+    int y_center;
 
     switch (dir_) {
         case 1: {
@@ -58,31 +61,15 @@ void MainWindow::followColor() {
         }
 
     }
-    float32_t alpha = (asin((320 - x_center) / ((22) * PIX_MOD)) * 180) / M_PI;
-    float32_t beta = (asin((240 - y_center) / ((36) * PIX_MOD)) * 180) / M_PI;
+    float32_t alpha = (asin((864 / 2 - float(x_center)) / ((30.0f) * PIX_MOD)) * 180.0f) / M_PI;
+    float32_t beta =  (asin((480 / 2 - float(y_center)) / ((36) * PIX_MOD)) * 180) / M_PI;
 
-    ui_->base_r->setValue(ui_->base_r->value() + round(alpha));
-    ui_->a4_r->setValue(ui_->a4_r->value() - round(beta));
+    followTarget_.at(0) += round(alpha);        // todo: errcheck before issuing!
+    followTarget_.at(3) -= round(beta);
 
-    float32_t angles[6];
-    angles[0] = ui_->increment_1->value(); // need to adjust with 90
-    angles[1] = ui_->increment_2->value();
-    angles[2] = ui_->increment_3->value();
-    angles[3] = ui_->increment_4->value();
-    angles[4] = ui_->increment_5->value();
-    angles[5] = ui_->increment_6->value();
+    usleep(1000);
+    dev_.servoWrite6(followTarget_, 470);
 
-    ui_->base_r->setValue(static_cast<int>(ui_->increment_1->value()));
-    ui_->a2_r->setValue(static_cast<int>(ui_->increment_2->value()));
-    ui_->a3_r->setValue(static_cast<int>(ui_->increment_3->value()));
-    ui_->a4_r->setValue(static_cast<int>(ui_->increment_4->value()));
-    ui_->a5_r->setValue(static_cast<int>(ui_->increment_5->value()));
-    ui_->grip_r->setValue(static_cast<int>(ui_->increment_6->value()));
-
-    /*Instruction anonymous_angs;
-    anonymous_angs.opcode = ANGS;
-    for(int)*/
-    //dev_.servoWrite6(angles, 450);
 }
 
 void MainWindow::goHome() {

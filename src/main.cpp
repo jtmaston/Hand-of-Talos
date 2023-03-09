@@ -42,7 +42,7 @@ namespace {
 
 }
 
-
+#include <QLabel>
 int main(int argc, char *argv[])
 {   
     std::ofstream log_file("/dev/null", std::ios::binary);                      // a hotfix to avoid v4l2's garbage 
@@ -54,26 +54,29 @@ int main(int argc, char *argv[])
     }
     const RedirectOutputs _(log_file, std::cerr);
 // >>
-    #ifdef __x86_64__
+    /*#ifdef __x86_64__
         // do x64 stuff
     #else
         char arg[] = "DISPLAY=:0.0";
         putenv(arg);
-    #endif
-    
-    QApplication a(argc, argv);
-    QTranslator translator;
-    const QStringList ui_languages = QLocale::system().uiLanguages();
-    for (const QString &locale : ui_languages) {
-        const QString base_name = "RobotDashBoard_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + base_name)) {
-            QApplication::installTranslator(&translator);
-            break;
-        }
-    }
-    MainWindow w;
-    w.show();
-    return QApplication::exec();
-    
+    #endif*/
+
+    char arg[] = "DISPLAY=:0.0";
+    putenv(arg);
+    int retcode = 0;
+
+    do {
+
+        auto a = new QApplication(argc, argv);
+        MainWindow w;
+        w.show();
+        if(retcode)
+            w.changeView(retcode);
+        retcode = a->exec();
+        QMetaObject::invokeMethod(&w, "close", Qt::QueuedConnection);
+
+
+    }while(retcode != 0);
+
     return 0;
 }

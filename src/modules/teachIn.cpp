@@ -10,8 +10,6 @@ void MainWindow::learn() // starts the learn mode
 {
     disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(command())); // stop the control function
     goHome();// move back to home
-
-    QThread::msleep(1200); // TODO: add popup
     dev_.toggleTorque(false); // and disable the torque
     programStack_.clear();
 }

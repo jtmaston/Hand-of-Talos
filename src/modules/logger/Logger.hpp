@@ -9,7 +9,7 @@
 #include <string>
 #include <exception>
 
-#define LOGLEVEL_NONE
+#define LOGLEVEL_INFO
 
 namespace Logger
 {

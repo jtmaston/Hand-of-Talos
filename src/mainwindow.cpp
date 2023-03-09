@@ -8,20 +8,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     running_ = true;
     dev_.toggleTorque(true);
-
 }
+
 
 MainWindow::~MainWindow() {
     running_ = false;
-    camThread_.waitForFinished();
-    joyThread_.waitForFinished();
-
-    std::array<uint8_t, 2> cmd = {0x07, 0};
-    //write(dev_.ledBus_, cmd.data(), 2);
 
     quirc_destroy(decoder_);
 
-    interpreterLock_.unlock();
+
+
+    camThread_.waitForFinished();
+    learnThread_.waitForFinished();
+    joyThread_.waitForFinished();
+    while(progThread_.isRunning())
+    {
+        interpreterLock_.unlock();
+        progThread_.cancel();
+        progThread_.waitForFinished();
+    }
+
+    camera_->release();
 
     delete joystick_;
     delete ui_;

@@ -86,7 +86,7 @@ void MainWindow::startFollowGreen()
         case 0:
         {
             dir_ = 2;
-            connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(followColor()));
+            connect(scheduler500Ms_, SIGNAL(timeout()), SLOT(followColor()));
             disconnect(scheduler100Ms_, SIGNAL(timeout()), this, SLOT(command()));
             break;
         }

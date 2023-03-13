@@ -84,8 +84,7 @@ inline void MainWindow::fetchDecodeExecute_(Instruction instruction, int& progra
             } else {
                 deb.clear();
                 Logger::info("Requested goto target " + std::to_string((int) instruction.params.at(0)));
-                auto t = target_variables.at((int) instruction.params.at(0)).angles.data();
-                //dev_.servoWrite6(t, timeMod_);
+                dev_.servoWrite6(target_variables.at((int) instruction.params.at(0)).angles, timeMod_);
             }
             // a poor man's delay that can be interrupted
 

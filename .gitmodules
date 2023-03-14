@@ -1,7 +1,6 @@
 [submodule "lib/libRobot"]
 	path = lib/libRobot
 	url = https://github.com/jtmaston/ArmLibCpp.git
-	branch = master
 [submodule "lib/libRASM"]
 	path = lib/libRASM
 	url = https://github.com/jtmaston/RASM.git

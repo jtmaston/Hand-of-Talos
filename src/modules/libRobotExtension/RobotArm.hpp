@@ -15,7 +15,8 @@ using TransformationMatrix = std::array<float32_t, 16>;
 class RobotArm : public ArmDevice
 {
     public:
-        const std::array<float, 5> translations_ = {74, 29.5, 82.85, 82.85, 71.5 };
+        //const std::array<float, 5> translations_ = {74, 29.5, 82.85, 82.85, 71.5 };
+        const std::array<float, 8> translations_ = {80, 270, 100, 250, 130, 80, 170, 85 };
 
 
         std::array<float, 6> angles_;

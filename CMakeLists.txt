@@ -106,7 +106,7 @@ target_include_directories(RobotDashboard
 
 
 target_link_libraries(RobotDashboard PUBLIC Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gamepad Qt${QT_VERSION_MAJOR}::SerialPort)
-target_link_libraries(RobotDashboard PUBLIC 5DOF i2c)
+target_link_libraries(RobotDashboard PUBLIC 5DOF i2c )
 target_link_libraries(RobotDashboard PUBLIC quirc ${OpenCV_LIBS})
 
 if (QT_VERSION_MAJOR EQUAL 6)

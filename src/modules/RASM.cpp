@@ -90,7 +90,7 @@ inline void MainWindow::fetchDecodeExecute_(Instruction instruction, int& progra
 
             int time_slept = 0;
             int division = 10;
-            std::cout << timeMod_ << '\n';
+            //std::cout << timeMod_ << '\n';
             while (time_slept < timeMod_) {
                 if (interruptFlag_){
                     interruptFlag_ = false;

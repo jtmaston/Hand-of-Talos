@@ -143,15 +143,74 @@ std::string to_string_with_precision(const T a_value, const int n = 1)
     return out.str();
 }
 
+
+
 // End source
+
+cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R)
+{
+
+    float sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
+
+    bool singular = sy < 1e-6; // If
+
+    float x, y, z;
+    if (!singular)
+    {
+        x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = atan2(R.at<double>(1,0), R.at<double>(0,0));
+    }
+    else
+    {
+        x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
+        y = atan2(-R.at<double>(2,0), sy);
+        z = 0;
+    }
+    return cv::Vec3f(x, y, z);
+
+}
+
+typedef std::array<float, 3> float3;
+typedef std::array<float3, 3> float3x3;
+
+const float PI = 3.14159265358979323846264f;
+
+void matrixToEuler(const cv::Mat& rotationMatrix, cv::Vec3f& eulerAngles)
+{
+    double sy = std::sqrt(rotationMatrix.at<double>(0, 0) * rotationMatrix.at<double>(0, 0) +
+                          rotationMatrix.at<double>(1, 0) * rotationMatrix.at<double>(1, 0));
+    bool singular = sy < 1e-6; // If |cos(y)| is close to zero, we have a singularity
+
+    double x, y, z;
+    if (!singular)
+    {
+        x = std::atan2(rotationMatrix.at<double>(2, 1), rotationMatrix.at<double>(2, 2));
+        y = std::atan2(-rotationMatrix.at<double>(2, 0), sy);
+        z = std::atan2(rotationMatrix.at<double>(1, 0), rotationMatrix.at<double>(0, 0));
+    }
+    else
+    {
+        x = std::atan2(-rotationMatrix.at<double>(1, 2), rotationMatrix.at<double>(1, 1));
+        y = std::atan2(-rotationMatrix.at<double>(2, 0), sy);
+        z = 0;
+    }
+
+    eulerAngles = cv::Vec3d(x, y, z);
+}
+
+
 void MainWindow::updateAxes() // this updates the axes display
 {
-    std::array<float, 6> data = dev_.servoReadall(); // read the values from all of the servos
-
-    for(int i = 0 ; i < 6; i++)
+    //std::array<float, 6> data = dev_.servoReadall(); // read the values from all of the servos
+    //dev_.angles_.at(0) = 23;
+    //dev_.angles_.at(2) = 15;
+    /*for(int i = 0 ; i < 6; i++)
     {
         dev_.angles_.at(i) = data.at(i);
-    }
+    }*/
+
+    dev_.angles_.at(3) = 15;
 
     ui_->a1_d->setText(std::string(std::string("Axis 1: ") + to_string_with_precision(dev_.angles_[0])  +
                                    "°").c_str()); // and set the strings for
@@ -172,6 +231,25 @@ void MainWindow::updateAxes() // this updates the axes display
     ui_->base_y->setText("Y: " + QString(to_string_with_precision(end_effector[13]).c_str()) + "mm");
     ui_->base_z->setText("Z: " + QString(to_string_with_precision(end_effector[14]).c_str()) + "mm");
 
+
+    cv::Mat ee = cv::Mat(4, 4, CV_32F, &end_effector);
+    cv::transpose(ee, ee);
+    cv::Mat rot = ee ( cv::Rect( 0, 0, 3, 3));
+
+
+    //std::cout << format(rot, cv::Formatter::FMT_PYTHON) << std::endl<< std::endl<< std::endl<< std::endl;
+
+    //auto a = rotationMatrixToEulerAngles(rot);
+
+
+    cv::Vec3f result;
+    matrixToEuler(rot, result);
+
+    std::cout << result[0] * 57.2958 - 90 << " " << result[1]* 57.2958 << " " << result[2]* 57.2958 - 90;
+
+    std::cout << '\n';
+
+
     ui_->base_Rx->setText(
             "Rx: " + QString(to_string_with_precision(atan(end_effector[5] / end_effector[8]) * DEG_RAD).c_str()) +
             "°");
@@ -182,6 +260,13 @@ void MainWindow::updateAxes() // this updates the axes display
             "°");
 
 }
+
+/*std::cout  << format(ee, cv::Formatter::FMT_PYTHON) << std::endl << std::endl
+            << format(rot, cv::Formatter::FMT_PYTHON)
+            << std::endl << std::endl
+            << std::endl << std::endl ;*/
+
+//auto a = rotationMatrixToEulerAngles()
 
 void MainWindow::changeView(int a)
 {

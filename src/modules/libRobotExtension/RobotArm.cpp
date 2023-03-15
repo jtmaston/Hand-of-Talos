@@ -32,6 +32,7 @@ inline void RobotArm::translateY(uint8_t num, TransformationMatrix &target) {
 inline void RobotArm::translateZ(uint8_t num, TransformationMatrix &target) {
     target.at(14) = this -> translations_.at(num - 1 );
 }
+#undef __ARM_NEON
 #ifdef __ARM_NEON
 void RobotArm::multiplyMatrix(const TransformationMatrix &t1, const TransformationMatrix &t2, TransformationMatrix &t3) {
 
@@ -108,19 +109,21 @@ void RobotArm::multiplyMatrix(const TransformationMatrix &t1, const Transformati
 #endif
 
 void RobotArm::printMatrix(const TransformationMatrix & m) {
+    printf("{");
     for (int i = 0; i < 4; i++)
     {
+        printf("{");
         for (int j = 0; j < 4; j++)
         {
-            printf("%f ", m.at(j * 4 + i));
+            printf("%.2f, ", m.at(j * 4 + i));
         }
-        printf("\n");
+        printf("}\n");
     }
-    printf("\n");
+    printf("}\n");
 }
 
 void RobotArm::calculateEndEffector(TransformationMatrix &target) {
-    std::array<TransformationMatrix , 5> transformation_matrices=
+    std::array<TransformationMatrix , 7> transformation_matrices=
             {
                     {{  0, 0, 0, 0,
                         0, 0, 0, 0,
@@ -145,12 +148,20 @@ void RobotArm::calculateEndEffector(TransformationMatrix &target) {
                      {0, 0, 0, 0,
                       0, 0, 0, 0,
                       0, 0, 0, 0,
+                      0, 0, 0, 1},
+                     {0, 0, 0, 0,
+                      0, 0, 0, 0,
+                      0, 0, 0, 0,
+                      0, 0, 0, 1},
+                     {0, 0, 0, 0,
+                      0, 0, 0, 0,
+                      0, 0, 0, 0,
                       0, 0, 0, 1}
                     }
             };
 
     //translateZ(1, transformation_matrices.at(0));
-    rotateZ(1, transformation_matrices.at(0));
+    /*rotateZ(1, transformation_matrices.at(0));
 
     translateZ(2, transformation_matrices.at(1));
     rotateY(2, transformation_matrices.at(1));
@@ -170,5 +181,35 @@ void RobotArm::calculateEndEffector(TransformationMatrix &target) {
     multiplyMatrix(transformation_matrices.at(0), transformation_matrices.at(1), steps.at(0));
     multiplyMatrix(steps.at(0), transformation_matrices.at(2), steps.at(1));
     multiplyMatrix(steps.at(1), transformation_matrices.at(3), steps.at(2));
-    multiplyMatrix(steps.at(2), transformation_matrices.at(4), target);
+    multiplyMatrix(steps.at(2), transformation_matrices.at(4), target);*/
+
+
+
+    translateZ(1, transformation_matrices.at(0));
+    rotateZ(1, transformation_matrices.at(0));
+
+    translateZ(2, transformation_matrices.at(1));
+    translateX(3, transformation_matrices.at(1));
+    rotateY(2, transformation_matrices.at(1));
+
+    translateZ(4, transformation_matrices.at(2));
+    rotateY(3, transformation_matrices.at(2));
+
+    translateZ(5, transformation_matrices.at(3));
+    translateX(6, transformation_matrices.at(3));
+    rotateX(4, transformation_matrices.at(3));
+
+    translateX(7, transformation_matrices.at(4));
+    rotateY(5, transformation_matrices.at(4));
+
+    translateX(8, transformation_matrices.at(5));
+    rotateX(6, transformation_matrices.at(5));
+
+    std::array<TransformationMatrix ,7> steps{};
+    multiplyMatrix(transformation_matrices.at(0), transformation_matrices.at(1), steps.at(0));
+    multiplyMatrix(steps.at(0), transformation_matrices.at(2), steps.at(1));
+    multiplyMatrix(steps.at(1), transformation_matrices.at(3), steps.at(2));
+    multiplyMatrix(steps.at(2), transformation_matrices.at(4), steps.at(3));
+    multiplyMatrix(steps.at(3), transformation_matrices.at(5), target);
+
 }

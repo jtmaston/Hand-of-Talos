@@ -1,21 +1,21 @@
 #include <RobotArm.hpp>
 
 inline void RobotArm::rotateX(uint8_t num, TransformationMatrix &target) {
-    float32_t phi = ( this -> angles_.at(num - 1) ) * RAD;
+    double phi = ( this -> angles_.at(num - 1) ) * RAD;
     target.at(0) = 1; target.at(4) = 0; target.at(8) = 0;
     target.at(1) = 0; target.at(5) = cos ( phi ); target.at(9) = -sin ( phi );
     target.at(2) = 0; target.at(6) = sin ( phi ); target.at(10) = cos ( phi );
 }
 
 inline void RobotArm::rotateY(uint8_t num, TransformationMatrix &target) {
-    float32_t phi = ( this -> angles_.at(num - 1) ) * RAD;
+    double phi = ( this -> angles_.at(num - 1) ) * RAD;
     target.at(0) = cos ( phi ); target.at(4) = 0; target.at(8) = sin ( phi );
     target.at(1) = 0; target.at(5) = 1; target.at(9) = 0;
     target.at(2) =-sin ( phi ); target.at(6) = 0; target.at(10) = cos ( phi );
 }
 
 inline void RobotArm::rotateZ(uint8_t num, TransformationMatrix &target) {
-    float32_t phi = ( this -> angles_.at(num - 1) ) * RAD ;
+    double phi = ( this -> angles_.at(num - 1) ) * RAD ;
     target.at(0) = cos ( phi ); target.at(4) = -sin ( phi ); target.at(8) = 0;
     target.at(1) = sin ( phi ); target.at(5) = cos ( phi ); target.at(9) = 0;
     target.at(2) = 0; target.at(6) = 0; target.at(10) = 1;
@@ -212,4 +212,13 @@ void RobotArm::calculateEndEffector(TransformationMatrix &target) {
     multiplyMatrix(steps.at(2), transformation_matrices.at(4), steps.at(3));
     multiplyMatrix(steps.at(3), transformation_matrices.at(5), target);
 
+}
+
+void RobotArm::matrixToEuler(const cv::Mat& rotationMatrix, cv::Vec3d& eulerAngles)
+{
+    cv::Vec3d rot;
+    eulerAngles[2] = atan2(rotationMatrix.at<float>(2,1) , rotationMatrix.at<float>(2, 0));
+    eulerAngles[1] = asin(rotationMatrix.at<float>(2, 2));
+    eulerAngles[0] = -atan2(rotationMatrix.at<float>(1, 2), -rotationMatrix.at<float>(0, 2) + 1e-20);
+    eulerAngles *= 57.2958;
 }

@@ -71,8 +71,6 @@ inline void MainWindow::fetchDecodeExecute_(Instruction instruction, int& progra
                 deb.clear();
 
                 std::vector<float> t = instruction.params;
-                for(int i = 0 ; i < t.size(); i++)
-                    t.at(i) = (int)(floor(t.at(i)));
                 t.erase(t.begin());
                 for (auto &i: t) {
                     deb.append(std::to_string((i)));

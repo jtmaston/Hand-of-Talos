@@ -66,13 +66,13 @@ void MainWindow::initTimers() {
     scheduler500Ms_ = new QTimer(this);
 
     connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(updateAxes()));         // axis readout is updated every 100ms
-    connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
+    connect(scheduler500Ms_, SIGNAL(timeout()), SLOT(command()));             // control from the axis is also updated ever 100ms
     //connect(scheduler100Ms_, SIGNAL(timeout()), SLOT(checkIfFiledialog())); // camera is updated every 20ms
     connect(scheduler500Ms_, SIGNAL(timeout()), SLOT(joystickHotplugDetect()));
 
     scheduler100Ms_->start(100);
     scheduler16Ms_->start(33);
-    scheduler500Ms_->start(500);
+    scheduler500Ms_->start(2500);
 
 }
 

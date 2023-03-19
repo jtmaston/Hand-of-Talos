@@ -1,9 +1,13 @@
 #pragma once
 
 #include "Arm_lib.hpp"
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+
 
 #ifdef __ARM_NEON
 #include <arm_neon.h>
+
 #else
 using float32_t = float;
 #endif
@@ -33,6 +37,7 @@ class RobotArm : public ArmDevice
         static void printMatrix(const TransformationMatrix&);                                                  // print a matrix
 
         void calculateEndEffector(TransformationMatrix& target);                                 // calculate the end effector using direct kinematics         // move to the home position_
+        void matrixToEuler(const cv::Mat& rotationMatrix, cv::Vec3d& eulerAngles);
 
     friend class MainWindow;
 };

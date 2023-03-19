@@ -147,57 +147,15 @@ std::string to_string_with_precision(const T a_value, const int n = 1)
 
 // End source
 
-cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R)
-{
-
-    float sy = sqrt(R.at<double>(0,0) * R.at<double>(0,0) +  R.at<double>(1,0) * R.at<double>(1,0) );
-
-    bool singular = sy < 1e-6; // If
-
-    float x, y, z;
-    if (!singular)
-    {
-        x = atan2(R.at<double>(2,1) , R.at<double>(2,2));
-        y = atan2(-R.at<double>(2,0), sy);
-        z = atan2(R.at<double>(1,0), R.at<double>(0,0));
-    }
-    else
-    {
-        x = atan2(-R.at<double>(1,2), R.at<double>(1,1));
-        y = atan2(-R.at<double>(2,0), sy);
-        z = 0;
-    }
-    return cv::Vec3f(x, y, z);
-
-}
 
 typedef std::array<float, 3> float3;
 typedef std::array<float3, 3> float3x3;
 
 const float PI = 3.14159265358979323846264f;
+#include <iomanip>
 
-void matrixToEuler(const cv::Mat& rotationMatrix, cv::Vec3f& eulerAngles)
-{
-    double sy = std::sqrt(rotationMatrix.at<double>(0, 0) * rotationMatrix.at<double>(0, 0) +
-                          rotationMatrix.at<double>(1, 0) * rotationMatrix.at<double>(1, 0));
-    bool singular = sy < 1e-6; // If |cos(y)| is close to zero, we have a singularity
+#define M_Matrix_At(i,j) rotationMatrix.at<double>(i, j)
 
-    double x, y, z;
-    if (!singular)
-    {
-        x = std::atan2(rotationMatrix.at<double>(2, 1), rotationMatrix.at<double>(2, 2));
-        y = std::atan2(-rotationMatrix.at<double>(2, 0), sy);
-        z = std::atan2(rotationMatrix.at<double>(1, 0), rotationMatrix.at<double>(0, 0));
-    }
-    else
-    {
-        x = std::atan2(-rotationMatrix.at<double>(1, 2), rotationMatrix.at<double>(1, 1));
-        y = std::atan2(-rotationMatrix.at<double>(2, 0), sy);
-        z = 0;
-    }
-
-    eulerAngles = cv::Vec3d(x, y, z);
-}
 
 
 void MainWindow::updateAxes() // this updates the axes display
@@ -210,9 +168,7 @@ void MainWindow::updateAxes() // this updates the axes display
         dev_.angles_.at(i) = data.at(i);
     }*/
 
-    dev_.angles_.at(3) = 15;
-
-    ui_->a1_d->setText(std::string(std::string("Axis 1: ") + to_string_with_precision(dev_.angles_[0])  +
+    /*ui_->a1_d->setText(std::string(std::string("Axis 1: ") + to_string_with_precision(dev_.angles_[0])  +
                                    "°").c_str()); // and set the strings for
     ui_->a2_d->setText(std::string(
             std::string("Axis 2: ") + to_string_with_precision(dev_.angles_[1]) + "°").c_str()); // the labels
@@ -222,7 +178,7 @@ void MainWindow::updateAxes() // this updates the axes display
             std::string(std::string("Axis 4: ") + to_string_with_precision(dev_.angles_[3]) + "°").c_str());
     ui_->a5_d->setText(
             std::string(std::string("Axis 5: ") + to_string_with_precision(dev_.angles_[4]) + "°").c_str());
-    ui_->a6_d->setText(std::string("Gripper: " + to_string_with_precision(int(dev_.angles_[5])) + "%").c_str());
+    ui_->a6_d->setText(std::string("Gripper: " + to_string_with_precision(int(dev_.angles_[5])) + "%").c_str());*/
 
     std::array<float, 16> end_effector{};
     dev_.calculateEndEffector(end_effector);
@@ -231,23 +187,21 @@ void MainWindow::updateAxes() // this updates the axes display
     ui_->base_y->setText("Y: " + QString(to_string_with_precision(end_effector[13]).c_str()) + "mm");
     ui_->base_z->setText("Z: " + QString(to_string_with_precision(end_effector[14]).c_str()) + "mm");
 
-
     cv::Mat ee = cv::Mat(4, 4, CV_32F, &end_effector);
     cv::transpose(ee, ee);
     cv::Mat rot = ee ( cv::Rect( 0, 0, 3, 3));
-
 
     //std::cout << format(rot, cv::Formatter::FMT_PYTHON) << std::endl<< std::endl<< std::endl<< std::endl;
 
     //auto a = rotationMatrixToEulerAngles(rot);
 
+    cv::Vec3d result;
+    dev_.matrixToEuler(rot, result);
 
-    cv::Vec3f result;
-    matrixToEuler(rot, result);
+    //std::cout << std::setprecision(8) << result[0] << " " << result[1] << " " << result[2] << '\n';  // roll pitch yaw
+    //std::cout << std::setprecision(8) << ee.at<float>(0, 3) << " " << ee.at<float>(1, 3) << " " << ee.at<float>(2, 3);
 
-    std::cout << result[0] * 57.2958 - 90 << " " << result[1]* 57.2958 << " " << result[2]* 57.2958 - 90;
-
-    std::cout << '\n';
+    //std::cout << "\n\n";
 
 
     ui_->base_Rx->setText(

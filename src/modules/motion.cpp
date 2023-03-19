@@ -96,16 +96,31 @@ void MainWindow::command() // get the values from the sliders, the$n write them 
         sliders_.at(i)->setValue(static_cast<int>(increments_.at(i)->value()));
     }
 
-    /*if (base_.position_ != ui_->increment_t->value()) {
-        base_.move(ui_->increment_t->value());
-    }*/
+
+
+    std::array<float, 16> end_effector{};
+    dev_.calculateEndEffector(end_effector);
+    cv::Mat ee = cv::Mat(4, 4, CV_32F, &end_effector);
+    cv::transpose(ee, ee);
+    cv::Mat rot = ee ( cv::Rect( 0, 0, 3, 3));
+    cv::Vec3d result;
+    dev_.matrixToEuler(rot, result);
+    //std::cout << result << " " << ee.at<float>(0, 3) << " " << ee.at<float>(1, 3) << " " << ee.at<float>(2, 3) << '\n';
+
+
+
 
     Instruction anonymous_angs;
     anonymous_angs.opcode = ANGS;
     anonymous_angs.params.clear();
     anonymous_angs.params.push_back(8192);
-    for ( auto &ang : dev_.angles_ )
-        anonymous_angs.params.push_back(ang);
+    anonymous_angs.params.push_back(ee.at<float>(0, 3));
+    anonymous_angs.params.push_back(ee.at<float>(1, 3));
+    anonymous_angs.params.push_back(ee.at<float>(2, 3));
+    anonymous_angs.params.push_back(result[0]);
+    anonymous_angs.params.push_back(result[1]);
+    anonymous_angs.params.push_back(result[2]);
+
 
     programStack_.clear();
     programStack_.push_back(anonymous_angs);

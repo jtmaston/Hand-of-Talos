@@ -16,3 +16,9 @@ build
 .vscode
 build-cpp-*
 *workspace
+cpp/src/networking
+.DS_Store
+cmake*
+quirc*
+lib/libRASM/inc/QR-Code-generator*
+lib/libRASM/cmake-build-debug/*

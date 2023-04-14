@@ -1,6 +1,12 @@
-[submodule "cpp/lib/libjoystick"]
-	path = cpp/lib/libjoystick
-	url = git@github.com:drewnoakes/joystick.git
-[submodule "cpp/lib/libRobot"]
-	path = cpp/lib/libRobot
-	url = git@github.com:jtmaston/ArmLibCpp.git
+[submodule "lib/libRobot"]
+	path = lib/libRobot
+	url = https://github.com/jtmaston/ArmLibCpp.git
+	branch = master
+[submodule "lib/libRASM"]
+	path = lib/libRASM
+	url = https://github.com/jtmaston/RASM.git
+	branch = v2
+[submodule "lib/libQuirc"]
+	path = lib/libQuirc
+	url = https://github.com/dlbeer/quirc.git
+	branch = master

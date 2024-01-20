@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="hotd" name="Hand of Talos documentation"
+                  start-page="Overview.md">
+
+    <toc-element topic="Overview.md">
+        <toc-element topic="Goals.md"/>
+        <toc-element topic="Key-concepts.md"/>
+    </toc-element>
+    <toc-element topic="High-level.md">
+        <toc-element topic="Directory-structure.md"/>
+    </toc-element>
+</instance-profile>
